@@ -1,0 +1,160 @@
+<%- include('../layouts/homeheader') %>
+<body>
+    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('assets/images/backgrounds/login-bg.jpg')">
+        <div class="container">
+            <div class="form-box">
+                <div class="form-tab">
+                    <ul class="nav nav-pills nav-fill" role="tablist">
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" id="signin-tab-2" data-toggle="tab" href="login" role="tab" aria-controls="signin-2" aria-selected="false">Login</a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a class="nav-link active" id="register-tab-2" data-toggle="tab" href="register" role="tab" aria-controls="register-2" aria-selected="true">Register</a>
+                        </li>
+                    </ul>
+                    
+                    <% if (error) { %>
+                        <div class="alert alert-danger" role="alert">
+                            <%= error %>
+                        </div>
+                    <% } %>
+
+                    <!-- Register Form -->
+                    <form id="registerId" action="/register" method="post">
+                        <div class="form-group">
+                            <label for="name">Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div id="error1" class="error-message"></div>
+                        </div><!-- End .form-group -->
+
+                        <div class="form-group">
+                            <label for="email">Your email address *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div id="error2" class="error-message"></div>
+                        </div><!-- End .form-group -->
+
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div id="error3" class="error-message"></div>
+                        </div><!-- End .form-group -->
+
+                        <div class="form-group">
+                            <label for="cpassword">Confirm Password *</label>
+                            <input type="password" class="form-control" id="cpassword" name="cpassword" required>
+                            <div id="error4" class="error-message"></div>
+                        </div><!-- End .form-group -->
+
+                        <div class="form-footer">
+                            <button type="submit" class="btn btn-outline-primary-2">
+                                <span>SIGN UP</span>
+                                <i class="icon-long-arrow-right"></i>
+                            </button>
+                        </div><!-- End .form-footer -->
+                    </form>
+
+                    <div class="form-choice">
+                        <p class="text-center">or sign in with</p>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <a href="#" class="btn btn-login btn-g">
+                                    <i class="icon-google"></i>
+                                    Login With Google
+                                </a>
+                            </div><!-- End .col-6 -->
+                            <div class="col-sm-6">
+                                <a href="#" class="btn btn-login btn-f">
+                                    <i class="icon-facebook-f"></i>
+                                    Login With Facebook
+                                </a>
+                            </div><!-- End .col-6 -->
+                        </div><!-- End .row -->
+                    </div><!-- End .form-choice -->
+                </div><!-- End .form-tab -->
+            </div><!-- End .form-box -->
+        </div><!-- End .container -->
+    </div><!-- End .login-page section-bg -->
+
+    <%- include('../layouts/homefooter') %>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const cpassword = document.getElementById('cpassword');
+
+            const error1 = document.getElementById('error1');
+            const error2 = document.getElementById('error2');
+            const error3 = document.getElementById('error3');
+            const error4 = document.getElementById('error4');
+            const registerId = document.getElementById('registerId');
+
+
+            function  nameValidate (e){
+              const nameval = name.value;
+              const namepattern = /^[A-Za-z\s]+$/;
+             if(nameval.trim()===''){
+              error1.style.display = 'block';
+              error1.innerHTML = 'Please enter a valid name';
+             }else if(!namepattern.test(nameval)){
+              error1.style.display = 'block';
+              error1.innerHTML = 'Name can only contain alphabets and spaces '
+             }else{
+              error1.style.display = 'none';
+              error1.innerHTML = '';
+             }
+
+            }
+
+            function emailValidate() {
+                const emailVal = email.value;
+                const emailPattern = /^[a-zA-Z0-9._-]+@([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,4})$/;
+
+                if (!emailPattern.test(emailVal)) {
+                    error2.style.display = "block";
+                    error2.innerHTML = "Invalid email format.";
+                } else {
+                    error2.style.display = "none";
+                    error2.innerHTML= '';
+                }
+            }
+
+            function passwordValidate() {
+                  const passval = password.value;
+                  const cpassval =  cpassword.value;
+                  const alpha = /[a-zA-Z]/;
+                  const digit = /\d/;
+                if (password.value.length < 6) {
+                    error3.style.display = "block";
+                    error3.innerHTML= "Password must be at least 6 characters.";
+                } else if(!alpha.test(passval)||!digit.test(passval)){
+                error3.style.display = 'none',
+                error3.innerHTML = '';
+                }else {
+                    error3.style.display = "none";
+                    error3.innerHTML= '';
+                }
+                if (password.value !== cpassword.value) {
+                    error4.style.display = "block";
+                    error4.innerHTML = "Passwords do not match.";
+                } else {
+                    error4.style.display = "none";
+                    error4.innerHTML = '';
+                }
+            }
+
+           
+
+            registerId.addEventListener('submit', (e) => {
+                emailValidate();
+                passwordValidate();
+                cpasswordValidate();
+
+                if (error2.textContent || error3.textContent || error4.textContent) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>

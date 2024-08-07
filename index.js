@@ -1,31 +1,55 @@
-const express = require("express");
+const express = require ("express");
 const path = require('path');
-const env = require('dotenv').config();
-
+const dotenv = require('dotenv');
+dotenv.config();
 const db = require("./config/db");
 db();
 const nocache = require('nocache');
-
 const app = express();
+const session = require('express-session');
+
+// session 
+app.use(session({
+  secret: process.env.SECRET_KEY,
+  resave: false,
+  saveUninitialized: true, 
+  cookie:{
+    secure:true,
+    httpOnly:true,
+    maxAge:72*60*60*1000
+  }
+}));
 
 // cache
 app.use(nocache());
 
-// url encoded  and json 
+// url encoded and json 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// static file 
-app.use('/static', express.static(path.join(__dirname, 'public')));
+// view
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// static files 
+// app.use('/static',express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
+
 app.use('/static', express.static(path.join(__dirname, 'public/assets')));
 
-// view engine 
-app.set('view engine', 'ejs');
-app.set('views', './views');
+// load router
+const userRouter = require('./routes/userRouter');
+const adminRouter = require('./routes/adminRouter');
+console.log('Type of userRouter:', typeof userRouter); 
+
+// user and admin routes
+app.use('/', userRouter);
+// app.use('/', adminRouter);
 
 // port
 app.listen(process.env.PORT, () => {
   console.log('Server is running ');
 })
+
 
 module.exports = app;

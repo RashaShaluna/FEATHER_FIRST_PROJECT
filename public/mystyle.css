@@ -1,0 +1,38 @@
+.header-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .header-right  {
+    margin: 0 1rem;
+  }
+  .cart-link {
+    font-size: 3.2rem;
+}
+.profile-link{
+  font-size: 1.9rem;
+}
+.profile1-link{
+  font-size: 1.5rem;
+}
+.cart-link :hover{
+  color: #1cc0a0;;
+    /* cursor: pointer; */
+    text-decoration: none;
+  } 
+  .profile-link1 :hover {
+    color: #1cc0a0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .profile-link :hover {
+    color: #1cc0a0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+.error-message {
+  color:red;
+  font-size: 0.7rem;
+  display: none;
+}
+
