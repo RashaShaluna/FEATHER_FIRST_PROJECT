@@ -12,20 +12,15 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
-    phone: {
-        type: Number,
-        required: false,
-        unique: false,
-        sparse: true,
-        default: null
-    },
-    googleId: {
-        type: String,
-        unique: true
-    },
-    password: {
+  password: {
         type: String,
         required: false
+    },
+    googleid:{
+        type:String,
+        index: true,
+        unique: true,
+        sparse: true,
     },
     isBlocked: {
         type: Boolean,

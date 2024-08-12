@@ -9,15 +9,10 @@ const app = express();
 const session = require('express-session');
 
 // session 
-app.use(session({
+app.use('/',session({
   secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: true, 
-  cookie:{
-    secure:true,
-    httpOnly:true,
-    maxAge:72*60*60*1000
-  }
 }));
 
 // cache

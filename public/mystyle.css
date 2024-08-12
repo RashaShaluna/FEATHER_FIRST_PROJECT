@@ -32,7 +32,36 @@
   }
 .error-message {
   color:red;
-  font-size: 0.7rem;
+  font-size: 1.2rem;
   display: none;
 }
+.   .otp-container {
+  max-width: 40rem;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
+}
+.otp-input {
+  width: 15rem;
+  height: 2.4rem;
+  text-align: center;
+  font-size: 24px;
+  margin: 5px;
+  border: 1px solid #ced4da; /* Ensure borders are visible */
+}
+.btn-verify {
+  background-color: white;
+  border-color: #1cc0a0;
+  color: #1cc0a0;
+}
+.btn-verify:hover {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+  color: white;
+}
+.btn-verify:active {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+}
