@@ -17,16 +17,24 @@
 						
 					</ul>
 									<!-- Login -->
+									<% if (typeof message !== 'undefined' && message) { %>
+										<div class="alert alert-info msg text-center mt-1">
+											<%= message %>
+										</div>
+									<% } %>
+							    	<form action="/login" method="post" id="loginId">
+							    		<div class="form-group mt-3">
+							    			<label for="singin-email-2"> Email address *</label>
+							    			<input type="text" class="form-control" id="email" name="email" >
+											<div id="error1" class="error-message"></div>
 
-							    	<form action="/login" method="post">
-							    		<div class="form-group">
-							    			<label for="singin-email-2">Username or email address *</label>
-							    			<input type="text" class="form-control" id="singin-email-2" name="email" required>
 							    		</div><!-- End .form-group -->
 
 							    		<div class="form-group">
 							    			<label for="singin-password-2">Password *</label>
-							    			<input type="password" class="form-control" id="singin-password-2" name=" password" required>
+							    			<input type="password" class="form-control" id="password" name="password" >
+											<div id="error2" class="error-message"></div>
+
 							    		</div><!-- End .form-group -->
 
 							    		<div class="form-footer">
@@ -47,13 +55,13 @@
 								    	<p class="text-center">or sign in with</p>
 								    	<div class="row">
 								    		<div class="col-sm-6">
-								    			<a href="#" class="btn btn-login btn-g">
+								    			<a href="/auth/google" class="btn btn-login btn-g">
 								    				<i class="icon-google"></i>
 								    				Login With Google
 								    			</a>
 								    		</div><!-- End .col-6 -->
 								    		<div class="col-sm-6">
-								    			<a href="#" class="btn btn-login btn-f">
+								    			<a href="/auth/facebook" class="btn btn-login btn-f">
 								    				<i class="icon-facebook-f"></i>
 								    				Login With Facebook
 								    			</a>
@@ -67,5 +75,8 @@
 				</div><!-- End .login-page section-bg -->
 			</main><!-- End .main -->
 	
+			<%- include('../layouts/homefooter') %>
+
+</script>
 							  
-        <%- include('../layouts/homefooter') %>
+ 

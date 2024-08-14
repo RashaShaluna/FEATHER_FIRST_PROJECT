@@ -9,7 +9,11 @@
                             <a class="nav-link active" id="register-tab-2" data-toggle="tab" href="#register" role="tab" aria-controls="register-2" aria-selected="true">Register</a>
                         </li>
                     </ul>
-                    
+                    <% if (typeof message !== 'undefined' && message) { %>
+                        <div class="alert alert-info msg text-center mt-1">
+                            <%= message %>
+                        </div>
+                    <% } %>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="register" role="tabpanel" aria-labelledby="register-tab-2">
                             <form id="registerId" action="/register" method="post">
@@ -124,6 +128,7 @@
                     error3.innerHTML = 'Password must contain both letters and numbers';
                 } else {
                     error3.style.display = "none";
+
                     error3.innerHTML = '';
                 }
 

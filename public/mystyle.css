@@ -35,7 +35,7 @@
   font-size: 1.2rem;
   display: none;
 }
-.   .otp-container {
+.otp-container {
   max-width: 40rem;
   margin: auto;
   padding: 20px;
@@ -64,4 +64,8 @@
 .btn-verify:active {
   background-color: #1cc0a0;
   border-color: #1cc0a0;
+}
+.msg{
+  color: #ee0505;
+  background-color: white;
 }

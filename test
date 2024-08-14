@@ -468,3 +468,78 @@ const securePassword = async (password) => {
 //         return cb(err, null);
 //     }
 // })); 
+
+
+
+const loadLogin = async (req, res) => {
+ 
+    console.log('welcome to login');
+    try {
+      res.render('users/login', { title: 'Feather - loginpage' });
+      console.log('login page');
+    } catch (error) {
+      console.log('Login page not found', error.message); 
+      res.status(500).send('Server error'); 
+    }
+  };
+  
+  // verify login
+  const loginVerify = async (req, res) => {
+    try {
+      console.log('Req body:', req.body); 
+      const { email, password } = req.body;
+  
+        console.log('log1');
+         
+        const findUser = await User.findOne({isAdmin:0,email:email});
+  
+        if (!password) {
+          console.log('Password is missing');
+          return res.render('users/login', { title: 'Feather - loginpage', message: 'Password is required' });
+      }
+  
+      if (!email) {
+        console.log('email is missing');
+        return res.render('users/login', { title: 'Feather - loginpage', message: 'email is required' });
+    }
+  
+    if (!email||!password) {
+      console.log('both ARE is missing');
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'Email and Password is required' });
+  }
+  
+        if(!findUser){
+       console.log('User not find');
+       res.render('users/login', { title: 'Feather - loginpage',message:'User not find ' });
+      }
+      console.log('Found user:', findUser);
+  
+      if(findUser.isBlocked){
+        res.render('users/login', { title: 'Feather - loginpage',message:'User is blocked by admin' });
+      }
+      console.log('Password from request:', req.body.password);
+      console.log('Hashed password from DB:', findUser.password);
+  
+  
+      if (!password) {
+        throw new Error('Password is undefined');
+    }
+  
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
+  
+      if(!passwordMatch){
+        res.render('users/login', { title: 'Feather - loginpage',message:'Incorrect Password ' });
+      }
+      
+        req.session.user = findUser._id;
+        res.redirect('/');
+  
+    } catch (error) {
+      console.log('Login page not found', error.message); // backend error
+      res.render('users/login', { title: 'Feather - loginpage',message:'Login failed , Please try again' });
+    }
+  }
+  
+  
+  
+  

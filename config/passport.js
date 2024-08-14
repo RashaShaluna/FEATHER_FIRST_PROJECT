@@ -40,13 +40,13 @@ async(accessToken,refreshToken,profile,done)=>{
 
 ));
 
-// to assign  user to session  - serialization
+// To assign user to session -  serialization
 
 passport.serializeUser((user,done)=>{
     done(null,user.id);
 })
 
-// user details used fetch - deseriazile
+// Used to fetch user details -deserialization
 
 passport.deserializeUser((id,done)=>{
     User.findById(id)
@@ -60,46 +60,13 @@ passport.deserializeUser((id,done)=>{
 
 // ======================================== facebook =======================================================================
 
-// passport.use(
-//     new FacebookStrategy(
-//       {
-//         clientID: process.env.FACEBOOK_CLIENT_ID,
-//         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-//         callbackURL: process.env.FACEBOOK_CALLBACK_URL,
-//       },
-//       async function (accessToken, refreshToken, profile, cb) {
-//         const user = await User.findOne({
-//           accountId: profile.id,
-//           provider: 'facebook',
-//         });
-//         if (!user) {
-//           console.log('adding new facebook user to DB');
-//           const user = new User({
-//             accountId: profile.id,
-//             name: profile.displayName,
-//             provider: profile.provider,
-//           });
-//           await user.save();
-//           // console.log(user);
-//           return cb(null, profile);
-//         } else {
-//             res.redirect('/users/login')
-//           console.log('facebook user exist');
-//           // console.log(profile);
-//           return cb(null, profile);
-//         }
-//       }
-//     )
-//   );
-
-
 passport.use(
     new FacebookStrategy(
       {
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
         callbackURL: 'http://localhost:4000/auth/facebook/callback',
-        profileFields: ['id', 'displayName'], // Request email in case it's available
+        // profileFields: ['id', 'displayName'], 
       },
       async (accessToken, refreshToken, profile, cb) => {
         try {
@@ -108,7 +75,7 @@ passport.use(
           });
   
           if (!user) {
-            console.log('Adding new Facebook user to DB');
+            console.log('adding new Facebook user to DB');
             user = new User({
               name: profile.displayName,
               facebookId: profile.id,
@@ -118,23 +85,23 @@ passport.use(
             await user.save();
             return cb(null, user);
           } else {
-            console.log('Facebook user exists');
+            console.log('facebook user exists');
             return cb(null, user);
           }
         } catch (error) {
-          console.error('Facebook OAuth Error:', error);
+          console.error('facebook OAuth Error:', error);
           return cb(error, null);
         }
       }
     )
   );
   
-  // Serialization
+  // serialization
   passport.serializeUser((user, done) => {
     done(null, user.id);
   });
   
-  // Deserialization
+  // deserialization
   passport.deserializeUser((id, done) => {
     User.findById(id)
       .then((user) => {
@@ -145,6 +112,7 @@ passport.use(
       });
   });
 
+//   =================================================================================================================
 
 module.exports = passport;
   
