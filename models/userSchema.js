@@ -11,6 +11,8 @@ const userSchema = new Schema({
         type: String,
         // required: true,
         unique: true,
+        sparse: true,
+
     },
   password: {
         type: String,
@@ -22,16 +24,11 @@ const userSchema = new Schema({
         unique: true,
         sparse: true,
     },
-    facebookAccounts: [{
-        facebookId: {
-            type: String,
-            index: true,
-            unique: true,
-            sparse: true,
-        },
-        name: String, 
-        
-    }],
+    facebookId: {
+        type: String,
+        unique: true,
+        sparse: true,
+    },
     isBlocked: {
         type: Boolean,
         default: false
