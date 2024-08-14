@@ -136,7 +136,7 @@ async function sendVerificationEmail(email, otp ) {
   }
 }
 
-
+// veriyin otp
 const verifyOtp = async(req,res)=>{
       try {
 
@@ -194,9 +194,43 @@ const verifyOtp = async(req,res)=>{
   }
 
 
+// resend otp 
 
+const resendOtp =   async (req,res) => {
+  console.log('im in resend ');
+  
+  try {
+    
+     console.log('re1')
+    const {email} = req.session.userData;  
+    console.log('re1')
 
+      if(!email){
+        return res.status(400).json({ success: false, message: 'Email is not found in session ' });
+      }
+      console.log('re1')
 
+      const otp = generateOtp();
+      console.log('generated')
+
+      req.session.userOtp = otp ;
+
+    const emailSent = await   sendVerificationEmail(email,otp);
+          
+    if (emailSent) {
+      console.log('OTP resent successfully:', otp);
+      res.status(200).json({ success: true, message: 'OTP resent successfully' });
+    } else {
+      console.error('Failed to resend OTP');
+      res.status(500).json({ success: false, message: 'Failed to send OTP, please try again' });
+    }
+}
+   catch (error) {
+     console.error("error in resending",error);
+     res.status(500).json({success:false,message:'Server error  in resent'})
+  }
+      
+};
 
 
 
@@ -243,7 +277,8 @@ module.exports = {
   loadLogin,
   loginVerify,
   // loadOtp,
-  verifyOtp
+  verifyOtp,
+  resendOtp
 };
 
 

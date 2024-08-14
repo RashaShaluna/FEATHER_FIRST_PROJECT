@@ -293,6 +293,13 @@
         .pt-25 {
             padding-top: 25px;
         }
+        .resent-btn{
+           background-color: white; 
+           color: #1cc0a0;
+           /* border-color:#1cc0a0 ; */
+           border-radius: 0;
+           text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -301,7 +308,9 @@
             <h3>OTP Verification</h3>
             <p>One Time Password (OTP) has been sent via Your email id</p>
             <p>Enter the OTP below and verify it.</p>
-            <form  method='post' action="/verifyotp"  onsubmit="return validateotp(event)">
+
+
+            <form onsubmit="return validateotp(event)">
                 <div class="form-row justify-content-center">
                     <input type="text" class="form-control otp-input mt-2" id="otp" maxlength="6">
                 </div>
@@ -309,16 +318,22 @@
                     <div id="otpTimer" class="otp-timer my-2">
                         <span id="timerValue">60</span>
                     </div>
-                    <div>
-                        <a class="mb-2" onclick="resendOtp()">Resend OTP</a>
-                    </div>
+                    
                 </div>
                 <% if (locals.message && message.length > 0) { %>
                 <div class="alert alert-danger"><%= message %></div>
                 <% } %>
 
                 <button type="submit" class="btn btn-verify mt-3">Verify OTP</button>
-            </form>
+        
+          
+                    <div>
+                        <!-- <button id="resendOtp"  class="btn resent-btn mt-2 "   onclick="resendOtp()" type="btn" >Resend OTP</button> -->
+                        <button id="resendOtpBtn" type="button" class="btn resent-btn mt-2">Resend OTP</button>
+
+
+                    </div>
+                    
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -386,6 +401,55 @@
 
             return false;
         }
-    </script>
+
+
+        
+        //otp resend
+        document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('resendOtpBtn').addEventListener('click', resendOtp);
+});
+function resendOtp(e){
+    e.preventDefault();
+
+    clearInterval(timerInterval);
+    timer = 60;
+    document.getElementById('otp').disabled = false;
+    document.getElementById('timerValue').classList.remove('expired');
+    startTimer();
+
+    fetch('/resendOtp', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    }).then(response => response.json())
+    .then(res => {
+        if(res.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'OTP Resent Successfully',
+                text: 'Please check your email for the new OTP.',
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: res.message,
+            });
+        }
+    })
+    .catch(() => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Failed to Resend OTP',
+            text: 'Please try again later.',
+        });
+    });
+
+    return false;
+}
+
+
+</script>
 </body>
 </html>

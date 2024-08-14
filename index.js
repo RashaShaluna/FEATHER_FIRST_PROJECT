@@ -7,6 +7,8 @@ db();
 const nocache = require('nocache');
 const app = express();
 const session = require('express-session');
+const passport = require('./config/passport');
+
 
 // session 
 app.use('/',session({
@@ -14,6 +16,12 @@ app.use('/',session({
   resave: false,
   saveUninitialized: true, 
 }));
+
+
+// passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 // cache
 app.use(nocache());
@@ -35,7 +43,10 @@ app.use('/static', express.static(path.join(__dirname, 'public/assets')));
 // load router
 const userRouter = require('./routes/userRouter');
 const adminRouter = require('./routes/adminRouter');
-console.log('Type of userRouter:', typeof userRouter); 
+// console.log('Type of userRouter:', typeof userRouter); 
+
+
+
 
 // user and admin routes
 app.use('/', userRouter);

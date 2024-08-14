@@ -348,6 +348,123 @@ const securePassword = async (password) => {
      res.status(500).json({success:false,message:'An error occured'})
   
   }
-  }
+  }/ async function (accessToken, refreshToken, profile, cb) {
+    //     const user = await User.findOne({
+    //       'facebookAccounts.facebookId': profile.id,
+    //     });
+    //     console.log('in fb');
+    
+    //     if (!user) {
+    //       console.log('Adding new facebook user to DB..');
+    //       const user = new User({
+    //         accountId: profile.id,
+    //         name: profile.displayName,
+    //         provider: profile.provider,
+    //       });
+    //       await user.save();
+    //       console.log(user);
+    //       return cb(null, profile);
+    //     } else {
+    //       console.log('Facebook User already exist in DB..');
+    //       console.log(profile);
+    //       return cb(null, profile);
+    //     }
+    //   }
+    // )
+    // );
+    async function(accessToken, refreshToken, profile, cb) {
+            const user = await User.findOne({
+            });
+            console.log('in fb2');
+        
+            if (!user) {
+                const newUser = new User({
+                    accountId: profile.id,
+                    name: profile.displayName,
+                    provider: profile.provider,
+                });
+        
+                await newUser.save();
+                return cb(null, newUser);
+            } else {
+                return cb(null, user);
+            }
+        }));
+    
+        passport.serializeUser((user, done) => {
+            done(null, user.id);
+        });
+    passport.deserializeUser((id, done) => {
+        User.findById(id)
+            .then(user => {
+                done(null, user);
+            })
+            .catch(err => {
+                done(err, null);
+            });
+    });
 
+// async function(accessToken, refreshToken, profile, cb) {
+//     const user = await User.findOne({
+//         'facebookAccounts.facebookId': profile.id,
+//     });
+//     console.log('in fb2');
 
+//     if (!user) {
+//         const newUser = new User({
+//             accountId: profile.id,
+//             name: profile.displayName,
+//             email: profile.emails ? profile.emails[0].value : null, // Handle optional email
+//             provider: profile.provider,
+//         });
+
+//         await newUser.save();
+//         return cb(null, newUser);
+//     } else {
+//         return cb(null, user);
+//     }
+// }));
+// passport.serializeUser((user, done) => {
+//     done(null, user.id);
+// });
+// async function(accessToken, refreshToken, profile, cb) {
+//     try {
+//         let user = await User.findOne({
+//             'facebookAccounts.facebookId': profile.id,
+//         });
+
+//         if (!user) {
+//             // If no user is found, check if there's an existing user by email
+//             if (profile.emails && profile.emails.length > 0) {
+//                 user = await User.findOne({ email: profile.emails[0].value });
+//             }
+
+//             if (user) {
+//                 // If a user with the same email exists, link the Facebook account
+//                 user.facebookAccounts.push({
+//                     facebookId: profile.id,
+//                     name: profile.displayName,
+//                     email: profile.emails ? profile.emails[0].value : null,
+//                 });
+//                 await user.save();
+//             } else {
+//                 // If no user is found by Facebook ID or email, create a new user
+//                 user = new User({
+//                     name: profile.displayName,
+//                     email: profile.emails ? profile.emails[0].value : null,
+//                     facebookAccounts: [{
+//                         facebookId: profile.id,
+//                         name: profile.displayName,
+//                         email: profile.emails ? profile.emails[0].value : null,
+//                     }],
+//                 });
+//                 await user.save();
+//             }
+//         }
+
+//         return cb(null, user);
+//     } catch (err) {
+//         console.error(err);
+//         return cb(err, null);
+//     }
+// })); 
