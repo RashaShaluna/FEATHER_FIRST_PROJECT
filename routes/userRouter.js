@@ -17,7 +17,7 @@ router.post('/resendotp',userController.resendOtp);
 
 router.get('/login', userController.loadLogin)
 router.post('/login', userController.loginVerify)
-
+router.get('/logOut',userController.logOut)
 
 
 // ----------------------google---------------------

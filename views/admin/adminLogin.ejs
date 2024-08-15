@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title><%= title ? title : 'Feather bags ' %></title></title>
+  <meta name="keywords" content="HTML5 Template">
+  <meta name="description" content="Feather bags">
+  <meta name="author" content="p-themes">
+
+  <link rel="shortcut icon" href="assets/images/icons/favicon.png">
+  <meta name="apple-mobile-web-app-title" content="Feather">
+  <meta name="application-name" content="Feather">
+  <meta name="msapplication-TileColor" content="#cc9966">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+
+  <!--Stylesheet-->
+  <style media="screen">
+    *,
+    *:before,
+    *:after {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: white;
+      font-family: 'Poppins', sans-serif;
+    }
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    form {
+      width: 100%;
+      max-width: 400px;
+      background-color: rgb(254, 254, 254);
+      border-radius: 10px;
+      border: 2px solid rgba(39, 38, 38, 0.1);
+      box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+      padding: 50px 35px;
+    }
+    form h2 {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 38px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    label {
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 20px;
+    }
+    input {
+      display: block;
+      height: 50px;
+      width: 100%;
+      background-color: rgba(27, 26, 26, 0.07);
+      /* border-radius: 3px; */
+      border-width: 0;
+      padding: 0 10px;
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: 300;
+    }
+    ::placeholder {
+      color: #555454;
+    }
+    button {
+      margin-top: 30px;
+      width: 100%;
+      background-color: #b952cd;
+      color: #f9f9fa;
+      padding: 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      /* border-radius: 5px */
+      border: 0;
+      cursor: pointer;
+    }
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    .msg{
+      color: red;
+      font-size: 12px;
+     margin-bottom: 1rem;
+     margin-left: 5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      form {
+        padding: 30px 20px;
+      }
+      form h2 {
+        font-size: 24px;
+        line-height: 32px;
+      }
+      input {
+        height: 45px;
+        font-size: 13px;
+      }
+      button {
+        padding: 12px 0;
+        font-size: 16px;
+      }
+    }
+    @media (max-width: 480px) {
+      form {
+        padding: 20px 15px;
+      }
+      form h2 {
+        font-size: 22px;
+        line-height: 30px;
+      }
+      input {
+        height: 40px;
+        font-size: 12px;
+      }
+      button {
+        padding: 10px 0;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>  
+ 
+    
+      <div class="login-container">
+  <form method="post" action="/admin/log" id="adminLoginForm" >
+      <h2 class="text-center">Admin Login</h2>
+      <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-info text-center msg">
+          <%= message %>
+          </div>
+      <% } %>
+      <div class="form-group">
+          <label for="adminEmail">Email address</label>
+          <input
+              type="email"
+              class="form-control"
+              id="adminEmail"
+              name="email"
+          />
+          <div id="emailError" class="error-message"></div>
+      </div>
+      <div class="form-group">
+          <label for="adminPassword">Password</label>
+          <input
+              type="password"
+              class="form-control"
+              id="adminPassword"
+              name="password"
+          />
+          <div id="passwordError" class="error-message"></div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Log In</button>
+  </form>
+  </div>
+</html>
+<script src="/js/jquery.min.js"></script>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const adminLoginForm = document.getElementById("adminLoginForm");
+      const emailField = document.getElementById("adminEmail");
+      const passwordField = document.getElementById("adminPassword");
+      const emailError = document.getElementById("emailError");
+      const passwordError = document.getElementById("passwordError");
+
+      adminLoginForm.addEventListener("submit", function (event) {
+        let isValid = true;
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+        if (!emailPattern.test(emailField.value)) {
+          emailError.textContent = "Invalid email format";
+          isValid = false;
+        } else {
+          emailError.textContent = "";
+        }
+        if (passwordField.value.length < 6) {
+          passwordError.textContent =
+            "Password should contain at least 6 characters";
+          isValid = false;
+        } else {
+          passwordError.textContent = "";
+        }
+
+        if (!isValid) {
+          event.preventDefault();
+        }
+      });
+    });
+  </script>

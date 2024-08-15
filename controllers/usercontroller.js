@@ -2,7 +2,7 @@ const User = require('../models/userSchema');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const env = require('dotenv').config();
-const crypto = require('crypto');
+// const crypto = require('crypto');
 const Otp = require('../models/otp');
 
 
@@ -22,7 +22,7 @@ const loadlandingpage = async (req, res) => {
     console.log('landing page loaded');
   } catch (error) {
     console.log('Home page not found', error.message); // backend error
-    res.status(500).send('Server error'); // frontend error 
+    res.render('pageNotFound',{ title:'Feather - 404'});
   }
 };
 
@@ -233,20 +233,6 @@ const resendOtp =   async (req,res) => {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-//  login load
-
 //  login load
 const loadLogin = async (req, res) => {
  
@@ -315,7 +301,34 @@ const loginVerify = async (req, res) => {
     console.log('Login page not found', error.message); // backend error
     res.render('users/login', { title: 'Feather - loginpage',message:'Login failed , Please try again' });
   }
+};
+
+// logout
+const logOut = async(req,res)=>{
+
+try{
+  console.log(' in log out')
+  req.session.destroy((err)=>{
+    if(err){
+      console.log('Error in logout the session');
+      return res.redirect('/pageNotFound');
+    }
+    console.log('session distroyed')
+    return res.redirect('/');
+  })
+}catch(error){
+  console.log('Log out error');
+  res.redirect('/pageNotFound')
 }
+
+}
+
+
+
+
+
+
+
 
 module.exports = {
   loadlandingpage,
@@ -325,9 +338,9 @@ module.exports = {
   loadHome,
   loadLogin,
   loginVerify,
-  // loadOtp,
   verifyOtp,
-  resendOtp
+  resendOtp,
+  logOut
 };
 
 
