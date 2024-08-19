@@ -1,212 +1,7 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title><%= title ? title : 'Feather bags ' %></title></title>
-    <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
-    <meta name="author" content="p-themes">
-    <meta name="apple-mobile-web-app-title" content="Feather">
-    <meta name="application-name" content="Molla">
-    <meta name="msapplication-TileColor" content="#cc9966">
-    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
-    <style>
-        .otp-container {
-            max-width: 40rem;
-            margin: auto;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-        }
-        .otp-input {
-            width: 15rem;
-            height: 2.4rem;
-            text-align: center;
-            font-size: 24px;
-            margin: 5px;
-            border: 1px solid #ced4da; /* Ensure borders are visible */
-        }
-        .btn-verify {
-            background-color: white;
-            border-color: #1cc0a0;
-            color: #1cc0a0;
-        }
-        .btn-verify:hover {
-            background-color: #1cc0a0;
-            border-color: #1cc0a0;
-            color: white;
-        }
-        .btn-verify:active {
-            background-color: #1cc0a0;
-            border-color: #1cc0a0;
-        }
-        /* .otp-timer {
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 14px;
-            position: relative;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            line-height: 60px;
-            text-align: center;
-            background: #f2f2f2;
-            border: 2px solid #ddd;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        } */
-
-        #timerValue {
-            display: block;
-            font-size: 24px;
-            font-weight: bold;
-            /* color: #333; */
-            line-height: 60px;
-        }
-        #timerValue.expired {
-            font-size: 14px;
-            color: red;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-            width: 100%;
-            margin-top: 10px;
-            display: block;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        /* .btn-secondary {
-            /* width: 100%; 
-            background-color: #6c757d;
-            border: none;
-            margin-top: 10px;
-            display: block;
-        } */
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .alert-danger {
-            margin-top: 15px;
-            text-align: center;
-        }
-        .text-center {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .text-muted {
-            color: #6c757d;
-            text-align: center;
-        }
-        .pt-25 {
-            padding-top: 25px;
-        }
-
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="otp-container mt-5">
-            <h3>OTP Verification</h3>
-            <p>One Time Password (OTP) has been sent via Your email id</p>
-            <p>Enter the OTP below and verify it.</p>
-            <form  onsubmit=" return validateotp()">
-                <div class="form-row justify-content-center">
-                    <input type="text" class="form-control otp-input mt-2" id="otp" maxlength="6">
-                </div>
-                <div class="form-group text-center">
-                    <div id="otpTimer" class="otp-timer my-2 ">
-                        <span id="timerValue">60</span>
-                    </div>
-                    <div>                   
-                        <a class="mb-2">Resend OTP</a> 
-                    </div>
-                </div>
-                <% if (locals.message && message.length > 0) { %>
-                <div class="alert alert-danger"><%= message %></div>
-                <% } %>
-
-                <button type="submit" class="btn btn-verify mt-3">Verify OTP</button>
-            </form>
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        document.getElementById("otp").focus();
-    
-        let timer = 60;
-        let timerInterval;
-    
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timer--;
-                document.getElementById("timerValue").textContent = timer;
-                if (timer <= 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById("timerValue").classList.add("expired");
-                    document.getElementById("timerValue").textContent = "Expired";
-                    document.getElementById("otp").disabled = true;
-                }
-            }, 1000);
-        }
-        startTimer();
-    
-        function validateotp(e) {
-            e.preventDefault()
-    const otpInput = document.getElementById('otp').value;
-    console.log(otpInput);
 
 
-    $.ajax({
-        type: 'POST',
-        url: '/verifyotp', // Make sure this matches your route
-        data: { otp: otpInput },
-        success: function(res) {
-            if (res.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'OTP Verified Successfully',
-                    showConfirmButton: false,
-                    timer: 1500,
-                }).then(() => {
-                    window.location.href = res.redirectUrl;
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: res.message,
-                });
-            }
-        },
-        error: function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Invalid OTP',
-                text: 'Please try again'
-            });
-        }
-    });
-    return false;
-}
+       
 
-
-
-
-    </script>
-    
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,10 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><%= title ? title : 'Feather bags ' %></title></title>
     <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
+    <meta name="description" content="Feather bags">
     <meta name="author" content="p-themes">
     <meta name="apple-mobile-web-app-title" content="Feather">
-    <meta name="application-name" content="Molla">
+    <meta name="application-name" content="Feather">
     <meta name="msapplication-TileColor" content="#cc9966">
     <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
@@ -273,7 +68,7 @@
             display: block;
         }
         .btn-primary:hover {
-            background-color: #0056b3;
+            background-color: #6ccf69;
         }
         .btn-secondary:hover {
             background-color: #5a6268;
@@ -401,55 +196,55 @@
 
             return false;
         }
-
-
         
-        //otp resend
-        document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('resendOtpBtn').addEventListener('click', resendOtp);
-});
-function resendOtp(e){
-    e.preventDefault();
 
-    clearInterval(timerInterval);
-    timer = 60;
-    document.getElementById('otp').disabled = false;
-    document.getElementById('timerValue').classList.remove('expired');
-    startTimer();
+            
+            //otp resend
+            document.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('resendOtpBtn').addEventListener('click', resendOtp);
+    });
+    function resendOtp(e){
+        e.preventDefault();
 
-    fetch('/resendOtp', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }).then(response => response.json())
-    .then(res => {
-        if(res.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'OTP Resent Successfully',
-                text: 'Please check your email for the new OTP.',
-            });
-        } else {
+        clearInterval(timerInterval);
+        timer = 60;
+        document.getElementById('otp').disabled = false;
+        document.getElementById('timerValue').classList.remove('expired');
+        startTimer();
+
+        fetch('/resendOtp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(response => response.json())
+        .then(res => {
+            if(res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'OTP Resent Successfully',
+                    text: 'Please check your email for the new OTP.',
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: res.message,
+                });
+            }
+        })
+        .catch(() => {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: res.message,
+                title: 'Failed to Resend OTP',
+                text: 'Please try again later.',
             });
-        }
-    })
-    .catch(() => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Failed to Resend OTP',
-            text: 'Please try again later.',
         });
-    });
 
-    return false;
-}
+        return false;
+    }
 
 
-</script>
-</body>
-</html>
+    </script>
+    </body>
+    </html>

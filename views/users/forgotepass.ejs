@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title><%= title ? title : 'Feather bags  ' %></title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="description" content="Feather bags">
+    <meta name="author" content="p-themes">
+    <!-- Favicon -->
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png"> -->
+    <!-- <link rel="manifest" href="assets/images/icons/site.html"> -->
+    <!-- <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666"> -->
+    <link rel="shortcut icon" href="assets/images/icons/favicon.png">
+    <meta name="apple-mobile-web-app-title" content="Feather">
+    <meta name="application-name" content="Feather">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="assets/css/plugins/magnific-popup/magnific-popup.css">
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/skins/skin-demo-17.css">
+    <link rel="stylesheet" href="assets/css/demos/demo-17.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+    <!-- font awesome in up  -->
+
+    <!-- mystyle CSS -->
+    <link rel="stylesheet" href="/mystyle.css">
+
+    <style>
+        .msg{
+  color: #ee0505;
+  background-color: white;
+}
+        .forgot {
+            width: 400px;
+            height: 350px;
+            margin: 0 auto;
+            margin-top: 50px;
+            padding: 20px;
+            background-color:white;
+            border-radius: 8px;
+            border: 2px solid rgba(231, 226, 226, 0.1);
+      box-shadow: 0 0 40px rgba(94, 93, 96, 0.6);
+        }
+    
+        .forgot h4 {
+            text-align: center;
+            font-style: normal;
+            margin-bottom: 50px;
+            color: #333;
+        }
+    
+       
+        .forgot label {
+            font-weight: bold;
+        }
+    
+        .forgot input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    
+        .forgot input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #1cc0a0;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .forgot input[type="submit"]:hover {
+            background-color: #edf4f2;
+            color:#1cc0a0 ;
+            border: #1cc0a0;
+        }
+        .submit{
+            color:white;
+            background-color: #1cc0a0;
+        }
+        .submit:hover{
+            background-color: #ffffff;
+            color:#1cc0a0 ;
+            border: #1cc0a0;  
+        }
+        body, html {
+        height: 100%;
+    }
+.ho:hover{
+    color: white ;
+}
+     .btn:hover{
+        color: white ;
+     }
+    .login-page {
+        min-height: 100vh; 
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .bg-image {
+        background-image: url('user/assets/images/new/bg-img4.png');
+        background-size: cover;
+    }
+    
+    footer {
+        margin-top: auto; 
+    }
+    </style>
+
+</head>
+<div class="page-wrapper">  
+    <header class="header header-6">
+        <div class="header-top">
+             <div class="header-middle">
+            <div class="container">
+                <div class="header-left">
+                    <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
+                        <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                    </div><!-- End .header-search -->
+                </div>
+                <div class="header-center">
+                    <a href="homepage.ejs" class="logo">
+                        <img src="assets/images/logo.png" alt="Molla Logo" width="210" height="30">
+                    </a>
+                </div><!-- End .header-left -->
+            </div><!-- End .container -->
+        </div><!--End .header-middle -->
+
+        <div class="header-bottom sticky-header">
+            <div class="container ">
+                <a href="/" class="btn btn-outline-primary-2 mt-4">
+                    <i class="icon-long-arrow-left"></i>
+                    <span class="ho">Back To Home</span>
+                </a>
+                                   
+                </div> <!-- home end -->     
+            </div><!-- End .header-bottom -->
+    </header><!-- End .header -->
+
+    <body>
+        <div class="forgot">
+            <h4>Forgot Password</h5>
+                <% if (typeof message !== 'undefined' && message) { %>
+                    <div class="alert alert-info msg text-center ">
+                        <%= message %>
+                    </div>
+                <% } %>
+            <form action="/forgotpass" method="post">
+               
+                 <label for="email">Enter your email address:</label><br>
+                <input type="email" id="email" name="email" ><br>
+                <div class="submit">
+                    <input type="submit" value="Submit" >
+                </div>
+              </form>
+            
+            </div>
+    </body>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script><script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelector('.forgot form').addEventListener('submit', handleFormSubmit);
+        });
+        
+        function handleFormSubmit(e) {
+    e.preventDefault(); // Prevent the form from submitting normally
+    const email = document.getElementById('email').value;
+
+    fetch('/forgotpass', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: data.message, 
+            }).then(() => {
+                window.location.href = '/';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: data.message, 
+            });
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Something went wrong!',
+        });
+    });
+}
+
+        </script>
+        

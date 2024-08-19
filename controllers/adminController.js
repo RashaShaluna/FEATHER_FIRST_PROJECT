@@ -81,13 +81,26 @@ const bcrypt = require('bcrypt');
 
 
 
-// Verify admin login credentials
+// Verify admin login 
 const admincheck = async (req, res) => {
     console.log('Verifying admin cre.');
     try {
         const { email, password } = req.body;
         console.log('Request body:', req.body);
 
+      if (!email && !password){
+       return res.render('admin/adminLogin',{ title: 'Feather-Admin Login', message: 'Password and Email required!'});
+        }
+
+        if(!email){
+            return res.render('admin/adminLogin',{ title: 'Feather-Admin Login', message: ' Email required!'});
+
+        }
+
+        if(!password){
+            return res.render('admin/adminLogin',{ title: 'Feather-Admin Login', message: 'Password required!'});
+
+        }
         const admin = await User.findOne({ isAdmin: true, email: email });
 
         if (admin) {
@@ -97,15 +110,15 @@ const admincheck = async (req, res) => {
                 req.session.admin = true;
                 return res.redirect('/admin/dashboard');
             } else {
-                res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Incorrect password' });
+                return  res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Incorrect password' });
             }
         } else {
             console.log('Not an admin');
-            res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Login failed, please try again' });
+            return res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Login failed, please try again' });
         }
     } catch (error) {
         console.error('Error verifying admin credentials:', error);
-        res.redirect('/pageNotFound');
+        return res.redirect('/pageNotFound');
     }
 };
 
@@ -120,8 +133,9 @@ const dashboard = async (req, res) => {
             res.redirect('/pageNotFound');
         }
     } else {
-        console.log(error);
         res.redirect('/admin/log');
+        // res.redirect('/admin/log');
+        console.log('Admin not authenticated, redirected to login');
     }
 };
 

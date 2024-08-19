@@ -69,3 +69,9 @@
   color: #ee0505;
   background-color: white;
 }
+.log{
+  width: 270rem;
+}
+.msg{
+  border: 0;
+}

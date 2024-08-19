@@ -1,0 +1,253 @@
+
+      <!DOCTYPE html>
+      <html lang="en">
+      
+      
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title><%= title ? title : 'Feather bags ' %></title></title>
+        <meta name="keywords" content="HTML5 Template">
+        <meta name="description" content="Feather bags">
+        <meta name="author" content="p-themes">
+        <!-- Favicon -->
+        <!-- <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png"> -->
+        <!-- <link rel="manifest" href="assets/images/icons/site.html"> -->
+        <!-- <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666"> -->
+        <link rel="shortcut icon" href="assets/images/icons/favicon.png">
+        <meta name="apple-mobile-web-app-title" content="Feather">
+        <meta name="application-name" content="Feather">
+        <meta name="msapplication-TileColor" content="#cc9966">
+        <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+        <!-- Plugins CSS File -->
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css">
+        <link rel="stylesheet" href="assets/css/plugins/magnific-popup/magnific-popup.css">
+        <!-- Main CSS File -->
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/skins/skin-demo-17.css">
+        <link rel="stylesheet" href="assets/css/demos/demo-17.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <!-- font awesome in up  -->
+    
+        <!-- mystyle CSS -->
+        <link rel="stylesheet" href="/mystyle.css">
+
+          <style>
+          body{
+      /* width: 100%; */
+      height: 620px;
+          }
+          .mainDiv {
+              display: flex;
+              min-height: 640px;
+              align-items: center;
+              justify-content: center;
+              background-color: #f9f9f9;
+              font-family: 'Open Sans', sans-serif;
+            }
+          .cardStyle {
+              width: 500px;
+              border-color: white;
+              background: #fff;
+              padding: 36px 0;
+              border-radius: 4px;
+              margin: 30px 0;
+              box-shadow: 0px 0 2px 0 rgba(0,0,0,0.25);
+            }
+          #signupLogo {
+            max-height: 100px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+          }
+          .formTitle{
+            font-weight: 600;
+            margin-top: 20px;
+            color: #2F2D3B;
+            text-align: center;
+          }
+          .inputLabel {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 6px;
+            margin-top: 24px;
+          }
+            .inputDiv {
+              width: 70%;
+              display: flex;
+              flex-direction: column;
+              margin: auto;
+            }
+          input {
+            height: 40px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: none;
+            border: solid 1px #ccc;
+            padding: 0 11px;
+          }
+          input:disabled {
+            cursor: not-allowed;
+            border: solid 1px #eee;
+          }
+          .buttonWrapper {
+            margin-top: 40px;
+          }
+          .submitButton {
+    width: 70%;
+    height: 40px;
+    margin: auto;
+    display: block;
+    color: #fff;
+    background-color: #1cc0a0;
+    border: 1px solid #1cc0a0;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .submitButton:hover {
+    background-color: #fff;
+    color: #1cc0a0;
+    border-color: #1cc0a0;
+  }
+
+            .submitButton {
+              width: 70%;
+              height: 40px;
+              margin: auto;
+              display: block;
+              color: #fff;
+              background-color:  #1cc0a0;
+              border-color: #1cc0a0;
+              /* text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
+              box-shadow: 0 2px 0 rgba(0, 0, 0, 0.035); */
+              /* border-radius: 4px; */
+              font-size: 14px;
+              cursor: pointer;
+            }
+          /* .submitButton:disabled,
+          button[disabled] {
+            border: 1px solid #cccccc;
+            background-color: #cccccc;
+            color: #666666;
+          } */
+          
+          /* #loader {
+            position: absolute;
+            z-index: 1;
+            margin: -2px 0 0 10px;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #1cc0a0;
+            width: 14px;
+            height: 14px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite; */
+          /* } */
+          
+          /* @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+          } */
+          </style>
+  </head>
+  <body>
+    
+      <div class="mainDiv">
+          <div class="cardStyle">
+            <form action="" method="post" name="signupForm" id="signupForm">
+              
+              
+              <h2 class="formTitle">
+              Reset password
+              </h2>
+              <% if (typeof message !== 'undefined' && message) { %>
+                  <div class="alert alert-info msg text-center ">
+                      <%= message %>
+                  </div>
+              <% } %>
+              <div class="inputDiv">
+                  <label class="inputLabel" for="password">New Password</label>
+                  <input type="password" id="password" name="password" >
+                  <div id="error1" class="error-message"></div>
+
+                </div>
+              <div>
+                  
+              </div>
+              <div class="inputDiv">
+                  <label class="inputLabel" for="confirmPassword">Confirm Password</label>
+                  <input type="password" id="confirmPassword" name="confirmPassword">
+                  <div id="error2" class="error-message"></div>
+
+                </div>
+            
+            <div class="buttonWrapper">
+              <button type="submit" id="submitButton" class="submitButton pure-button pure-button-primary">
+                <span>Continue</span>
+                <!-- <span id="loader"></span> -->
+              </button>
+            </div>
+              
+          </form>
+          </div>
+        </div>
+      
+  </body>
+  </html>
+
+
+  <script>
+        document.addEventListener('DOMContentLoaded', () => {
+              const password = document.getElementById('password');
+              const cpassword = document.getElementById('confirmPassword');
+
+              const error1 = document.getElementById('error1');
+              const error2 = document.getElementById('error2');
+              const continueId = document.getElementById('submitButton');
+
+          function passwordValidate(){
+              const passVal = password.value;
+              const alpha = /[a-zA-Z]/;
+              const digit = /\d/;
+
+              if(passVal.length<6){
+                error1.style.display ='block';
+                error1.innerHTML ="Password must be at least 6 characters."
+              }else if(!alpha.test(passVal)||!digit.test(passVal)){
+                  error1.style.display = 'block';
+                  error1.innerHTML = 'Password must contain both letters and numbers';
+              }else{
+                  error1.style.display = "none";
+                  error1.innerHTML = '';
+              }
+
+              if(passVal !==cpassword){
+                  error1.style.display = "block";
+                  error1.innerHTML = 'Password do not match';
+              }else{
+                  error1.style.display = "none";
+                  error1.innerHTML = '';
+              }
+          }
+          
+          continueId.addEventListener('submit',(e)=>{
+              passwordValidate();
+
+          
+          if(erro1.textContext||error2.textContent){
+              e.preventDefault();
+          }
+      })
+        });
+        
+
+  </script>

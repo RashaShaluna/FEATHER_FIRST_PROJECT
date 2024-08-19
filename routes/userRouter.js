@@ -19,6 +19,12 @@ router.get('/login', userController.loadLogin)
 router.post('/login', userController.loginVerify)
 router.get('/logOut',userController.logOut)
 
+router.get('/forgotpass',userController.forgotpass);
+router.post('/forgotpass',userController.forgot);
+router.get('/resetPass/:_id/:token',userController.resetPass);
+router.post('/resetPass/:_id/:token',userController. confirmpass);
+
+
 
 // ----------------------google---------------------
 
