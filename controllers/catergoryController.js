@@ -134,13 +134,22 @@ const unListCategory = async(req,res) =>{
   }
 }
 
-
-
+const editCategory = async(req,res)=>{
+   try {
+     
+    const id = req.query.id;
+    const category = await Category.findOne({_id:id});
+    res.render('editCategory')
+   } catch (error) {
+    
+   }
+}
 
 module.exports={
     categoryInfo,
     addCategory,
     addCategoryPage,
     listCategory,
-    unListCategory
+    unListCategory,
+    editCategory
 }

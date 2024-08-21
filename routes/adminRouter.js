@@ -43,6 +43,8 @@ adminRouter.post('/addCategory',adminAuth,categoryController.addCategory);
 adminRouter.get('/addCategory',adminAuth,categoryController.addCategoryPage);
 adminRouter.get('/listCategory',adminAuth,categoryController.listCategory);
 adminRouter.get('/unlistCategory',adminAuth,categoryController.unListCategory);
+adminRouter.get('/delete',adminAuth,categoryController.deleteCategory);
+adminRouter.get('/editCategory',adminAuth,categoryController.editCategory);
 
 
 module.exports = adminRouter;
