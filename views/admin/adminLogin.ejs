@@ -16,9 +16,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/admin/vendors/mdi/css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="/admin/vendors/base/vendor.bundle.base.css">
-  <link rel="stylesheet" href="/admin/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+  <link rel="stylesheet" href="/adminassests/vendors/mdi/css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="/adminassests/vendors/base/vendor.bundle.base.css">
+  <link rel="stylesheet" href="/adminassests/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
 
   <link rel="stylesheet" href="/adminassests/css/style.css">
   <link rel="stylesheet" href="/mystyle.css">
@@ -31,10 +31,10 @@
             <div class="col-lg-4 mx-auto">
               <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                 <div class="brand-logo">
-                  <img src="/adminassests/images/logo.png" alt="Feather Logo" width="1000" height="66">
+                  <img src="/adminassests/images/logo.png" alt="Feather Logo"  height="66">
                 </div>
                 <h6 class="font-weight-light">Sign in to continue.</h6>
-                <form class="pt-3" id="adminLoginForm" method="POST" action="/admin/log" onsubmit="return validateForm()">
+                <form class="pt-3" id="adminLoginForm" method="POST" action="/admin/log" >
                   <div class="form-group">
                     <% if (typeof message !== 'undefined' && message) { %>
                       <div class="alert alert-info text-center msg">
@@ -87,7 +87,7 @@
 
     <!-- Front-end validation script -->
     
-     <script src="/admin/vendors/base/vendor.bundle.base.js"></script>
+     <script src="/adminassests/vendors/base/vendor.bundle.base.js"></script>
      <!-- endinject -->
      <!-- inject:js -->
      <script src="/admin/js/off-canvas.js"></script>

@@ -75,3 +75,14 @@
 .msg{
   border: 0;
 }
+.logo-feather{
+  width:270px;
+  height: 33px;
+}
+.br-lgo{
+  margin-left: 2rem;
+}
+.custom-margin {
+  margin-left: 200px; 
+}
+

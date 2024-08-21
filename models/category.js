@@ -2,9 +2,10 @@
    const {Schema} = mongoose;
 
    const categorySchema =  new Schema({
-    categoryname:{
+    name:{
         type:String,
-        required:true
+        required:true,
+        unique: true
     },
     description:{
         type:String,
@@ -12,7 +13,7 @@
     },
     isListed:{
         type:Boolean,
-        required:true
+        // required:true
     },
     categoryOffer:{
         type:Number,
@@ -21,5 +22,5 @@
     }
    })
    
-   const Category = mongoose.model('Category',userSchema);
+   const Category = mongoose.model('Category',categorySchema);
    module.exports = Category;

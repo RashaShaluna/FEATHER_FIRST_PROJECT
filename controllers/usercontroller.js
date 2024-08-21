@@ -309,7 +309,7 @@ try{
   req.session.destroy((err)=>{
     if(err){
       console.log('Error in logout the session');
-      return res.redirect('/pageNotFound');
+      return res.redirect('/pageNotFound'); 
     }
     console.log('session distroyed')
     return res.redirect('/');

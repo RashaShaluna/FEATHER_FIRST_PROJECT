@@ -1,74 +1,8 @@
-// const User = require('../models/userSchema');
-// const mongoose = require('mongoose');
-// const bcrypt = require('bcrypt');
-
-
-// const loadLoginadmin = async (req,res)=>{
-//     console.log('login in admin1');
-//     try {
-//         res.render('admin/adminLogin', { title: 'Feather-Admin Login' });
-//      console.log('login in admin');
-//     } catch (error) {
-//         console.log('error in loading login in admin')
-//         res.render('pageNotFound',{ title:'Feather - 404'});
-//     }
-// };
-
-// const verifyLoginad = async(req,res)=>{
-//     console.log('verifying admin')
-//     try {
-//         const {email,password} = req.body;
-//         console.log('Req body:', req.body); 
-
-//         const admin = await User.findOne({isAdmin:true,email:email})
-        
-
-//          if(admin){
-//          const isMatch = await bcrypt.compare(password,admin.password)
-
-//             if(isMatch){
-//                 req.session.admin = true;
-//                 return res.redirect('/admin/dashboard');
-//                 }else{
-//                     res.render('admin/adminLogin',{ title: 'Feather-Admin login',message:'Incorrect password' })
-//                 }
-//             }else{
-//                 console.log('not admin');
-//                             res.render('admin/adminLogin',{ title: 'Feather-Admin login',message:'Login failed , Please try again' })
-//                         }
-
-//     } catch (error) {
-//         console.log('error in veriying admin',error);
-//        res.redirect('/pageNotFound');
-//     }
-// };
-
-// const loadDashboard = async(req,res)=>{
-//     if(req.session.admin){
-//         try {
-//         res.render('admin/dashboard');
-// console.log('in dashboard')
-//         } catch (error) {
-//             console.log('error in dashboard loading',error);
-//             res.redirect('/pageNotFound');
-//         }
-//     }
-   
-// }
-
-
-// module.exports = {
-//     loadLoginadmin,
-//     verifyLoginad,
-//     loadDashboard,
-
-// }
-
 
 const User = require('../models/userSchema');
 const bcrypt = require('bcrypt');
 
-// Load the admin login page
+// =======================Load admin login page=======================
     const Login = async( req,res)=>{
         try{
         console.log('admin Login');
@@ -81,7 +15,7 @@ const bcrypt = require('bcrypt');
 
 
 
-// Verify admin login 
+// =======================Verify admin login ================================
 const admincheck = async (req, res) => {
     console.log('Verifying admin cre.');
     try {
@@ -122,15 +56,16 @@ const admincheck = async (req, res) => {
     }
 };
 
-// // Load the admin dashboard
-const dashboard = async (req, res) => {
+//==============================Load  dashboard============================
+const dashboard = async (req, res) => 
+    {
     if (req.session.admin) {
         try {
-            res.render('admin/dashboard');
+            res.render('admin/dashboard',{title:'Dashboard - Feather '});
             console.log('Admin dashboard loaded');
         } catch (error) {
             console.error('Error loading admin dashboard:', error);
-            res.redirect('/pageNotFound');
+            res.redirect('/pageerror');
         }
     } else {
         res.redirect('/admin/log');
@@ -138,9 +73,49 @@ const dashboard = async (req, res) => {
         console.log('Admin not authenticated, redirected to login');
     }
 };
+//============================page error=====================================================
+
+const pageerror = async(req,res)=>{
+     res.render('admin/pageerror');
+}
+
+// ==========================Log out==========================================================
+
+const adminLogout = async(req,res)=>{
+    try {
+    console.log('in log out admin');
+    req.session.destroy((err)=>{
+        if(err){
+            console.log('Error in logout session');
+            return res.redirect('/pageerror');
+        }else{
+            console.log('session destroyed');
+            return res.redirect('/admin/log');
+        }
+    })   
+    
+
+    } catch (error) {
+        console.log('Error in admin logout');
+        res.redirect('/pageerror');
+    } 
+}
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = {
     Login,
     admincheck,
     dashboard,
+    pageerror,
+    adminLogout
 };

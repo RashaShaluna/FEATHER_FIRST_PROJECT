@@ -9,6 +9,10 @@ dotenv.config();
 const db = require('../config/db');
 db();
 const nocache = require('nocache');
+const adminController=require("../controllers/adminController");
+const customerController = require('../controllers/customerController');
+const categoryController = require('../controllers/catergoryController');
+const {userAuth,adminAuth} = require('../middleware/auth')
 
 adminRouter.use(nocache());
 
@@ -18,17 +22,25 @@ adminRouter.use('/',session({
     saveUninitialized: true, 
   }));
   
-  adminRouter.use(express.json());
-  adminRouter.use(express.urlencoded({ extended: true }));
+adminRouter.use(express.json());
+adminRouter.use(express.urlencoded({ extended: true }));
 
-  const adminController=require("../controllers/adminController");
-
-// In your adminRouter file
+// Login management
+adminRouter.get('/pageerror',adminController.pageerror)
 adminRouter.get('/log', adminController.Login);
-console.log('ad');
 adminRouter.post('/log', adminController.admincheck);
+adminRouter.get('/adminLogout',adminController.adminLogout)
+adminRouter.get('/dashboard',adminAuth,adminController.dashboard);
 
-adminRouter.get('/dashboard', adminController.dashboard);
+// customer management
+adminRouter.get('/users',adminAuth,customerController.customerInfo);
+adminRouter.get('/blockCustomer',adminAuth,customerController.customerBlocked)
+adminRouter.get('/unblockCustomer',adminAuth,customerController.customerUnBlock)
+
+// category  management
+adminRouter.get('/category',adminAuth,categoryController.categoryInfo)
+adminRouter.post('/addCategory',adminAuth,categoryController.addCategory);
+adminRouter.get('/addCategory',adminAuth,categoryController.addCategoryPage);
 
 
 module.exports = adminRouter;
