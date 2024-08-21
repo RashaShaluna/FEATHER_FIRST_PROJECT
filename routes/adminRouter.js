@@ -26,21 +26,23 @@ adminRouter.use(express.json());
 adminRouter.use(express.urlencoded({ extended: true }));
 
 // Login management
-adminRouter.get('/pageerror',adminController.pageerror)
+adminRouter.get('/pageerror',adminController.pageerror);
 adminRouter.get('/log', adminController.Login);
 adminRouter.post('/log', adminController.admincheck);
-adminRouter.get('/adminLogout',adminController.adminLogout)
+adminRouter.get('/adminLogout',adminController.adminLogout);
 adminRouter.get('/dashboard',adminAuth,adminController.dashboard);
 
 // customer management
 adminRouter.get('/users',adminAuth,customerController.customerInfo);
-adminRouter.get('/blockCustomer',adminAuth,customerController.customerBlocked)
-adminRouter.get('/unblockCustomer',adminAuth,customerController.customerUnBlock)
+adminRouter.get('/blockCustomer',adminAuth,customerController.customerBlocked);
+adminRouter.get('/unblockCustomer',adminAuth,customerController.customerUnBlock);
 
 // category  management
-adminRouter.get('/category',adminAuth,categoryController.categoryInfo)
+adminRouter.get('/category',adminAuth,categoryController.categoryInfo);
 adminRouter.post('/addCategory',adminAuth,categoryController.addCategory);
 adminRouter.get('/addCategory',adminAuth,categoryController.addCategoryPage);
+adminRouter.get('/listCategory',adminAuth,categoryController.listCategory);
+adminRouter.get('/unlistCategory',adminAuth,categoryController.unListCategory);
 
 
 module.exports = adminRouter;

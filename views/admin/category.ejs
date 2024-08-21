@@ -1,40 +1,34 @@
-<%- include('../adminlayouts/header') %>
+<%- include('../adminlayouts/header')  %>
+
 
         <!-- partial -->
-        <div class="main-panel">
+          <div class="main-panel">
             <div class="content-wrapper">
-              <!-- <div class="page-header mt-2">
-                <h3 class="page-title"> Catagory Tables </h3>
+              <div class="page-header">
+                <h3 class="page-title fw-bold"> Catagory Table </h3>
 
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb">
-                    <button class="adc"  ><li class="breadcrumb-item"><a href="addCategory">Add Catagory</a></li></button>
-                  
-                  </ol>
-                </nav>
+                <!-- <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb"> -->
+                    <div class="mt-4  ">
+                      <a href="/admin/addCategory" class="btn" style="color: white; background-color: #1cc0a0;">Add Category</a>
+                  </div>                  
+                  <!-- </ol>
+                </nav> -->
               </div>
+              <div class="position-relative">
+                <form method="GET" action="/admin/category" class="d-flex mb-4">
+                    <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="<%= searchQuery %>">
+                    <button class="btn btn-outline-success ms-2" type="submit" style="color: rgb(250, 250, 250); background-color: #1cc0a0;">Search</button>
+                </form>
+            </div>
+            
+            </form>
             <div class="row">
-         -->
-
-
-              <div class="col-lg-12 grid-margin stretch-card">
+                 <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
-                  <div class="card-body ">
-                    <div class=" mb-3">
-                        <h3 class="card-title fs-5 ">Category Table </h3>
-                    </div>
-                    <form method="GET" action="/admin/category" class="d-flex mb-4">
-                        <input class="form-control me-2" type="search" name="search" placeholder="Search " aria-label="Search" >
-                        <button class="btn btn-outline-success" type="submit" style="color: white; background-color: #1cc0a0;">Search</button>
-                    </form>
-                    <!-- Add New User-->
-                    <div class="mb-4">
-                        <a href="/admin/addCategory" class="btn " style="color: white; background-color: #1cc0a0;">Add Category</a>
-                    </div>
-                   
-                
-                    <div class="table-responsive pt-3" >
-                      <table class="table table-hover" style="color: rgb(88, 85, 85);">
+                  <div class="card-body">
+                    <div class="table-responsive" >
+                      <table class="table table-hover" style="color: grey">
                         <thead>
                           <tr>
                             <th>No</th>
@@ -42,43 +36,48 @@
                             <th>Description</th>
                             <th>Status</th>
                             <th>Action</th> 
-
                           </tr>
                         </thead>
 
                         <tbody>
-                          <% cat.reverse().forEach((category, index) => { %>
+                          <%  categories.reverse().forEach((category, index) => { %>
                             <tr>
                               <td><%= index + 1 %></td>
                               <td class="name"><%= category.name %></td>
                               <td class="description"><%= category.description %></td>
-
-                              <td>
-
-                                <!-- list and unlist option -->
-                                <form id="toggleForm_<%= category._id %>" action="/admin/category/<%= category._id %>/toggle" method="post" style="display: inline;">
-                                  <% if(category.listed){ %>
-                                  <button id="toggleButton_<%= category._id %>"  type="button" onclick="submitForm('<%= category._id %>','<%= category.listed %>','<%= index %>')"  class="btn btn-warning" data-toggle="modal" data-target="#confirmationModal">
-                                      <%= category.listed ? 'Unlist' : 'List' %>
-                                  </button>
-                                  <%}else{%>
-                                    <button id="toggleButton_<%= category._id %>"  type="button" onclick="submitForm('<%= category._id %>','<%= category.listed %>','<%= index %>')"  class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">
-                                      <%= category.listed ? 'Unlist' : 'List' %>
-                                  </button>
-                                    <% } %>
-                                  <input type="hidden" name="_method" value="PUT">
-                                  <input type="hidden" name="listed" value="<%= !category.listed %>">
-                                  
-                              </form>                              
+                           
+                              <td class="text-start">
+                                <%if( category.islisted){%>
+                                <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
+                                <% }else{ %>
+                                <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                                <%}%>
                               </td>
-                              <td> 
-                                <!-- edit option -->
-                               <a href="#" class="edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>"><i class="fas fa-edit"></i> </a>
-
-                               <!-- delete option -->
-                               <a href="/admin/categories/delete/<%= category._id %>" class=""><i class="fas fa-trash-alt"></i></a>
+                              <td class="text-start">
+                                <% if(category.islisted){ %>
+                                  <button class="btn btn-danger" style="width: 70px">
+                                      <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">list</a>
+                                  </button>
+                              <% } else { %>
+                                  <button class="btn btn-success" style="width: 70px">
+                                      <a href="/admin/listCategory?id=<%=category._id%>" class="text-white">UnList</a>
+                                  </button>
+                              <% } %>
+                              
                               </td>
-                               
+                              <td class="text-start">
+                                <a href="#" class="edit-category">
+                                  <i class="fas fa-edit"></i>
+                              </a>
+                              <!-- delete option -->
+                              <a href="/admin/categories/delete/<%= category._id %>">
+                                  <i class="fas fa-trash-alt"></i>
+                              </a>
+                              </td>
+                              
+                              </td>
+                              
+                              
                             </tr>
                           <% }); %>
                         </tbody>
@@ -87,13 +86,11 @@
                     </div>
                   </div>
                 </div>
-              <!-- </div> -->
+              </div>
 
 
             </div>
           </div>
-
-          
 
           
 
@@ -106,233 +103,3 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 
-<!-- -------------------------------sumbit button list unlist-------------------------- -->
-<script>
- async function submitForm(id,listed,i) {
-  
-  console.log(listed)
-     const toggleButton = document.getElementById(`toggleButton_${id}`)
-      const response = await axios.patch('/admin/list-unlist',{id,listed});
-
-console.log(response.data.status);
-      if(response.data.status){
-        console.log('ininininin')
-        toggleButton.classList.remove('btn-success');
-        toggleButton.classList.add('btn-warning');
-        toggleButton.innerHTML='Unlist'
-        
-      }else{
-        console.log('in')
-        toggleButton.classList.remove('btn-warning')
-        toggleButton.classList.add('btn-success')
-        toggleButton.innerHTML='List'
-      }
-  }
-</script>
-
-
-<!-- category list and unlist  -->
-<script>
-  async function toggleCategory(categoryId, listed) {
-      try {
-          const response = await fetch(`/admin/categories/${categoryId}/toggle`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ listed: !listed })
-          });
-
-          if (!response.ok) {
-              throw new Error('Failed to toggle category');
-          }
-
-          const button = document.getElementById(`toggleButton_${categoryId}`);
-          button.classList.toggle('btn-warning');
-          button.classList.toggle('btn-success');
-          button.textContent = listed ? 'List' : 'Unlist';
-      } catch (error) {
-          console.error(error);
-          // Handle error
-      }
-  }
-</script>
-
-
-
-    <!-- category edit function -->
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-          // Get all elements with class "edit-category"
-          const editButtons = document.querySelectorAll(".edit-category");
-      
-          // Add click event listener to each edit button
-          editButtons.forEach(function(button) {
-              button.addEventListener("click", function(event) {
-                  event.preventDefault(); // Prevent default link behavior
-      
-                  // Extract data attributes
-                  const categoryId = button.getAttribute("data-category-id");
-                  let categoryName = button.getAttribute("data-category-name");
-                  let categoryDescription = button.getAttribute("data-category-description");
-      
-                  // Open SweetAlert modal
-                  Swal.fire({
-                      title: 'Edit Category',
-                      html: `
-                          <input type="text" id="categoryName" name="name" class="swal2-input" value="${categoryName}" placeholder="Category Name">
-                          <textarea id="categoryDescription" description="description" class="swal2-textarea" placeholder="Category Description">${categoryDescription}</textarea>
-                      `,
-                      showCancelButton: true,
-                      confirmButtonText: 'Save',
-                      cancelButtonText: 'Cancel',
-                      preConfirm: () => {
-                          // Retrieve edited values
-                          const editedName = Swal.getPopup().querySelector('#categoryName').value.trim();
-                          const editedDescription = Swal.getPopup().querySelector('#categoryDescription').value.trim();
-      
-                          // Validate input values
-                          if (editedName === '' || editedDescription === '') {
-                              Swal.showValidationMessage('Please fill in all fields.');
-                              return false; // Prevent the modal from closing
-                          }
-      
-                          // Proceed with the fetch request if validation passes
-                          fetch('/admin/update-category', {
-                              method: 'POST',
-                              headers: {
-                                  'Content-Type': 'application/json'
-                              },
-                              body: JSON.stringify({
-                                  categoryId: categoryId,
-                                  editedName: editedName,
-                                  editedDescription: editedDescription
-                              })
-                          })
-                          .then(response => {
-                              // Handle response here
-                          })
-                          .catch(error => {
-                              console.error('Error:', error);
-                          });
-      
-                          // Return the edited values
-                          return {
-                              categoryName: editedName,
-                              categoryDescription: editedDescription
-                          };
-                      }
-                  }).then((result) => {
-                      // Update the button's data attributes with the edited values
-                      if (result.isConfirmed) {
-                          button.setAttribute("data-category-name", result.value.categoryName);
-                          button.setAttribute("data-category-description", result.value.categoryDescription);
-                      }
-                  });
-              });
-          });
-      });
-      </script>
-      
-
-      
-      <script>
-        document.addEventListener("DOMContentLoaded", function() {
-    // Get all elements with class "edit-category"
-    const editButtons = document.querySelectorAll(".edit-category");
-
-    // Add click event listener to each edit button
-    editButtons.forEach(function(button) {
-        button.addEventListener("click", function(event) {
-            event.preventDefault(); // Prevent default link behavior
-
-            // Extract data attributes
-            const categoryId = button.getAttribute("data-category-id");
-            let categoryName = button.getAttribute("data-category-name");
-            let categoryDescription = button.getAttribute("data-category-description");
-
-            // Open SweetAlert modal
-            Swal.fire({
-                title: 'Edit Category',
-                html: `
-                    <input type="text" id="categoryName" name="name" class="swal2-input" value="${categoryName}" placeholder="Category Name">
-                    <textarea id="categoryDescription" description="description" class="swal2-textarea" placeholder="Category Description">${categoryDescription}</textarea>
-                `,
-                showCancelButton: true,
-                confirmButtonText: 'Save',
-                cancelButtonText: 'Cancel',
-                preConfirm: async () => {
-                    // Retrieve edited values
-                    const editedName = Swal.getPopup().querySelector('#categoryName').value.trim();
-                    const editedDescription = Swal.getPopup().querySelector('#categoryDescription').value.trim();
-
-                    // Validate input values
-                    if (editedName === '' || editedDescription === '') {
-                        Swal.showValidationMessage('Please fill in all fields.');
-                        return false; // Prevent the modal from closing
-                    }
-
-                    try {
-                        // Check if category name already exists
-                        const response = await fetch('/admin/check-category', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                editedName: editedName,
-                                categoryId: categoryId
-                            })
-                        });
-                        const data = await response.json();
-                        if (!response.ok) {
-                            throw new Error(data.message || 'Failed to check category name');
-                        }
-                        if (!data.available) {
-                            Swal.showValidationMessage('Category name already exists.');
-                            return false; // Prevent the modal from closing
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        Swal.showValidationMessage('Failed to check category name.');
-                        return false; // Prevent the modal from closing
-                    }
-
-                    // Proceed with the fetch request if validation passes
-                    const updateResponse = await fetch('/admin/update-category', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            categoryId: categoryId,
-                            editedName: editedName,
-                            editedDescription: editedDescription
-                        })
-                    });
-                    if (!updateResponse.ok) {
-                        throw new Error('Failed to update category');
-                    }
-
-                    // Return the edited values
-                    return {
-                        categoryName: editedName,
-                        categoryDescription: editedDescription
-                    };
-                }
-            }).then((result) => {
-                // Update the button's data attributes with the edited values
-                if (result.isConfirmed) {
-                    button.setAttribute("data-category-name", result.value.categoryName);
-                    button.setAttribute("data-category-description", result.value.categoryDescription);
-                }
-            });
-        });
-    });
-});
-
-      </script>
-  <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> -->
-
-  <%- include('../adminlayouts/footer') %>

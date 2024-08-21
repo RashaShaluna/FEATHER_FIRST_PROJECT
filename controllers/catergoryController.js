@@ -2,30 +2,52 @@ const Category = require('../models/category');
 
 // ============================================= Category ==============================
 const categoryInfo = async(req,res)=>{
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit =1;
-        const skip = (page -1)*limit;
+      try {
 
-        const categoryData = await Category.find({})
-        .sort({createdAt :-1})
-        .skip(skip)
-        .limit(limit);
+       let search='';
+       if(req.query.search){
+         search =req.query.search;
+       }
 
-        const totalCategories = await Category.countDocuments();
-        const totalPages = Math.ceil(totalCategories/limit);
-        res.render('admin/category',{
-            title:'Category',
-            cat:categoryData,
-            currentPage:page,
-            totalPages:totalPages,
-            totalCategories : totalCategories
-        })
-    } catch (error) {
-        console.error(error);
-        res.redorect('/pageerror');
-    }
+
+       const categories = await Category.find({
+        name: { $regex: search, $options: 'i' } 
+        }).sort({ name: -1 });
+
+        console.log("categories : ", categories);
+        res.render('admin/category', { categories ,
+          title:"Category - Feather",
+           searchQuery:search   
+        });
+      } catch (error) {
+    console.log(error);
+   res.redirect('/pageerror');
+  }
 }
+//     try {
+//         const page = parseInt(req.query.page) || 1;
+//         const limit =1;
+//         const skip = (page -1)*limit;
+
+//         const categoryData = await Category.find({})
+//         .sort({createdAt :-1})
+//         .skip(skip)
+//         .limit(limit);
+
+//         const totalCategories = await Category.countDocuments();
+//         const totalPages = Math.ceil(totalCategories/limit);
+//         res.render('admin/category',{
+//             title:'Category',
+//             cat:categoryData,
+//             currentPage:page,
+//             totalPages:totalPages,
+//             totalCategories : totalCategories
+//         })
+//     } catch (error) {
+//         console.error(error);
+//         res.redirect('/pageerror');
+//     }
+// }
 
 // ================================= Add Category page ====================================
 const addCategoryPage = async(req,res)=>{
@@ -40,8 +62,7 @@ const addCategoryPage = async(req,res)=>{
     
       }
     }
-    
-
+  
 // ================================== Add category ======================================
 const addCategory = async(req,res)=>{
     console.log('in add cat1')
@@ -81,10 +102,45 @@ const addCategory = async(req,res)=>{
     }
 }
 
+//============================================= Category List===============================
+
+const listCategory =async(req,res)=>{
+  try {
+    console.log('list')
+    let id = req.query.id;
+    await Category.updateOne({_id:id},{$set:{islisted:true}});
+    console.log('listed')
+
+    res.redirect('/admin/category');
+  } catch (error) {
+    console.log(error)
+     res.redirect('/pageerror');
+  }
+}
+//============================================= Category unlist===============================
+
+const unListCategory = async(req,res) =>{
+  try{
+    console.log('unlist')
+
+   let id = req.query.id;
+   await Category.updateOne({_id:id},{$set:{islisted:false}});
+   console.log('unlisted')
+
+   res.redirect('/admin/category');
+  }catch(error){
+    console.log(error)
+    res.redirect('/pageerror');
+  }
+}
+
+
+
 
 module.exports={
     categoryInfo,
     addCategory,
     addCategoryPage,
-
+    listCategory,
+    unListCategory
 }

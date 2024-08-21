@@ -11,9 +11,11 @@
         type:String,
         required:true
     },
-    isListed:{
+    islisted:{
         type:Boolean,
-        // required:true
+        // required:true,
+        default: true,
+        // sparse: true,
     },
     categoryOffer:{
         type:Number,
