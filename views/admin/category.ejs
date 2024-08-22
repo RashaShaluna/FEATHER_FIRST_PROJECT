@@ -94,11 +94,100 @@
   <!-- category edit  -->
       <script>
   document.addEventListener("DOMContentLoaded", function() {
+  const editButtons = document.querySelectorAll(".edit-category");
+
+  editButtons.forEach(function(button) {
+    button.addEventListener("click", function(event) {
+      event.preventDefault(); 
+
+      const categoryId = button.getAttribute("data-category-id");
+      const categoryName = button.getAttribute("data-category-name");
+      const categoryDescription = button.getAttribute("data-category-description");
+
+      Swal.fire({
+        title: 'Edit Category',
+        html: `
+          <input type="text" id="categoryName" name="name" class="swal2-input" value="${categoryName}" placeholder="Category Name">
+          <textarea id="categoryDescription" name="description" class="swal2-textarea" placeholder="Category Description">${categoryDescription}</textarea>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        preConfirm: async () => {
+          const editedName = Swal.getPopup().querySelector('#categoryName').value.trim();
+          const editedDescription = Swal.getPopup().querySelector('#categoryDescription').value.trim();
+
+          if (editedName === '' || editedDescription === '') {
+            Swal.showValidationMessage('Please fill in all fields.');
+            return false; 
+          }
+
+          try {
+            const checkResponse = await fetch('/admin/check-category', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                editedName: editedName,
+                categoryId: categoryId
+              })
+            });
+
+            const checkData = await checkResponse.json();
+            if (!checkResponse.ok || !checkData.available) {
+              Swal.showValidationMessage('Category name already exists.');
+              return false; 
+            }
+
+            const updateResponse = await fetch('/admin/editCategory', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                categoryId: categoryId,
+                editedName: editedName,
+                editedDescription: editedDescription
+              })
+            }).then(()=>{
+              location.reload()
+            })
+
+            if (!updateResponse.ok) {
+              throw new Error('Failed to update category');
+            }
+
+            return {
+              categoryName: editedName,
+              categoryDescription: editedDescription
+            };
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.showValidationMessage('Failed to update category.');
+            return false; 
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          button.setAttribute("data-category-name", result.value.categoryName);
+          button.setAttribute("data-category-description", result.value.categoryDescription);
+        }
+      });
+    });
+  });
+});
+
+
+
+// delete
+
+  document.addEventListener("DOMContentLoaded", function() {
     const deleteButtons = document.querySelectorAll(".delete-category");
 
     deleteButtons.forEach(function(button) {
       button.addEventListener("click", async function(event) {
-        event.preventDefault(); // Prevent the default action
+        event.preventDefault(); 
 
         console.log(`Deleting category with ID: ${button.getAttribute("data-category-id")}`);
 
@@ -129,12 +218,10 @@
                 'Your category has been deleted.',
                 'success'
               ).then(() => {
-                // Remove the category row from the table
                 const row = button.closest('tr');
                 row.remove();
               })
               .then(() => {
-              // Redirect to the same page to refresh the data
               window.location.href = '/admin/category';
             });
                         console.log('removed')
