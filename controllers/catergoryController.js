@@ -1,6 +1,6 @@
 const Category = require('../models/category');
 
-// ============================================= Category ==============================
+// =========================================================== Category ========================================================================================
 const categoryInfo = async(req,res)=>{
       try {
 
@@ -11,7 +11,8 @@ const categoryInfo = async(req,res)=>{
 
 
        const categories = await Category.find({
-        name: { $regex: search, $options: 'i' } 
+        name: { $regex: search, $options: 'i' },
+        isDeleted: false 
         }).sort({ name: -1 });
 
         console.log("categories : ", categories);
@@ -24,32 +25,8 @@ const categoryInfo = async(req,res)=>{
    res.redirect('/pageerror');
   }
 }
-//     try {
-//         const page = parseInt(req.query.page) || 1;
-//         const limit =1;
-//         const skip = (page -1)*limit;
 
-//         const categoryData = await Category.find({})
-//         .sort({createdAt :-1})
-//         .skip(skip)
-//         .limit(limit);
-
-//         const totalCategories = await Category.countDocuments();
-//         const totalPages = Math.ceil(totalCategories/limit);
-//         res.render('admin/category',{
-//             title:'Category',
-//             cat:categoryData,
-//             currentPage:page,
-//             totalPages:totalPages,
-//             totalCategories : totalCategories
-//         })
-//     } catch (error) {
-//         console.error(error);
-//         res.redirect('/pageerror');
-//     }
-// }
-
-// ================================= Add Category page ====================================
+// ========================================================== Add Category page ==========================================================================================
 const addCategoryPage = async(req,res)=>{
     const categoryId = req.params.id;
     const category = await Category.findById(categoryId);
@@ -63,7 +40,7 @@ const addCategoryPage = async(req,res)=>{
       }
     }
   
-// ================================== Add category ======================================
+// ======================================================= Add category ======================================================================================================
 const addCategory = async(req,res)=>{
     console.log('in add cat1')
 
@@ -102,7 +79,7 @@ const addCategory = async(req,res)=>{
     }
 }
 
-//============================================= Category List===============================
+//============================================= Category List===================================================================================================
 
 const listCategory =async(req,res)=>{
   try {
@@ -117,7 +94,7 @@ const listCategory =async(req,res)=>{
      res.redirect('/pageerror');
   }
 }
-//============================================= Category unlist===============================
+//============================================= Category unlist=====================================================================================================
 
 const unListCategory = async(req,res) =>{
   try{
@@ -134,16 +111,84 @@ const unListCategory = async(req,res) =>{
   }
 }
 
-const editCategory = async(req,res)=>{
-   try {
-     
-    const id = req.query.id;
-    const category = await Category.findOne({_id:id});
-    res.render('editCategory')
-   } catch (error) {
-    
-   }
-}
+// ====================================== Edit Category  ========================================================================================================================
+const editCategory = async (req, res) => {
+  try {
+    const { categoryId, editedDescription, editedName } = req.body;
+
+    const lowerCaseEditedName = editedName.toLowerCase();
+
+    const existingCategory = await Category.findOne({ 
+      _id: { $ne: categoryId }, 
+      name: { $regex: new RegExp(`^${lowerCaseEditedName}$`, 'i') } 
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ success: false, message: 'Another category with this name already exists' });
+    }
+
+    await Category.updateOne({ _id: categoryId }, { $set: { name: editedName, description: editedDescription } });
+    res.json({ success: true, message: 'Category updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ====================================== Check Category  ========================================================================================================================
+
+const checkCategory = async (req, res) => {
+  try {
+    const { editedName, categoryId } = req.body;
+
+    const lowerCaseEditedName = editedName.toLowerCase();
+
+    const existingCategory = await Category.findOne({ 
+      _id: { $ne: categoryId },
+      name: { $regex: new RegExp(`^${lowerCaseEditedName}$`, 'i') } 
+    });
+
+    if (existingCategory) {
+      return res.json({ available: false });
+    } else {
+      return res.json({ available: true });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+// =================================================== Soft Delete Category ========================================================================================
+
+
+const softDeleteCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.categoryId;
+    console.log("Attempting to delete category with ID:", categoryId);
+
+    const updateResult = await Category.updateOne(
+      { _id: categoryId },
+      { $set: { isDeleted: true, deletedAt: new Date() } }
+    );
+
+    console.log("Update result:", updateResult);
+
+    if (updateResult.modifiedCount > 0) {
+      res.json({ success: true, message: 'Category deleted successfully' });
+    } else {
+      res.json({ success: false, message: 'Category not found or already deleted' });
+    }
+    console.log('deleted');
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
 
 module.exports={
     categoryInfo,
@@ -151,5 +196,8 @@ module.exports={
     addCategoryPage,
     listCategory,
     unListCategory,
-    editCategory
+    editCategory,
+    checkCategory,
+    softDeleteCategory,
+   
 }

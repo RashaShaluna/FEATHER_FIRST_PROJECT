@@ -1,98 +1,155 @@
-<%- include('../adminlayouts/header')  %>
+  <%- include('../adminlayouts/header')  %>
 
 
-        <!-- partial -->
-          <div class="main-panel">
-            <div class="content-wrapper">
-              <div class="page-header">
-                <h3 class="page-title fw-bold"> Catagory Table </h3>
+          <!-- partial -->
+            <div class="main-panel">
+              <div class="content-wrapper">
+                <div class="page-header">
+                  <h3 class="page-title fw-bold"> Catagory Table </h3>
 
-                <!-- <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb"> -->
-                    <div class="mt-4  ">
-                      <a href="/admin/addCategory" class="btn" style="color: white; background-color: #1cc0a0;">Add Category</a>
-                  </div>                  
-                  <!-- </ol>
-                </nav> -->
+                  <!-- <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb"> -->
+                      <div class="mt-4  ">
+                        <a href="/admin/addCategory" class="btn" style="color: white; background-color: #1cc0a0;">Add Category</a>
+                    </div>                  
+                    <!-- </ol>
+                  </nav> -->
+                </div>
+                <div class="position-relative">
+                  <form method="GET" action="/admin/category" class="d-flex mb-4">
+                      <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="<%= searchQuery %>">
+                      <button class="btn btn-outline-success ms-2" type="submit" style="color: rgb(250, 250, 250); background-color: #1cc0a0;">Search</button>
+                  </form>
               </div>
-              <div class="position-relative">
-                <form method="GET" action="/admin/category" class="d-flex mb-4">
-                    <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="<%= searchQuery %>">
-                    <button class="btn btn-outline-success ms-2" type="submit" style="color: rgb(250, 250, 250); background-color: #1cc0a0;">Search</button>
-                </form>
-            </div>
-            
-            </form>
-            <div class="row">
-                 <div class="col-lg-12 grid-margin stretch-card">
-                <div class="card">
-                  <div class="card-body">
-                    <div class="table-responsive" >
-                      <table class="table table-hover" style="color: grey">
-                        <thead>
-                          <tr>
-                            <th>No</th>
-                            <th>Category Name</th>
-                            <th>Description</th>
-                            <th>Status</th>
-                            <th>Action</th> 
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          <%  categories.reverse().forEach((category, index) => { %>
+              
+              </form>
+              <div class="row">
+                  <div class="col-lg-12 grid-margin stretch-card">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="table-responsive" >
+                        <table class="table table-hover" style="color: grey">
+                          <thead>
                             <tr>
-                              <td><%= index + 1 %></td>
-                              <td class="name"><%= category.name %></td>
-                              <td class="description"><%= category.description %></td>
-                           
-                              <td class="text-start">
-                                <% if(category.islisted){ %>
-                                  <button class="btn btn-success" style="width: 70px">
-                                      <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">List</a>
-                                  </button>
-                              <% } else { %>
-                                  <button class="btn btn-danger" style="width: 70px">
-                                      <a href="/admin/listCategory?id=<%=category._id%>" class="text-white">Unlist</a>
-                                  </button>
-                              <% } %>
-                              
-                              </td>
-                              <td class="text-start">
-                                <a href="/admin/category/editCategory" class="edit-category">
-                                  <i class="fas fa-edit"></i>
-                              </a>
-                              <!-- delete option -->
-                              <a href="/admin/category/delete/<%= category._id %>">
+                              <th>No</th>
+                              <th>Category Name</th>
+                              <th>Description</th>
+                              <th>Status</th>
+                              <th>Action</th> 
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            <%  categories.reverse().forEach((category, index) => { %>
+                              <tr>
+                                <td><%= index + 1 %></td>
+                                <td class="name"><%= category.name %></td>
+                                <td class="description"><%= category.description %></td>
+                            
+                                <td class="text-start">
+                                  <% if(category.islisted){ %>
+                                    <button class="btn btn-success" style="width: 70px">
+                                        <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">List</a>
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-danger" style="width: 70px">
+                                        <a href="/admin/listCategory?id=<%=category._id%>" class="text-white">Unlist</a>
+                                    </button>
+                                <% } %>
+                                
+                                </td>
+                                <td class="text-start">
+                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>"><i class="fas fa-edit"></i>
+                                  </a>
+                                </a>
+                                <!-- delete option -->
+                                <a href="#" class="delete-category" data-category-id="<%=category._id%>">
                                   <i class="fas fa-trash-alt"></i>
                               </a>
-                              </td>
-                              
-                              </td>
-                              
-                              
-                            </tr>
-                          <% }); %>
-                        </tbody>
-                      </table>
+                                </td>
+                                
+                                </td>
+                                
                       
+                                
+                              </tr>
+                            <% }); %>
+                          </tbody>
+                        </table>
+                        </div>
                     </div>
                   </div>
-                </div>
               </div>
+        </div>
+  </div>
+            
+
+  <!-- SweetAlert CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+
+  <!-- SweetAlert JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-            </div>
-          </div>
+  <!-- category edit  -->
+      <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const deleteButtons = document.querySelectorAll(".delete-category");
 
-          
+    deleteButtons.forEach(function(button) {
+      button.addEventListener("click", async function(event) {
+        event.preventDefault(); // Prevent the default action
 
-          
-<!-- SweetAlert CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+        console.log(`Deleting category with ID: ${button.getAttribute("data-category-id")}`);
 
-<!-- SweetAlert JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        const categoryId = button.getAttribute("data-category-id");
+  console.log('1')
+        const result = await Swal.fire({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
+        });
+        console.log('1')
 
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`/admin/category/delete/${categoryId}`, {
+              method: 'DELETE'
+            });
 
+            const data = await response.json();
+
+            if (data.success) {
+              Swal.fire(
+                'Deleted!',
+                'Your category has been deleted.',
+                'success'
+              ).then(() => {
+                // Remove the category row from the table
+                const row = button.closest('tr');
+                row.remove();
+              })
+              .then(() => {
+              // Redirect to the same page to refresh the data
+              window.location.href = '/admin/category';
+            });
+                        console.log('removed')
+
+            } else {
+              Swal.fire('Error!', data.message, 'error');
+            }
+          } catch (error) {
+            Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+          }
+        }
+      });
+    });
+  });
+
+  </script>
+
+  <%- include('../adminlayouts/footer')  %>

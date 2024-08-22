@@ -43,8 +43,13 @@ adminRouter.post('/addCategory',adminAuth,categoryController.addCategory);
 adminRouter.get('/addCategory',adminAuth,categoryController.addCategoryPage);
 adminRouter.get('/listCategory',adminAuth,categoryController.listCategory);
 adminRouter.get('/unlistCategory',adminAuth,categoryController.unListCategory);
-adminRouter.get('/delete',adminAuth,categoryController.deleteCategory);
-adminRouter.get('/editCategory',adminAuth,categoryController.editCategory);
+adminRouter.post('/editCategory',adminAuth,categoryController.editCategory);
+adminRouter.post('/check-category', adminAuth, categoryController.checkCategory);
+adminRouter.delete('/category/delete/:categoryId', adminAuth, categoryController.softDeleteCategory);
+// adminRouter.delete('/category/delete/:categoryId',/* adminAuth,*/ (req, res, next) => {
+//   console.log("Delete request received for category ID:", req.params.categoryId);
+//   next();
+// }, categoryController.softDeleteCategory);
 
 
 module.exports = adminRouter;

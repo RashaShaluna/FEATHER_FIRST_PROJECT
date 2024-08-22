@@ -21,8 +21,16 @@
         type:Number,
         required:true,
         default :0
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false,
+    },
+    deletedAt:{
+        type:Date,
+        default:null,
     }
    })
-   
+
    const Category = mongoose.model('Category',categorySchema);
    module.exports = Category;
