@@ -15,7 +15,7 @@ const customerInfo = async (req, res) => {
         }
 
         // for pagination
-        const limit = 3;
+        const limit = 5
         const userData = await User.find({
             isAdmin: false,
             $or: [

@@ -12,7 +12,13 @@ const nocache = require('nocache');
 const adminController=require("../controllers/adminController");
 const customerController = require('../controllers/customerController');
 const categoryController = require('../controllers/catergoryController');
+const productController = require('../controllers/productController');
 const {userAuth,adminAuth} = require('../middleware/auth')
+const multer=require('multer');
+
+
+const storage = require('../helpers/multer');
+const uploads = multer({ storage: storage });
 
 adminRouter.use(nocache());
 
@@ -45,11 +51,11 @@ adminRouter.get('/listCategory',adminAuth,categoryController.listCategory);
 adminRouter.get('/unlistCategory',adminAuth,categoryController.unListCategory);
 adminRouter.post('/editCategory',adminAuth,categoryController.editCategory);
 adminRouter.post('/check-category', adminAuth, categoryController.checkCategory);
-adminRouter.delete('/category/delete/:categoryId', adminAuth, categoryController.softDeleteCategory);
-// adminRouter.delete('/category/delete/:categoryId',/* adminAuth,*/ (req, res, next) => {
-//   console.log("Delete request received for category ID:", req.params.categoryId);
-//   next();
-// }, categoryController.softDeleteCategory);
+adminRouter.delete('/category/delete/:categoryId',adminAuth, categoryController.softDeleteCategory);
 
+// product management
+adminRouter.get('/product',adminAuth,productController.productPage);
+adminRouter.get('/addproduct',adminAuth,productController.addproductpage);
+adminRouter.post('/addproduct',adminAuth,uploads.array('images',4),productController.productAdding);
 
 module.exports = adminRouter;

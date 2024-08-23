@@ -1,79 +1,6 @@
-<tbody>
-                                
-<!-- <% roducts.forEach?.((product, index) => { %>
-  <tr>
-    <td><%= index + 1 %></td>
-    <td><%= product.name %></td>
-    <td><%= product.category?.name %></td>
-    <td>₹<%= product.price %></td>
-    <!-- <td><%= product.description %></td> -->
-    <td>₹<%= product.offerPrice %></td>
-    <td><%= product.quantity %></td>
-    <td> -->
-      <% product.image.forEach((image) => { %>
-        <img src="/uploads/<%= image %>" style="width: 50px; height: 50px;">
-      <% }); %>
-    </td>
 
+<%- include('../adminlayouts/header') %>
 
-      <td>
-        
-        <!-- product edit option -->
-        <a href="/admin/editProduct/<%= product._id %>" class="btn btn-primary">Edit</a>
-
-
-
-        <!-- product delete option -->
-        <!-- <form action="/admin/products/<%= product._id %>/delete" method="post" style="display: inline;">
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form> -->
-    
-      
-        <!-- product lit and unlist option -->
-        <% if (product.status === false) { %>
-          <button class="btn btn-success" onclick="toggleProductStatus('<%= product._id %>')">List</button>
-      <% } else { %>
-          <button class="btn btn-danger" onclick="toggleProductStatus('<%= product._id %>')">Unlist</button>
-      <% } %>
-
-  
-
-        <!-- <form id="toggleForm_<%= product._id %>" action="/admin/product/<%= product._id %>/toggle" method="post" style="display: inline;">
-          <% if(product.listed){ %>
-          <button id="toggleButton_<%= product._id %>"  type="button" onclick="submitForm('<%= product._id %>','<%= product.listed %>','<%= index %>')"  class="btn btn-warning" data-toggle="modal" data-target="#confirmationModal">
-              <%= product.listed ? 'Unlist' : 'List' %>
-          </button>
-          <%}else{%>
-            <button id="toggleButton_<%= product._id %>"  type="button" onclick="submitForm('<%= product._id %>','<%= product.listed %>','<%= index %>')"  class="btn btn-success" data-toggle="modal" data-target="#confirmationModal">
-              <%= product.listed ? 'Unlist' : 'List' %>
-          </button>
-            <% } %>
-          <input type="hidden" name="_method" value="PUT">
-          <input type="hidden" name="listed" value="<%= !product.listed %>">
-        </form> -->
-       
-       
-      </td>
-  </tr>
-<% }); %>
-
-</tbody>
-           <div class="pagination" style="margin-left: 30%;">
-           <% if (currentPage > 1) { %>
-               <a class="pagination-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-           <% } %>
-       
-           <% for (let j = 1; j <= totalPages; j++) { %>
-               <a class="pagination-link <%= j === currentPage ? 'active' : '' %>" href="?page=<%= j %>"><%= j %></a>
-           <% } %>
-       
-           <% if (currentPage < totalPages) { %>
-               <a class="pagination-link" href="?page=<%= currentPage + 1 %>">Next</a>
-           <% } %>
-       </div>
-       
-
-       <%- include("../../views/partials/admin/header") %>
 <head>
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
 </head>
@@ -95,8 +22,6 @@
 
        }
 </style>
-
-
    <section class="content-main">
        <div class="row">
            <div class="col-9">
@@ -116,7 +41,7 @@
                                    class="form-control border" id="product_name">
                                <div id="productName-error" class="error-message"></div>
                            </div>
-                           <div class="col-lg-4 mb-4">
+                           <!-- <div class="col-lg-4 mb-4">
                                <label class="form-label">Brand</label>
                                <select class="form-select border" name="brand">
                                    
@@ -131,7 +56,7 @@
                                      
                                </select>
                                <div id="brand-error" class="error-message"></div>
-                           </div>
+                           </div> -->
                            <div class="mb-4">
                                <label class="form-label">Full description</label>
                                <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control border"
@@ -142,7 +67,7 @@
                                <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Regular price</label>
-                                       <input placeholder="$" name="regularPrice" type="text"
+                                       <input placeholder="$" name="price" type="text"
                                            class="form-control border">
                                            <div id="regularPrice-error" class="error-message"></div>
                                    </div>
@@ -165,32 +90,28 @@
                            </div>
                            <div class="row">
                               
-                               <div class="col-lg-4">
+                               <!-- <div class="col-lg-4">
                                    <div class="mb-4">
                                        <label class="form-label">Color</label>
                                        <input  name="color" type="text" class="form-control border">
                                    </div>
                                    <div id="color-error" class="error-message"></div>
-                               </div>
+                               </div> -->
                             
                            </div>
                            <div class="card mb-4">
                                <div class="card-body">
                                    <div class="row gx-2">
                                        <div class="col-sm-6 mb-3">
-                                           <label class="form-label">Category</label>
-                                           <select class="form-select border" style="width: 150px;" name="category">
-                                               
-
-
-                                              
-                                                   <option value="">
-                                                       
-                                                   </option>
-                                                  
-                                                 
-                                                   
-                                           </select>
+                                        <label for="category">Category:</label>
+                                        <select id="category" name="category">
+                                          <option value="">Select Category</option>
+                                          <% for(let i=0;i<category.length;i++){ %>
+                                            <option value="<% category[i]._id %>">
+                                              <%= category[i].name %>
+                                            </option>
+                                            <% } %>
+                                        </select>
                                            <div id="category-error" class="error-message"></div>
                                        </div>
                                    </div>
@@ -279,6 +200,193 @@
            </div>
        </div>
    </section>
-<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+
+   <script>
+   
+   function validateAndSubmit(){
+     if(validateForm()){
+       document.forms(0).submit();
+     }
+   }
+   
+   function  viewImage1(event){
+     document.getElementById('image1').src= URL.createObjectURL(event.target.files[0])
+   }
+   function  viewImage2(event){
+     document.getElementById('image2').src= URL.createObjectURL(event.target.files[0])
+   }
+   function  viewImage3(event){
+     document.getElementById('image3').src= URL.createObjectURL(event.target.files[0])
+   }
+   function  viewImage4(event){
+     document.getElementById('image4').src= URL.createObjectURL(event.target.files[0])
+   }
+   
+   function viewImage(event,index){
+     let input = event.target;
+     let reader = new FileReader();
+     reader.onload = function (){
+       let dataURL = reader.result;
+       let image = document.getElementById('imageView'+index);
+       image.src = dataURL;
+       let cropper = new Copper(image,{
+        aspectRatio:1,
+        viewMode:1,
+        guides:true,
+        background:false,
+        autoCropArea:1,
+        zoomable:true
+       });
+   
+           let  cropperContainer = document.querySelector('#croppedImg'+index).parentNode;
+            cropperContainer.style.display='block';
+   
+            let saveButton = document.querySelector('#saveButton'+index);
+            saveButton.addEventListener('click',async function () {
+             
+             let cropperCanvas = cropper.getCroppedCanvas();
+             let croppedImage = document.getElementById('croppedImg'+index);
+             croppedImage.src = cropperCanvas.toDataURL('image/jpeg',1.0);
+   
+             let timestamp = new Date().getTime();
+             let fileName = `cropped-img${timestamp}-${index}.png`;
+   
+             await cropperCanvas.toBloob(blob=>{
+               let input = document.getElementById('input'+index)
+               let imgFile = new File({blob}.fileName.blob)
+               const fileList = new DataTransfer();
+               fileList.items.add(imgFile);
+               input.files = fileList.files
+             });
+   
+             cropperContainer.style.display = 'none';
+             cropper.destroy()
+            });
+      };
+      reader.readersDataURL(input.files[0]);
+   }
+   
+   
+         const selectedImages = {};
+         document.getElementById('input1').addEventListener('change',handleFileSelect);
+   
+         function handleFileSelect(event){
+           const addedImagesContainer = document.getElementById('addedImagesContainer');
+           addedImagesContainer.innerHTML = '';
+           const files = event.target.files;
+            for(let i=0;i<files.length;i++){
+               const file = files[i];
+               selectedImages.push(file);
+               const thumbnail = document.createElement('div');
+               thumbnail.classList.add('thumbnail');
+   
+               const img = document.createElement('img');
+               img.src = URL.createObjectURL(file);
+               img.alt = 'thumbnail';
+               img.style.width = '50px';
+               img.style.height = 'auto';
+               const remoneIcon = document.createElement('span');
+               remveIcon.innerHTML = '4times:';
+               remoneIcon.addEventListener('click',function(){
+                 const index = selectedImages.index(file);
+                 if(index !== -1){
+                   selectedImages.splice(index,1)
+                 }
+                 thumbnail.remove();
+               });
+               thumbnail.appendChild(img);
+               thumbnail.appendChild(remoneIcon);
+               addedImagesContainer.appendChild(thumbnail);
+            }
+         }
+   
+   
+   
+    function validateForm() {
+                 clearErrorMessages();
+                 const name = document.getElementsByName('product_name')[0].value;
+                 const description = document.getElementById('description').value;
+                //  const brand = document.getElementsByName('brand')[0].value;
+                 const price = document.getElementsByName('price')[0].value;
+                 const offerPrice = document.getElementsByName('salePrice')[0].value;
+                //  const color = document.getElementsByName('color')[0].value;
+                 const category = document.getElementsByName('category')[0].value;
+                 const images = document.getElementById('images')
+                 const quantity=document.getElementsByName('quantity')
+                 let isValid = true
+                 if (name.trim() === "") {
+         displayErrorMessage('productName-error', 'Please enter a product name.');
+         isValid = false;
+      } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
+         displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+         isValid = false;
+      }
+               
+      if (description.trim() === "") {
+         displayErrorMessage('description-error', 'Please enter a product description.');
+         isValid = false;
+      } else if (!/^[a-zA-Z\s]+$/.test(description.trim())) {
+         displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
+         isValid = false;
+      }
+                 if ( parseInt(quantity) < 0) {
+                     displayErrorMessage('quantity-error', 'Please enter a valid non-negative quantity.');
+                     isValid = false;
+                 }
      
-<%- include("../../views/partials/admin/footer") %>
+     
+     
+     
+                 if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+                     displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+                     isValid = false;
+                 }
+     
+     
+     
+     
+                 if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+                     displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+                     isValid = false;
+                 }
+                 if (parseFloat(price) <= parseFloat(saleprice)) {
+         displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+         isValid = false;
+      }
+     
+     
+                 // if (color.trim() === "") {
+                 //     displayErrorMessage('color-error', 'Please enter a color.');
+                 //     isValid = false;
+                 // }
+     
+     
+                 if (images.files.length === 0) {
+                     displayErrorMessage("images-error",'Please select an image.');
+                     isValid = false;
+                 }
+                 return isValid;
+             }
+   
+   
+             function displayErrorMessage(elementId, message) {
+                 var errorElement = document.getElementById(elementId);
+                 errorElement.innerText = message;
+                 errorElement.style.display = "block";
+             }
+     
+     
+             function clearErrorMessages() {
+                 const errorElements = document.getElementsByClassName('error-message');
+                 Array.from(errorElements).forEach(element => {
+                     element.innerText = '';
+                 });
+                 const errorMessage = document.getElementById('errorMessage');
+     
+     
+             }
+    
+</script>
+<%- include('../adminlayouts/footer') %>

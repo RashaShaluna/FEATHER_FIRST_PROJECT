@@ -29,11 +29,11 @@ const categoryInfo = async(req,res)=>{
 // ========================================================== Add Category page ==========================================================================================
 const addCategoryPage = async(req,res)=>{
     const categoryId = req.params.id;
-    const category = await Category.findById(categoryId);
+    const categories = await Category.findById(categoryId);
     try {
         console.log('in add')
 
-        res.render('admin/addCategory',{title:'Add Category'});
+        res.render('admin/addCategory',{title:'Add Category',categories});
       } catch (error) {
         console.log(error);
     
@@ -47,6 +47,8 @@ const addCategory = async(req,res)=>{
     const {name,description} =req.body;
     console.log('req',req.body);
     try {
+      const lowerCaseName = name.toLowerCase();
+
         console.log('in add cat 2')
 
         if (!name || !description) {
@@ -54,10 +56,10 @@ const addCategory = async(req,res)=>{
         }
 
         console.log('in add cat 3')
-        const existingCategory = await Category.findOne({name});
+        const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${lowerCaseName}$`, 'i') } });
         console.log('in add cat 4');
         if(existingCategory){
-            return res.status(400).json({error:'Category already exists'});
+            return res.status(400).json({message:'Category already exists'});
         }
         console.log('in add cat 5')
         const newCategory = new Category({

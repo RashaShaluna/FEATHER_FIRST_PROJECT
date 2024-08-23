@@ -13,21 +13,22 @@ const productSchema = new Schema ({
     },
     image : {
         type:Array,
-        required:true
+        required:true,
+        // validate:[arrayLimit,'You can pass only 4 images']
     },
     description:{
         type:String,
         required:true
     },
-    brand:{
-        type:String,
-        required:true
-    },
+    // brand:{
+    //     type:String,
+    //     required:true
+    // },
     category:{
         type:String,
         required:true
     },
-    quantiti:{
+    quantity:{
         type:String,
         required:true
     },
@@ -45,7 +46,8 @@ const productSchema = new Schema ({
         type:String,
         required:true,
     }
+    
 },{timestamps:true})
 
-const Product = mongoose.Model('product',productSchema);
+const Product = mongoose.model('product',productSchema);
 module.exports = Product;
