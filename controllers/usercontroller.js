@@ -249,56 +249,46 @@ const loginVerify = async (req, res) => {
     console.log('Req body:', req.body); 
     const { email, password } = req.body;
 
-      console.log('log1');
-       
-      const findUser = await User.findOne({isAdmin:0,email:email});
-
-      if (!password) {
-        console.log('Password is missing');
-        return res.render('users/login', { title: 'Feather - loginpage', message: 'Password is required' });
+    console.log('log1');
+    
+    if (!email || !password) {
+      const message = !email && !password 
+        ? 'Email and Password are required'
+        : !email 
+        ? 'Email is required'
+        : 'Password is required';
+      return res.render('users/login', { title: 'Feather - loginpage', message });
     }
 
-    if (!email) {
-      console.log('email is missing');
-      return res.render('users/login', { title: 'Feather - loginpage', message: 'email is required' });
-  }
+    const findUser = await User.findOne({ isAdmin: 0, email: email });
 
-  if (!email||!password) {
-    console.log('both ARE is missing');
-    return res.render('users/login', { title: 'Feather - loginpage', message: 'Email and Password is required' });
-}
-
-      if(!findUser){
-     console.log('User not find');
-     res.render('users/login', { title: 'Feather - loginpage',message:'User not find ' });
+    if (!findUser) {
+      console.log('User not found');
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'User not found' });
     }
-    console.log('Found user:', findUser);
 
-    if(findUser.isBlocked){
-      res.render('users/login', { title: 'Feather - loginpage',message:'User is blocked by admin' });
+    if (findUser.isBlocked) {
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'User is blocked by admin' });
     }
+
     console.log('Password from request:', req.body.password);
     console.log('Hashed password from DB:', findUser.password);
 
+    const passwordMatch = await bcrypt.compare(password, findUser.password);
 
-    if (!password) {
-      throw new Error('Password is undefined');
-  }
-
-  const passwordMatch = await bcrypt.compare(password, findUser.password);
-
-    if(!passwordMatch){
-      res.render('users/login', { title: 'Feather - loginpage',message:'Incorrect Password ' });
+    if (!passwordMatch) {
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'Incorrect Password' });
     }
-    
-      req.session.user = findUser._id;
-      res.redirect('/home');
+
+    req.session.user = findUser._id;
+    res.redirect('/home');
 
   } catch (error) {
-    console.log('Login page not found', error.message); // backend error
-    res.render('users/login', { title: 'Feather - loginpage',message:'Login failed , Please try again' });
+    console.log('Login page not found', error.message); 
+    res.render('users/login', { title: 'Feather - loginpage', message: 'Login failed, please try again' });
   }
 };
+
 
 
 //=============================================Logout=======================================================================
@@ -429,7 +419,7 @@ const forgot = async (req, res) => {
     const emailSent = await sendLink(email, link);
 
     if (emailSent) {
-      return res.json({ success: true, message: 'Link sent successfully' });
+      return res.json({ success: true, message: `Link sent successfully to your mail ${email}`});
     } else {
       return res.status(500).json({ success: false, message: 'Failed to send email' });
     }
@@ -471,21 +461,6 @@ async function sendLink(email, link) {
 
 // ========================Reseting password token=================================================================================================
 
-// const resetPass = async(req,res)=>{
-//        const {_id ,token} = req.params;
-
-//     if(_id !== User._id){
-//       res.render('forgotepass',{title:'Feather - Forgot password',message:'Invalid id'});
-//     }
-//     const secret = JWT_SECRET + User.password;
-//     try {
-//       const payLoad = jwt.verify(token,secret);
-//       res.render('users/resetPassword',{email:User.email})
-//     } catch (error) {
-//       console.log(error);
-//       res.status(400).json({success:false,message:"Server error ,try again"})
-//     }
-// }
 const resetPass = async (req, res) => {
   const { _id, token } = req.params;
 
@@ -530,7 +505,8 @@ const confirmpass = async(req,res)=>{
         console.log('Token verification error:', error);
         return res.status(400).json({ success: false, message: 'Invalid or expired token' });
       } 
-  
+      
+       
       if (password !== confirmPassword) {
         return res.status(400).json({ success: false, message: 'Passwords do not match' });
       }
@@ -540,7 +516,7 @@ const confirmpass = async(req,res)=>{
       await user.save()
        console.log('saved');
 
-       return res.render('users/changes', { title: 'Feather', message: 'success' });
+       return res.status(201).json({success:true, message: 'Password reset successfully' });
       
     } catch (error) {
       console.log('Error in confirm pass',error)

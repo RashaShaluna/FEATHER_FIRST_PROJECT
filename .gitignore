@@ -1,7 +1,9 @@
-
+helpes
 .env
 node_modules
-
+.vscode
+test.js
+adminish
 
 # # Logs
 # logs

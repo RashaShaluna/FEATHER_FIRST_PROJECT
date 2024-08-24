@@ -157,6 +157,7 @@
               0% { transform: rotate(0deg); }
               100% { transform: rotate(360deg); }
           } */
+           
           </style>
   </head>
   <body>
@@ -177,7 +178,7 @@
               <div class="inputDiv">
                   <label class="inputLabel" for="password">New Password</label>
                   <input type="password" id="password" name="password" >
-                  <div id="error1" class="error-message"></div>
+                  <div id="error1" class="error-message" style="color: red; font-size: 12px;"></div>
 
                 </div>
               <div>
@@ -186,7 +187,7 @@
               <div class="inputDiv">
                   <label class="inputLabel" for="confirmPassword">Confirm Password</label>
                   <input type="password" id="confirmPassword" name="confirmPassword">
-                  <div id="error2" class="error-message"></div>
+                  <div id="error2" class="error-message" style="color: red; font-size: 12px;"></div>
 
                 </div>
             
@@ -203,51 +204,68 @@
       
   </body>
   </html>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-        document.addEventListener('DOMContentLoaded', () => {
-              const password = document.getElementById('password');
-              const cpassword = document.getElementById('confirmPassword');
-
-              const error1 = document.getElementById('error1');
-              const error2 = document.getElementById('error2');
-              const continueId = document.getElementById('submitButton');
-
-          function passwordValidate(){
-              const passVal = password.value;
-              const alpha = /[a-zA-Z]/;
-              const digit = /\d/;
-
-              if(passVal.length<6){
-                error1.style.display ='block';
-                error1.innerHTML ="Password must be at least 6 characters."
-              }else if(!alpha.test(passVal)||!digit.test(passVal)){
-                  error1.style.display = 'block';
-                  error1.innerHTML = 'Password must contain both letters and numbers';
-              }else{
-                  error1.style.display = "none";
-                  error1.innerHTML = '';
-              }
-
-              if(passVal !==cpassword){
-                  error1.style.display = "block";
-                  error1.innerHTML = 'Password do not match';
-              }else{
-                  error1.style.display = "none";
-                  error1.innerHTML = '';
-              }
-          }
-          
-          continueId.addEventListener('submit',(e)=>{
-              passwordValidate();
-
-          
-          if(erro1.textContext||error2.textContent){
-              e.preventDefault();
-          }
+    document.getElementById('signupForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      
+      let password = document.getElementById('password').value;
+      let confirmPassword = document.getElementById('confirmPassword').value;
+  
+      let error1 = document.getElementById('error1');
+      let error2 = document.getElementById('error2');
+      let submitButton = document.getElementById('submitButton');
+  
+      error1.textContent = '';
+      error2.textContent = '';
+  
+      if (password.length < 6) {
+        error1.textContent = 'Password must be at least 6 characters long.';
+        return;
+      }
+  
+      if (password !== confirmPassword) {
+        error2.textContent = 'Passwords do not match.';
+        return;
+      }
+  
+      // If validation passes, submit the form using Fetch API
+      fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password, confirmPassword })
       })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Password reset successfully!',
+            confirmButtonColor: '#1cc0a0'
+          }).then(() => {
+           location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'Something went wrong. Please try again.',
+            confirmButtonColor: '#1cc0a0'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Server error. Please try again later.',
+          confirmButtonColor: '#1cc0a0'
         });
-        
-
+      });
+    });
   </script>
+  

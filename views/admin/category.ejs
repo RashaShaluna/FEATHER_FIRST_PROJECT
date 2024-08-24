@@ -48,13 +48,13 @@
                             
                                 <td class="text-start">
                                   <% if(category.islisted){ %>
-                                    <button class="btn btn-success" style="width: 70px">
-                                        <a href="/admin/unlistCategory?id=<%=category._id%>" class="text-white">List</a>
+                                    <button class="btn btn-success" style="width: 70px" onclick="confirmAction('/admin/unlistCategory?id=<%=category._id%>','unlist')">
+                                      List
                                     </button>
                                 <% } else { %>
-                                    <button class="btn btn-danger" style="width: 70px">
-                                        <a href="/admin/listCategory?id=<%=category._id%>" class="text-white">Unlist</a>
-                                    </button>
+                                  <button class="btn btn-danger" style="width: 70px" onclick="confirmAction('/admin/listCategory?id=<%=category._id%>','list')">
+                                    unlist
+                                  </button>
                                 <% } %>
                                 
                                 </td>
@@ -63,7 +63,7 @@
                                   </a>
                                 </a>
                                 <!-- delete option -->
-                                <a href="#" class="delete-category" data-category-id="<%=category._id%>">
+                                <a href="#" class="delete-category" data-category-id="<%=category._id%> " >
                                   <i class="fas fa-trash-alt"></i>
                               </a>
                                 </td>
@@ -154,9 +154,9 @@
               location.reload()
             })
 
-            if (!updateResponse.ok) {
-              throw new Error('Failed to update category');
-            }
+            // if (!updateResponse.ok) {
+            //   throw new Error('Failed to update category');
+            // }
 
             return {
               categoryName: editedName,
@@ -236,6 +236,26 @@
       });
     });
   });
+
+
+// pop for list and unlist
+function confirmAction(url, action) {
+        const actionText = action === 'unlist' ? 'unlist' : 'list';
+        Swal.fire({
+            title: `Are you sure you want to ${actionText} this user?`,
+            // text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1cc0a0',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Yes ${actionText} .`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
 
   </script>
 

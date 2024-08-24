@@ -15,12 +15,13 @@ const categoryController = require('../controllers/catergoryController');
 const productController = require('../controllers/productController');
 const {userAuth,adminAuth} = require('../middleware/auth')
 const multer=require('multer');
-
-
 const storage = require('../helpers/multer');
 const uploads = multer({ storage: storage });
 
 adminRouter.use(nocache());
+
+adminRouter.use(express.static('public'));
+
 
 adminRouter.use('/',session({
     secret: process.env.SECRET_KEY,

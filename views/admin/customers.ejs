@@ -1,4 +1,5 @@
 <%- include('../adminlayouts/header') %>
+
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
@@ -6,13 +7,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Users Details</h5>
 
-
                     <!-- Search -->
                     <form method="GET" action="/admin/users" class="d-flex mb-4">
                         <input class="form-control me-2" type="search" name="search" placeholder="Search by username or email" aria-label="Search" value="<%= searchQuery %>">
                         <button class="btn btn-outline-success" type="submit" style="color: white; background-color: #1cc0a0;">Search</button>
                     </form>
-                 
+
                     <!-- Table -->
                     <div class="table-responsive pt-3">
                         <table class="table table-bordered text-center">
@@ -28,68 +28,71 @@
                                 <% for(let i = 0; i < data.length; i++) { %>
                                     <tr>
                                         <td><%= (currentPage - 1) * 3 + i + 1 %></td>
-                                        <td><%= data[i].name %></td>
-                                        <td><%= data[i].email %></td>
+                                        <td><%= data[i] ? data[i].name : 'N/A' %></td>
+                                        <td><%= data[i] ? data[i].email : 'N/A' %></td>
                                         <td>
                                             <div>
                                                 <% if (data[i].isBlocked === false) { %>
-                                                    <button class="btn mt-2" style="width: 70%; background-color: red; color: white;"
-                                                    onclick="confirmAction('/admin/blockCustomer?id=<%= data[i]._id %>', 'block')">
-                                                    Block
-                                                </button>
+                                                    <button class="btn mt-2" style="width: 70%;  background-color:rgba(12, 174, 22, 0.733)  ;   color:white"  onclick="confirmAction('/admin/blockCustomer?id=<%= data[i]._id %>','block')">
+                                                        <!-- <a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;"> -->
+                                                            UnBlock
+                                                        <!-- </a> -->
+                                                    </button>
                                                 <% } else { %>
-                                                    <button class="btn mt-2" style="width: 70%; background-color: rgb(49, 159, 49); color: white;"
-                                                    onclick="confirmAction('/admin/unblockCustomer?id=<%= data[i]._id %>', 'unblock')">
-                                                    Unblock
-                                                </button>
+                                                    <button class="btn mt-2" style="width: 70%;  background-color:rgb(241, 0, 0);   color:white" onclick="confirmAction('/admin/unblockCustomer?id=<%= data[i]._id %>','unblock')">
+                                                        <!-- <a href="/admin/unblockCustomer?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;"> -->
+                                                            Block
+                                                        <!-- </a> -->
+                                                    </button>
                                                 <% } %>
-                                               
-                                                
                                             </div>
                                         </td>
                                     </tr>
                                 <% } %>
                             </tbody>
                         </table>
-                        
+
                         <!-- Pagination -->
                         <div class="mt-4">
                             <nav aria-label="Page navigation">
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination justify-content-center">
-                                      <!-- Previous Button -->
-                                      <li class="page-item <%=(currentPage === 1) ? 'disabled' : ''%>">
+                                <ul class="pagination justify-content-center">
+                                    <!-- Previous Button -->
+                                    <li class="page-item <%=(currentPage === 1) ? 'disabled' : ''%>">
                                         <a class="page-link" href="<%= (currentPage === 1) ? '#' : '?page=' + (currentPage - 1) + '&search=' + searchQuery %>" tabindex="-1">Previous</a>
-                                      </li>
-                                  
-                                      <!-- Pagination Links -->
-                                      <% for(let i = 1; i <= totalPage; i++) { %>
+                                    </li>
+
+                                    <!-- Pagination Links -->
+                                    <% for(let i = 1; i <= totalPage; i++) { %>
                                         <li class="page-item <%=(i === currentPage) ? 'active' : ''%>">
-                                          <a class="page-link" href="?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
+                                            <a class="page-link" href="?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
                                         </li>
-                                      <% } %>
-                                  
-                                      <!-- Next Button -->
-                                      <li class="page-item <%=(currentPage === totalPage) ? 'disabled' : ''%>">
+                                    <% } %>
+
+                                    <!-- Next Button -->
+                                    <li class="page-item <%=(currentPage === totalPage) ? 'disabled' : ''%>">
                                         <a class="page-link" href="<%= (currentPage === totalPage) ? '#' : '?page=' + (currentPage + 1) + '&search=' + searchQuery %>">Next</a>
-                                      </li>
-                                    </ul>
-                                  </nav>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-<%- include('../adminlayouts/footer') %>
+    <%- include('../adminlayouts/footer') %>
+</div>
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
+<!-- pop for the block and unblock -->
 <script>
-     function confirmAction(url, action) {
+    function confirmAction(url, action) {
         const actionText = action === 'block' ? 'block' : 'unblock';
         Swal.fire({
             title: `Are you sure you want to ${actionText} this user?`,
-            // text: "This action cannot be undone!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#1cc0a0',
