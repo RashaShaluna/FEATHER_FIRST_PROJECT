@@ -516,7 +516,7 @@ const confirmpass = async(req,res)=>{
       await user.save()
        console.log('saved');
 
-       return res.status(201).json({success:true, message: 'Password reset successfully' });
+       res.render('users/successpass',{title:'Feather - forgot password'});
       
     } catch (error) {
       console.log('Error in confirm pass',error)
@@ -524,6 +524,15 @@ const confirmpass = async(req,res)=>{
     }
 }
 
+// =================================================== successpass ==================================================
+const successpass = async (req,res) => {
+       try {
+         res.render('users/successpass')
+       } catch (error) {
+        console.log('error in successpass',error);
+        return res.status(400).json({ success: false, message: 'Error in success pass' });
+       }
+}
 
 
 module.exports = {
@@ -540,7 +549,8 @@ module.exports = {
   forgotpass,
   forgot,
   resetPass,
-  confirmpass
+  confirmpass,
+  successpass
 };
 
 

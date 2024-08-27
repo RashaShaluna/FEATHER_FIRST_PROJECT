@@ -23,6 +23,7 @@ router.get('/forgotpass',userController.forgotpass);
 router.post('/forgotpass',userController.forgot);
 router.get('/resetPass/:_id/:token',userController.resetPass);
 router.post('/resetPass/:_id/:token',userController. confirmpass);
+router.get('/changedpass',userController.successpass);
 
 
 

@@ -14,15 +14,11 @@ const customerController = require('../controllers/customerController');
 const categoryController = require('../controllers/catergoryController');
 const productController = require('../controllers/productController');
 const {userAuth,adminAuth} = require('../middleware/auth')
-const multer=require('multer');
-const storage = require('../helpers/multer');
-const uploads = multer({ storage: storage });
+const sharp = require('sharp');
+const uploads = require('../uplaods');
 
 adminRouter.use(nocache());
-
 adminRouter.use(express.static('public'));
-
-
 adminRouter.use('/',session({
     secret: process.env.SECRET_KEY,
     resave: false,
@@ -57,6 +53,7 @@ adminRouter.delete('/category/delete/:categoryId',adminAuth, categoryController.
 // product management
 adminRouter.get('/product',adminAuth,productController.productPage);
 adminRouter.get('/addproduct',adminAuth,productController.addproductpage);
-adminRouter.post('/addproduct',adminAuth,uploads.array('images',4),productController.productAdding);
+adminRouter.post('/addproduct', adminAuth, uploads.array('images', 4), productController.productAdding);
+
 
 module.exports = adminRouter;

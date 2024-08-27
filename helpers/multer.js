@@ -3,22 +3,13 @@ const path = require('path');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname,'../public/uploads'),(err,success)=>{
-        if(err){
-            throw err
-        }
-    });
+      cb(null, path.join(__dirname, '../public/uploads/re-image')); // Save to public/uploads
   },
   filename: (req, file, cb) => {
-    const name = Date.now()+'-'+file.originalname;
-    cb(null, name,function(error,success){
-        if(error){
-            throw error
-        }
-    });
+    cb(null.Date.now()+'.'+file.originalname);
   }
 });
 
-const uploads = multer({ storage: storage });
+const upload = multer({ storage });
 
-module.exports = uploads;
+module.exports = upload;

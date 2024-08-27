@@ -4,6 +4,7 @@ node_modules
 .vscode
 test.js
 adminish
+upload
 
 # # Logs
 # logs

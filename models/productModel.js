@@ -11,40 +11,34 @@ const productSchema = new Schema ({
         type:Number,
         required : true
     },
-    image : {
+    images : {
         type:Array,
         required:true,
-        // validate:[arrayLimit,'You can pass only 4 images']
     },
     description:{
         type:String,
         required:true
     },
-    // brand:{
-    //     type:String,
-    //     required:true
-    // },
     category:{
         type:String,
         required:true
     },
-    quantity:{
-        type:String,
-        required:true
+    quantity: {
+        type: Number,
+        required: true
     },
     status:{
-        type:Boolean,
+        type:String,
        enum:['In stock','Out of stock'],
        required:true,
-       default:'Available'
+       default:'In stock'
     },
     color:{
         type:String,
         required:true
-    },
-    offerprice:{
-        type:String,
-        required:true,
+    },offerprice: {
+        type: Number,
+        required: true
     }
     
 },{timestamps:true})

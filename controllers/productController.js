@@ -3,11 +3,8 @@ const Category = require('../models/category');
 const User = require('../models/userSchema');
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp'); 
 const {log} = require('console');
-const multer=require('multer');
-const { search } = require('../routes/adminRouter');
-
+const multer = require('multer');
 // =========================================== Product page ===================================================================
 const productPage = async(req,res)=>{
     try {
@@ -42,7 +39,7 @@ const addproductpage = async(req,res)=>{
           log('in add product page')
             const category = await Category.find({islisted:true ,isDeleted:false});
             console.log('Fetched Categories:', category);
-            res.render('admin/addProducts',{category,title:'Add Prodcut - Feather'});
+            res.render('admin/pruductadding',{category,title:'Add Prodcut - Feather'});
          } catch (error) {
             console.log(error);
             res.redirect('/admin/pageerror');
@@ -115,43 +112,99 @@ const addproductpage = async(req,res)=>{
   
 
 
-const productAdding = async(req,res)=>{
+// const productAdding = async(req,res)=>{
+//   try {
+//           log('in add')
+
+//     const product = req.body;
+//     // const arrImages = [];
+//       log('in add')
+      
+//     //  adding images to the array
+//     // for (let i = 0; i < req.files.length; i++) {
+//     //   arrImages[i] = req.files[i].filename;
+//     // }
+//   //   const image = new ImageModel({
+//   //     imagePath: `/uploads/${req.file.filename}`,
+//   //     // You can add other fields here if needed
+//   // });
+
+//     log('in add')
+
+//     const existingProduct = await Product.findOne({name:product.name,category:product.categerory});
+//     log('in add')
+
+//     if(existingProduct){
+//       return res.status(400).json({ success: false, message: 'Product already exists' });
+
+//     };
+
+//     // createing new product
+//    const newProduct = new Product({
+//       name: product.name,
+//       price: product.price,
+//       description: product.description,
+//       brand: product.brand,
+//       category: product.category, 
+//       quantity: product.quantity,
+//       offerprice: product.offerprice,
+//       color:product.color,
+//       images: image, 
+//     });
+//     const productData= await newProduct .save();
+//       // res.status(200).json({success:true,message:'Product added ',data:productData});
+//       res.status(200).send('Product added successfully with images');
+
+//   } catch (error) {
+//     log('error',error);
+//     res.status(400).json({success:false,message:'Server error '})
+//   }
+// }
+
+
+const productAdding = async (req, res) => {
   try {
-    const product = req.body;
-    const arrImages = [];
-    
-    //  adding images to the array
-    for (let i = 0; i < req.files.length; i++) {
-      arrImages[i] = req.files[i].filename;
-    }
+   log('in add')
+   log('Request Body:', req.body);
+   log('Uploaded Files:', req.files);
+   
+    const { name, price, description, brand, category, quantity, offerprice, color } = req.body;
+    const images = req.files.map(file => `uploads/${file.filename}`); // Array of image paths
+    log('in add')
 
-    const existingProduct = await Product.findOne({name:product.name,category:product.categerory});
-
-    if(existingProduct){
+    // Check for existing product
+    const existingProduct = await Product.findOne({ name: { $regex: `${name}`, $options: 'i' }, category });
+    if (existingProduct) {
       return res.status(400).json({ success: false, message: 'Product already exists' });
-
-    };
-
-    // createing new product
-   const newProduct = new Product({
-      name: product.name,
-      price: product.price,
-      description: product.description,
-      brand: product.brand,
-      category: product.category, 
-      quantity: product.quantity,
-      offerprice: product.offerprice,
-      color:product.color,
-      images: arrImages, 
+    }
+    log('in add')
+    console.log('name price offerprice images:',name, price, offerprice, images);
+    // Create new product
+    const newProduct = new Product({
+      name,
+      price,
+      description,
+      brand,
+      category,
+      quantity,
+      price,
+      offerprice,
+      color,
+      images, // Array of image paths
     });
-    const productData= await newProduct .save();
-      res.status(200).json({success:true,message:'Product added ',data:productData});
+
+
+    const productData = await newProduct.save();
+    log('in saved')
+
+    console.log('product',productData)
+    res.status(200).send('Product added successfully with images');
+
   } catch (error) {
-    res.status(400).json({success:false,message:'Server error '})
+   log('Error:', error);
+    res.status(400).json({ success: false, message: 'Server error' });
   }
-}
-
-
+};
 
 
 
@@ -162,6 +215,6 @@ const productAdding = async(req,res)=>{
 module.exports = {
     productPage,
     addproductpage,
-    productAdding,
+    productAdding
 
 }
