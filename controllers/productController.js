@@ -198,7 +198,7 @@ const productAdding = async (req, res) => {
     log('in saved')
 
     console.log('product',productData)
-    res.status(200).send('Product added successfully with images');
+    res.status(200).json({ success: true, message: 'Product added' });
 
   } catch (error) {
    log('Error:', error);

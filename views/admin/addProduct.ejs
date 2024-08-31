@@ -268,7 +268,7 @@ input[type="file"]::-webkit-file-upload-text {
   <div class="card-body">
     <label for="input">Upload Image 1:</label>
     <div class="text-center">
-      <img src="" alt="Preview" id="imgView1" class="img-fluid mb-2">
+      <img src=""  id="imgView1" class="img-fluid mb-2">
     </div>
     <input class="form-control" type="file"  id="input1" name="images" accept="image/png, image/jpeg, image/jpg">
     <div id="images-error1" class="error-message mt-2"></div>
@@ -289,7 +289,7 @@ input[type="file"]::-webkit-file-upload-text {
   <div class="card-body">
     <label for="input">Upload Image 2:</label>
     <div class="text-center">
-      <img src="" alt="Preview" id="imgView2" class="img-fluid mb-2">
+      <img src=""  id="imgView2" class="img-fluid mb-2">
     </div>
     <input class="form-control" type="file"  id="input2"  name="images"accept="image/png, image/jpeg, image/jpg">
     <div id="images-error1" class="error-message mt-2"></div>
@@ -309,7 +309,7 @@ input[type="file"]::-webkit-file-upload-text {
   <div class="card-body">
     <label for="input">Upload Image 3:</label>
     <div class="text-center">
-      <img src="" alt="Preview" id="imgView3" class="img-fluid mb-2">
+      <img src=""  id="imgView3" class="img-fluid mb-2">
     </div>
     <input class="form-control" type="file"  id="input3" name="images" accept="image/png, image/jpeg, image/jpg">
     <div id="images-error3" class="error-message mt-2"></div>
@@ -351,276 +351,489 @@ input[type="file"]::-webkit-file-upload-text {
 <!-- <script src="./node_modules/cropperjs/dist/cropper.min.js"></script> -->
 
 <script>
-  
-
-
-  document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() {
   const croppers = [];
-  
+
+  function validateForm() {
+    let isValid = true;
+
+    // Clear previous errors
+    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+    // Validate Product Name
+    const productName = document.getElementById('product_name').value.trim();
+    if (productName === '') {
+      document.getElementById('productName-error').textContent = 'Product name is required.';
+      document.getElementById('productName-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Category
+    const category = document.getElementById('category').value.trim();
+    if (category === '') {
+      document.getElementById('category-error').textContent = 'Category is required.';
+      document.getElementById('category-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Regular Price
+    const regularPrice = document.querySelector('input[name="price"]').value.trim();
+    if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
+      document.getElementById('regularPrice-error').textContent = 'Price is required.';
+      document.getElementById('regularPrice-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Sale Price
+    const salePrice = document.querySelector('input[name="offerprice"]').value.trim();
+    if (salePrice === '' || isNaN(salePrice) || parseFloat(salePrice) < 0) {
+      document.getElementById('salePrice-error').textContent = 'Offer price is required.';
+      document.getElementById('salePrice-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Quantity
+    const quantity = document.getElementById('quantity').value.trim();
+    if (quantity === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
+      document.getElementById('quantity-error').textContent = 'Quantity is required.';
+      document.getElementById('quantity-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Description
+    const description = document.getElementById('descriptionid').value.trim();
+    if (description === '') {
+      document.getElementById('description-error').textContent = 'Description is required.';
+      document.getElementById('description-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Color
+    const color = document.getElementById('color').value.trim();
+    if (color === '') {
+      document.getElementById('color-error').textContent = 'Color is required.';
+      document.getElementById('color-error').style.display = 'block';
+      isValid = false;
+    }
+
+    // Validate Images
+    const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+    let imageValid = false;
+    imageInputs.forEach(input => {
+      if (input.files.length > 0) {
+        imageValid = true;
+      }
+    });
+    if (!imageValid) {
+      document.getElementById('images-error').textContent = 'Image is required';
+      document.getElementById('images-error').style.display = 'block';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
   function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
-      const inputElement = document.getElementById(inputId);
-      const imgView = document.getElementById(imgViewId);
-      const croppedImg = document.getElementById(croppedImgId);
-      const saveButton = document.getElementById(saveButtonId);
-      const cropperContainer = document.getElementById('cropperImgContainer' + cropperIndex);
+    const inputElement = document.getElementById(inputId);
+    const imgView = document.getElementById(imgViewId);
+    const croppedImg = document.getElementById(croppedImgId);
+    const saveButton = document.getElementById(saveButtonId);
+    const cropperContainer = document.getElementById('croppedImgContainer' + cropperIndex);
 
-      inputElement.addEventListener("change", function(event) {
-          const files = event.target.files;
-          if (files && files.length > 0) {
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                  imgView.src = e.target.result;
-                  imgView.style.display = "block";
+    inputElement.addEventListener("change", function(event) {
+      const files = event.target.files;
+      if (files && files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          imgView.src = e.target.result;
+          imgView.style.display = "block";
 
-                  if (croppers[cropperIndex]) {
-                      croppers[cropperIndex].destroy();
-                  }
-
-                  croppers[cropperIndex] = new Cropper(imgView, {
-                      aspectRatio: 1,
-                      viewMode: 2,
-                      preview: '.cropped-img-container img',
-                      autoCropArea: 1,
-                      movable: true,
-                      scalable: true,
-                      zoomable: true,
-                      rotatable: true,
-                      cropBoxResizable: true,
-                      minCropBoxWidth: 200,
-                      minCropBoxHeight: 200
-                  });
-
-                  cropperContainer.style.display = "flex";
-              };
-              reader.readAsDataURL(files[0]);
-          }
-      });
-
-      saveButton.addEventListener("click", async function() {
-        if (!croppers[cropperIndex]) {
-              console.error(`Cropper instance ${cropperIndex} not found.`);
-              return;
+          if (croppers[cropperIndex]) {
+            croppers[cropperIndex].destroy();
           }
 
-        const croppedCanvas = croppers[cropperIndex].getCroppedCanvas();
-
-        if (!croppedCanvas) {
-              console.error(`Failed to get cropped canvas for cropper ${cropperIndex}.`);
-              return;
-          }
-
-          const croppedImageURL = croppedCanvas.toDataURL('image/png');  
-          croppedImg.src = croppedImageURL;
-          croppedImg.style.display = "block";
-
-          const blob = await new Promise((resolve) => {
-              croppedCanvas.toBlob((blob) => {
-                  console.log('Blob created:', blob);
-                  resolve(blob);
-              }, 'image/png');
+          croppers[cropperIndex] = new Cropper(imgView, {
+            aspectRatio: 1,
+            viewMode: 2,
+            preview: '.cropped-img-container img',
+            autoCropArea: 1,
+            movable: true,
+            scalable: true,
+            zoomable: true,
+            rotatable: true,
+            cropBoxResizable: true,
+            minCropBoxWidth: 200,
+            minCropBoxHeight: 200
           });
 
-          if (!blob) {
-              console.error(`Blob creation failed for cropper ${cropperIndex}.`);
-              return;
-          }
+          cropperContainer.style.display = "flex";
+        };
+        reader.readAsDataURL(files[0]);
+      }
+    });
 
-          // Create a File from the Blob and update the file input
-          const file = new File([blob], `cropped-image-${cropperIndex}.png`, { type: 'image/png' });
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(file);
-          document.getElementById(inputId).files = dataTransfer.files;
+    saveButton.addEventListener("click", async function() {
+      if (!croppers[cropperIndex]) {
+        console.error(`Cropper instance ${cropperIndex} not found.`);
+        return;
+      }
 
-          // Prepare FormData
-          const formData = new FormData();
-          formData.append(inputId, file);
+      const croppedCanvas = croppers[cropperIndex].getCroppedCanvas();
 
-          // Include other form data if necessary
-          // Example: formData.append('productName', document.getElementById('productName').value);
+      if (!croppedCanvas) {
+        console.error(`Failed to get cropped canvas for cropper ${cropperIndex}.`);
+        return;
+      }
 
-          fetch('/addproduct', {
-            method: 'POST',
-            body: formData
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log('Success:', data);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
+      const croppedImageURL = croppedCanvas.toDataURL('image/png');  
+      croppedImg.src = croppedImageURL;
+      croppedImg.style.display = "block";
 
-          croppers[cropperIndex].destroy();
-          croppers[cropperIndex] = null;
-          imgView.style.display = "none";
-          cropperContainer.style.display = "none";
+      const blob = await new Promise((resolve) => {
+        croppedCanvas.toBlob((blob) => {
+          console.log('Blob created:', blob);
+          resolve(blob);
+        }, 'image/png');
       });
+
+      if (!blob) {
+        console.error(`Blob creation failed for cropper ${cropperIndex}.`);
+        return;
+      }
+
+      const file = new File([blob], `cropped-image-${cropperIndex}.png`, { type: 'image/png' });
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      document.getElementById(inputId).files = dataTransfer.files;
+
+      croppers[cropperIndex].destroy();
+      croppers[cropperIndex] = null;
+      imgView.style.display = "none";
+      cropperContainer.style.display = "none";
+    });
   }
 
   // Initialize handlers for each image input
   handleImageUpload('input1', 'imgView1', 'croppedImg1', 'saveButton1', 1);
   handleImageUpload('input2', 'imgView2', 'croppedImg2', 'saveButton2', 2);
   handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
-});
 
+  // Handle form submission
+  document.getElementById('productForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
+    if (validateForm()) {
+      const formData = new FormData(this);
 
-  // validation code
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('productForm');      
-  // validation
-  function nameValidate() {
-    const name = document.getElementsByName('name')[0].value.trim();
-    const error1 = document.getElementById('productName-error');
+      fetch('/admin/addproduct', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
 
-    if (name === "") {
-      error1.style.display = 'block';
-      error1.innerHTML = 'Please enter a product name.';
-    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-      error1.style.display = 'block';
-      error1.innerHTML = 'Product name should contain only alphabetic characters.';
-    } else {
-      error1.style.display = 'none';
-      error1.innerHTML = '';
-    }
-  }
+        Swal.fire({
+          icon: 'success',
+          title: 'Product Added',
+          text: 'The product was added successfully!',
+          confirmButtonText: 'OK'
+        }).then(()=>{
+          location.reload();
+        })
 
-  function descriptionValidation() {
-    const description = document.getElementById('descriptionid').value.trim();
-    const error2 = document.getElementById('description-error');
+      })
+      .catch(error => {
+        console.error('Error:', error);
 
-    if (description === "") {
-      error2.style.display = "block";
-      error2.innerHTML = "Please enter a description.";
-    } else if (description.length < 1) {
-      error2.style.display = "block";
-      error2.innerHTML = "Description should be at least 50 characters.";
-    } else {
-      error2.style.display = "none";
-      error2.innerHTML = '';
-    }
-  }
-
-  function priceValidation() {
-    const price = document.getElementsByName('price')[0].value.trim();
-    const error3 = document.getElementById('regularPrice-error');
-
-    if (price === "") {
-      error3.style.display = "block";
-      error3.innerHTML = "Please enter a price.";
-    } else if (!/^\₹?\d+(\.\d{2})?$/.test(price)) {
-      error3.style.display = "block";
-      error3.innerHTML = "Invalid price format. Please use ₹XX.XX";
-    } else {
-      error3.style.display = "none";
-      error3.innerHTML = '';
-    }
-  }
-
-  function offerValidation() {
-    const offer = document.getElementsByName('Offerprice')[0].value.trim();
-    const error4 = document.getElementById('salePrice-error');
-
-    if (offer === "") {
-      error4.style.display = "block";
-      error4.innerHTML = "Please enter an offer price.";
-    } else if (!/^\₹?\d+(\.\d{2})?$/.test(offer)) {
-      error4.style.display = "block";
-      error4.innerHTML = "Invalid offer price format. Please use ₹XX.XX";
-    } else {
-      error4.style.display = "none";
-      error4.innerHTML = '';
-    }
-  }
-
-  function quantityValidation() {
-    const quantity = document.getElementById('quantity').value.trim();
-    const error5 = document.getElementById('quantity-error');
-
-    if (quantity === "") {
-      error5.style.display = 'block';
-      error5.innerHTML = 'Please enter the quantity.';
-    } else if (!/^\d+$/.test(quantity)) {
-      error5.style.display = 'block';
-      error5.innerHTML = 'Quantity should be a positive number.';
-    } else {
-      error5.style.display = 'none';
-      error5.innerHTML = '';
-    }
-  }
-
-  function categoryValidation() {
-    const category = document.getElementById('category').value;
-    const error6 = document.getElementById('category-error');
-
-    if (category === "") {
-      error6.style.display = 'block';
-      error6.innerHTML = 'Please select a category.';
-    } else {
-      error6.style.display = 'none';
-      error6.innerHTML = '';
-    }
-  }
-
-  function colorValidation() {
-    const color = document.getElementById('color').value.trim();
-    const error7 = document.getElementById('color-error');
-
-    if (color === "") {
-      error7.style.display = 'block';
-      error7.innerHTML = 'Please enter a color.';
-    } else {
-      error7.style.display = 'none';
-      error7.innerHTML = '';
-    }
-  }
-  function validateImages() {
-    const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
-    let isValid = true;
-    
-    imageInputs.forEach((input, index) => {
-      const imageErrorElement = document.getElementById(`images-error`);
-      
-      if (input.files.length === 0) {
-        imageErrorElement.style.display = 'block';
-        imageErrorElement.innerHTML = 'Please select an images.';
-        isValid = false;
-      } else {
-        imageErrorElement.style.display = 'none';
-        imageErrorElement.innerHTML = '';
-      }
-    });
-    
-    return isValid;
-  }
-
-  
-  
-  form.addEventListener('submit', (e) => {
-    nameValidate();
-    descriptionValidation();
-    priceValidation();
-    offerValidation();
-    quantityValidation();
-    categoryValidation();
-    colorValidation();
-    const imagesValid = validateImages();
-
-    // Prevent form submission if there are errors
-    if (document.getElementById('productName-error').style.display === 'block' || 
-        document.getElementById('description-error').style.display === 'block' ||
-        document.getElementById('regularPrice-error').style.display === 'block' ||
-        document.getElementById('salePrice-error').style.display === 'block' ||
-        document.getElementById('quantity-error').style.display === 'block' ||
-        document.getElementById('category-error').style.display === 'block' ||
-        document.getElementById('color-error').style.display === 'block'||
-        !imagesValid) {
-      e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          confirmButtonText: 'OK'
+        });
+      });
     }
   });
 });
 
-</script>
+
+
+
+
+
+
+
+
+
+
+
+
+//   document.addEventListener("DOMContentLoaded", function() {
+//   const croppers = [];
+  
+//   function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
+//       const inputElement = document.getElementById(inputId);
+//       const imgView = document.getElementById(imgViewId);
+//       const croppedImg = document.getElementById(croppedImgId);
+//       const saveButton = document.getElementById(saveButtonId);
+//       const cropperContainer = document.getElementById('cropperImgContainer' + cropperIndex);
+
+//       inputElement.addEventListener("change", function(event) {
+//           const files = event.target.files;
+//           if (files && files.length > 0) {
+//               const reader = new FileReader();
+//               reader.onload = function(e) {
+//                   imgView.src = e.target.result;
+//                   imgView.style.display = "block";
+
+//                   if (croppers[cropperIndex]) {
+//                       croppers[cropperIndex].destroy();
+//                   }
+
+//                   croppers[cropperIndex] = new Cropper(imgView, {
+//                       aspectRatio: 1,
+//                       viewMode: 2,
+//                       preview: '.cropped-img-container img',
+//                       autoCropArea: 1,
+//                       movable: true,
+//                       scalable: true,
+//                       zoomable: true,
+//                       rotatable: true,
+//                       cropBoxResizable: true,
+//                       minCropBoxWidth: 200,
+//                       minCropBoxHeight: 200
+//                   });
+
+//                   cropperContainer.style.display = "flex";
+//               };
+//               reader.readAsDataURL(files[0]);
+//           }
+//       });
+
+//       saveButton.addEventListener("click", async function() {
+//         if (!croppers[cropperIndex]) {
+//               console.error(`Cropper instance ${cropperIndex} not found.`);
+//               return;
+//           }
+
+//         const croppedCanvas = croppers[cropperIndex].getCroppedCanvas();
+
+//         if (!croppedCanvas) {
+//               console.error(`Failed to get cropped canvas for cropper ${cropperIndex}.`);
+//               return;
+//           }
+
+//           const croppedImageURL = croppedCanvas.toDataURL('image/png');  
+//           croppedImg.src = croppedImageURL;
+//           croppedImg.style.display = "block";
+
+//           const blob = await new Promise((resolve) => {
+//               croppedCanvas.toBlob((blob) => {
+//                   console.log('Blob created:', blob);
+//                   resolve(blob);
+//               }, 'image/png');
+//           });
+
+//           if (!blob) {
+//               console.error(`Blob creation failed for cropper ${cropperIndex}.`);
+//               return;
+//           }
+
+//           // Create a File from the Blob and update the file input
+//           const file = new File([blob], `cropped-image-${cropperIndex}.png`, { type: 'image/png' });
+//           const dataTransfer = new DataTransfer();
+//           dataTransfer.items.add(file);
+//           document.getElementById(inputId).files = dataTransfer.files;
+
+//           // Prepare FormData
+//           const formData = new FormData();
+//           formData.append(inputId, file);
+
+//           // Include other form data if necessary
+//           // Example: formData.append('productName', document.getElementById('productName').value);
+
+//           fetch('/addproduct', {
+//             method: 'POST',
+//             body: formData
+//           })
+//           .then(response => response.json())
+//           .then(data => {
+//             console.log('Success:', data);
+//           })
+//           .catch(error => {
+//             console.error('Error:', error);
+//           });
+
+//           croppers[cropperIndex].destroy();
+//           croppers[cropperIndex] = null;
+//           imgView.style.display = "none";
+//           cropperContainer.style.display = "none";
+//       });
+//   }
+
+//   // Initialize handlers for each image input
+//   handleImageUpload('input1', 'imgView1', 'croppedImg1', 'saveButton1', 1);
+//   handleImageUpload('input2', 'imgView2', 'croppedImg2', 'saveButton2', 2);
+//   handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
+// });
+
+
+
+//   // validation code
+// document.addEventListener('DOMContentLoaded', () => {
+//   const form = document.getElementById('productForm');      
+//   function nameValidate() {
+//     const name = document.getElementsByName('name')[0].value.trim();
+//     const error1 = document.getElementById('productName-error');
+
+//     if (name === "") {
+//       error1.style.display = 'block';
+//       error1.innerHTML = 'Please enter a product name.';
+//     } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+//       error1.style.display = 'block';
+//       error1.innerHTML = 'Product name should contain only alphabetic characters.';
+//     } else {
+//       error1.style.display = 'none';
+//       error1.innerHTML = '';
+//     }
+//   }
+
+//   function descriptionValidation() {
+//     const description = document.getElementById('descriptionid').value.trim();
+//     const error2 = document.getElementById('description-error');
+
+//     if (description === "") {
+//       error2.style.display = "block";
+//       error2.innerHTML = "Please enter a description.";
+//     } else if (description.length < 1) {
+//       error2.style.display = "block";
+//       error2.innerHTML = "Description should be at least 50 characters.";
+//     } else {
+//       error2.style.display = "none";
+//       error2.innerHTML = '';
+//     }
+//   }
+
+//   function priceValidation() {
+//     const price = document.getElementsByName('price')[0].value.trim();
+//     const error3 = document.getElementById('regularPrice-error');
+
+//     if (price === "") {
+//       error3.style.display = "block";
+//       error3.innerHTML = "Please enter a price.";
+//     } else if (!/^\₹?\d+(\.\d{2})?$/.test(price)) {
+//       error3.style.display = "block";
+//       error3.innerHTML = "Invalid price format. Please use ₹XX.XX";
+//     } else {
+//       error3.style.display = "none";
+//       error3.innerHTML = '';
+//     }
+//   }
+
+//   function offerValidation() {
+//     const offer = document.getElementsByName('Offerprice')[0].value.trim();
+//     const error4 = document.getElementById('salePrice-error');
+
+//     if (offer === "") {
+//       error4.style.display = "block";
+//       error4.innerHTML = "Please enter an offer price.";
+//     } else if (!/^\₹?\d+(\.\d{2})?$/.test(offer)) {
+//       error4.style.display = "block";
+//       error4.innerHTML = "Invalid offer price format. Please use ₹XX.XX";
+//     } else {
+//       error4.style.display = "none";
+//       error4.innerHTML = '';
+//     }
+//   }
+
+//   function quantityValidation() {
+//     const quantity = document.getElementById('quantity').value.trim();
+//     const error5 = document.getElementById('quantity-error');
+
+//     if (quantity === "") {
+//       error5.style.display = 'block';
+//       error5.innerHTML = 'Please enter the quantity.';
+//     } else if (!/^\d+$/.test(quantity)) {
+//       error5.style.display = 'block';
+//       error5.innerHTML = 'Quantity should be a positive number.';
+//     } else {
+//       error5.style.display = 'none';
+//       error5.innerHTML = '';
+//     }
+//   }
+
+//   function categoryValidation() {
+//     const category = document.getElementById('category').value;
+//     const error6 = document.getElementById('category-error');
+
+//     if (category === "") {
+//       error6.style.display = 'block';
+//       error6.innerHTML = 'Please select a category.';
+//     } else {
+//       error6.style.display = 'none';
+//       error6.innerHTML = '';
+//     }
+//   }
+
+//   function colorValidation() {
+//     const color = document.getElementById('color').value.trim();
+//     const error7 = document.getElementById('color-error');
+
+//     if (color === "") {
+//       error7.style.display = 'block';
+//       error7.innerHTML = 'Please enter a color.';
+//     } else {
+//       error7.style.display = 'none';
+//       error7.innerHTML = '';
+//     }
+//   }
+//   function validateImages() {
+//     const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+//     let isValid = true;
+    
+//     imageInputs.forEach((input, index) => {
+//       const imageErrorElement = document.getElementById(`images-error`);
+      
+//       if (input.files.length === 0) {
+//         imageErrorElement.style.display = 'block';
+//         imageErrorElement.innerHTML = 'Please select an images.';
+//         isValid = false;
+//       } else {
+//         imageErrorElement.style.display = 'none';
+//         imageErrorElement.innerHTML = '';
+//       }
+//     });
+    
+//     return isValid;
+//   }
+  
+
+//   form.addEventListener('submit', (e) => {
+//     nameValidate();
+//     descriptionValidation();
+//     priceValidation();
+//     offerValidation();
+//     quantityValidation();
+//     categoryValidation();
+//     colorValidation();
+//     const imagesValid = validateImages();
+
+//     // Prevent form submission if there are errors
+//     if (document.getElementById('productName-error').style.display === 'block' || 
+//         document.getElementById('description-error').style.display === 'block' ||
+//         document.getElementById('regularPrice-error').style.display === 'block' ||
+//         document.getElementById('salePrice-error').style.display === 'block' ||
+//         document.getElementById('quantity-error').style.display === 'block' ||
+//         document.getElementById('category-error').style.display === 'block' ||
+//         document.getElementById('color-error').style.display === 'block'||
+//         !imagesValid) {
+//       e.preventDefault();
+//     }
+//   });
+// });
+
+ </script>
  <%- include('../adminlayouts/footer') %>
 </div>
 

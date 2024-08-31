@@ -570,3 +570,272 @@ document.addEventListener("DOMContentLoaded", function() {
   </div>
 </div> -->
 <!-- </div> -->
+
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  const croppers = [];
+  
+  function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
+      const inputElement = document.getElementById(inputId);
+      const imgView = document.getElementById(imgViewId);
+      const croppedImg = document.getElementById(croppedImgId);
+      const saveButton = document.getElementById(saveButtonId);
+      const cropperContainer = document.getElementById('cropperImgContainer' + cropperIndex);
+
+      inputElement.addEventListener("change", function(event) {
+          const files = event.target.files;
+          if (files && files.length > 0) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                  imgView.src = e.target.result;
+                  imgView.style.display = "block";
+
+                  if (croppers[cropperIndex]) {
+                      croppers[cropperIndex].destroy();
+                  }
+
+                  croppers[cropperIndex] = new Cropper(imgView, {
+                      aspectRatio: 1,
+                      viewMode: 2,
+                      preview: '.cropped-img-container img',
+                      autoCropArea: 1,
+                      movable: true,
+                      scalable: true,
+                      zoomable: true,
+                      rotatable: true,
+                      cropBoxResizable: true,
+                      minCropBoxWidth: 200,
+                      minCropBoxHeight: 200
+                  });
+
+                  cropperContainer.style.display = "flex";
+              };
+              reader.readAsDataURL(files[0]);
+          }
+      });
+
+      saveButton.addEventListener("click", async function() {
+        if (!croppers[cropperIndex]) {
+              console.error(`Cropper instance ${cropperIndex} not found.`);
+              return;
+          }
+
+        const croppedCanvas = croppers[cropperIndex].getCroppedCanvas();
+
+        if (!croppedCanvas) {
+              console.error(`Failed to get cropped canvas for cropper ${cropperIndex}.`);
+              return;
+          }
+
+          const croppedImageURL = croppedCanvas.toDataURL('image/png');  
+          croppedImg.src = croppedImageURL;
+          croppedImg.style.display = "block";
+
+          const blob = await new Promise((resolve) => {
+              croppedCanvas.toBlob((blob) => {
+                  console.log('Blob created:', blob);
+                  resolve(blob);
+              }, 'image/png');
+          });
+
+          if (!blob) {
+              console.error(`Blob creation failed for cropper ${cropperIndex}.`);
+              return;
+          }
+
+          // Create a File from the Blob and update the file input
+          const file = new File([blob], `cropped-image-${cropperIndex}.png`, { type: 'image/png' });
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          document.getElementById(inputId).files = dataTransfer.files;
+
+          // Prepare FormData
+          const formData = new FormData();
+          formData.append(inputId, file);
+
+          // Include other form data if necessary
+          // Example: formData.append('productName', document.getElementById('productName').value);
+
+          fetch('/addproduct', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+
+          croppers[cropperIndex].destroy();
+          croppers[cropperIndex] = null;
+          imgView.style.display = "none";
+          cropperContainer.style.display = "none";
+      });
+  }
+
+  // Initialize handlers for each image input
+  handleImageUpload('input1', 'imgView1', 'croppedImg1', 'saveButton1', 1);
+  handleImageUpload('input2', 'imgView2', 'croppedImg2', 'saveButton2', 2);
+  handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
+});
+
+
+
+  // validation code
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('productForm');      
+  function nameValidate() {
+    const name = document.getElementsByName('name')[0].value.trim();
+    const error1 = document.getElementById('productName-error');
+
+    if (name === "") {
+      error1.style.display = 'block';
+      error1.innerHTML = 'Please enter a product name.';
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+      error1.style.display = 'block';
+      error1.innerHTML = 'Product name should contain only alphabetic characters.';
+    } else {
+      error1.style.display = 'none';
+      error1.innerHTML = '';
+    }
+  }
+
+  function descriptionValidation() {
+    const description = document.getElementById('descriptionid').value.trim();
+    const error2 = document.getElementById('description-error');
+
+    if (description === "") {
+      error2.style.display = "block";
+      error2.innerHTML = "Please enter a description.";
+    } else if (description.length < 1) {
+      error2.style.display = "block";
+      error2.innerHTML = "Description should be at least 50 characters.";
+    } else {
+      error2.style.display = "none";
+      error2.innerHTML = '';
+    }
+  }
+
+  function priceValidation() {
+    const price = document.getElementsByName('price')[0].value.trim();
+    const error3 = document.getElementById('regularPrice-error');
+
+    if (price === "") {
+      error3.style.display = "block";
+      error3.innerHTML = "Please enter a price.";
+    } else if (!/^\₹?\d+(\.\d{2})?$/.test(price)) {
+      error3.style.display = "block";
+      error3.innerHTML = "Invalid price format. Please use ₹XX.XX";
+    } else {
+      error3.style.display = "none";
+      error3.innerHTML = '';
+    }
+  }
+
+  function offerValidation() {
+    const offer = document.getElementsByName('Offerprice')[0].value.trim();
+    const error4 = document.getElementById('salePrice-error');
+
+    if (offer === "") {
+      error4.style.display = "block";
+      error4.innerHTML = "Please enter an offer price.";
+    } else if (!/^\₹?\d+(\.\d{2})?$/.test(offer)) {
+      error4.style.display = "block";
+      error4.innerHTML = "Invalid offer price format. Please use ₹XX.XX";
+    } else {
+      error4.style.display = "none";
+      error4.innerHTML = '';
+    }
+  }
+
+  function quantityValidation() {
+    const quantity = document.getElementById('quantity').value.trim();
+    const error5 = document.getElementById('quantity-error');
+
+    if (quantity === "") {
+      error5.style.display = 'block';
+      error5.innerHTML = 'Please enter the quantity.';
+    } else if (!/^\d+$/.test(quantity)) {
+      error5.style.display = 'block';
+      error5.innerHTML = 'Quantity should be a positive number.';
+    } else {
+      error5.style.display = 'none';
+      error5.innerHTML = '';
+    }
+  }
+
+  function categoryValidation() {
+    const category = document.getElementById('category').value;
+    const error6 = document.getElementById('category-error');
+
+    if (category === "") {
+      error6.style.display = 'block';
+      error6.innerHTML = 'Please select a category.';
+    } else {
+      error6.style.display = 'none';
+      error6.innerHTML = '';
+    }
+  }
+
+  function colorValidation() {
+    const color = document.getElementById('color').value.trim();
+    const error7 = document.getElementById('color-error');
+
+    if (color === "") {
+      error7.style.display = 'block';
+      error7.innerHTML = 'Please enter a color.';
+    } else {
+      error7.style.display = 'none';
+      error7.innerHTML = '';
+    }
+  }
+  function validateImages() {
+    const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+    let isValid = true;
+    
+    imageInputs.forEach((input, index) => {
+      const imageErrorElement = document.getElementById(`images-error`);
+      
+      if (input.files.length === 0) {
+        imageErrorElement.style.display = 'block';
+        imageErrorElement.innerHTML = 'Please select an images.';
+        isValid = false;
+      } else {
+        imageErrorElement.style.display = 'none';
+        imageErrorElement.innerHTML = '';
+      }
+    });
+    
+    return isValid;
+  }
+  
+
+  form.addEventListener('submit', (e) => {
+    nameValidate();
+    descriptionValidation();
+    priceValidation();
+    offerValidation();
+    quantityValidation();
+    categoryValidation();
+    colorValidation();
+    const imagesValid = validateImages();
+
+    // Prevent form submission if there are errors
+    if (document.getElementById('productName-error').style.display === 'block' || 
+        document.getElementById('description-error').style.display === 'block' ||
+        document.getElementById('regularPrice-error').style.display === 'block' ||
+        document.getElementById('salePrice-error').style.display === 'block' ||
+        document.getElementById('quantity-error').style.display === 'block' ||
+        document.getElementById('category-error').style.display === 'block' ||
+        document.getElementById('color-error').style.display === 'block'||
+        !imagesValid) {
+      e.preventDefault();
+    }
+  });
+});
+
+</script>
