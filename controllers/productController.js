@@ -39,7 +39,7 @@ const addproductpage = async(req,res)=>{
           log('in add product page')
             const category = await Category.find({islisted:true ,isDeleted:false});
             console.log('Fetched Categories:', category);
-            res.render('admin/pruductadding',{category,title:'Add Prodcut - Feather'});
+            res.render('admin/addProduct',{category,title:'Add Product - Feather'});
          } catch (error) {
             console.log(error);
             res.redirect('/admin/pageerror');

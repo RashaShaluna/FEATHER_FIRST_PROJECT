@@ -1,0 +1,337 @@
+<%- include('../layouts/homeheader')  %>
+
+
+
+
+
+<style>
+
+    .shop-bar{
+        width: 100%;
+        height: 85px;
+        background-color: #333333;
+    }.title{
+        text-align: center;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    /* .row{
+        display: flex;
+        align-items: center;
+        justify-content: baseline;
+    } */
+    .dropbtn {
+        background-color: #d4d0d0;
+        color: rgb(0, 0, 0);
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+  
+    }
+
+        /* The container <div> - needed to position the dropdown content */
+        .drop {
+        position: relative;
+        display: inline-block;
+
+        }
+
+        /* Drop Content (Hidden by Default) */
+        .drop-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        }
+
+        /* Links inside the drop */
+        .drop-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        }
+
+        /* Change color of drop links on hover */
+        .drop-content a:hover {background-color: #ccc5c5}
+
+        /* Show the drop menu on hover */
+        .drop:hover .drop-content {
+        display: block;
+        }
+
+        /* Change the background color of the drop button when the drop content is shown */
+        .drop:hover .dropbtn {
+        background-color: #908e8e;
+        }
+        .pop{
+            margin-bottom: 20px;
+        }
+
+</style>
+
+
+
+   
+      <div class="shop-bar"></div>
+                       
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+
+
+                <div class="drop">
+                    <br>
+                    <button class="dropbtn">Category</button>
+                    <div class="drop-content">
+                        <a href="/shop">All Categories</a>
+                        <!-- Add links for each category -->
+                        <% categories.forEach(category => { %>
+                            <a href="/shop?category=<%= category.name %>"><%= category.name %></a>
+                        <% }) %>
+                    </div>
+                </div>
+                
+                <div class="drop">
+                    <br>
+                    <button class="dropbtn">Sort</button>
+                    <div class="drop-content">
+                        <a href="/shop?sortby=allCategory">All Products</a>
+                        <a href="/shop?sortby=latest">Latest</a>
+                        <a href="/shop?sortby=alphabetical">Aa-Zz</a>
+                        <a href="/shop?sortby=analphabetic">Zz-Aa</a>
+                    </div>
+                </div>
+
+                <div class="drop">
+                    <br>
+                    <button class="dropbtn">Price</button>
+                    <div class="drop-content">
+                        <a href="/shop">Price: All</a>
+                        <a href="/shop?sortby=lowToHigh">Price: Low to High</a>
+                        <a href="/shop?sortby=highToLow">Price: High to Low</a>
+                    </div>
+                </div>
+              
+                
+                
+                <div class="drop" style="width: 70%;">
+                    <div class="header-right">
+                        <div class="header-search header-search-extended header-search-visible">
+                            <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                            <form id="searchForm" action="/search" method="get">
+                                <div class="header-search-wrapper">
+                                    <label for="q" class="sr-only">Search</label>
+                                    <input type="search" class="form-control" name="q" id="searchQuery" placeholder="Search product ..." required>
+                                    <!-- Hidden input for category ID -->
+                                    <input type="hidden" name="categoryId" id="categoryId" value="">
+                                    <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                
+    
+              
+              
+              <h2 class="title">All Catagory</h2>
+              <a href="/shop?sortby=latest"><button class="pop">Popularity</button></a>
+                <div class="products-container mb-7">
+
+                    <div class="row justify-content-center">
+
+                     <!-- sorting and list and unlist code -->
+                    <% locals.products.forEach(element => { %>
+                        
+                
+                        <div class="col-10 col-md-4" >
+                            <div class="product product-4">
+                                <figure class="product-media">
+
+                                    <!-- passing query  -->
+                                    <a href="/productDetails?id=<%= element._id %>">
+                                        <img src="/uploads/<%= element.image[0] %>" alt="Product image" class="product-image1">
+                                        <!-- <img src="/uploads/<%= element.image[1] %>" alt="Product image" class="product-image-hover"> -->
+                                    </a>
+
+                                    
+                                        <!-- Add to Wishlist Button -->
+                                    <div class="product-action-vertical">
+                                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable" onclick="addProductToWishlist('<%= element._id %>')"><span>add to wishlist</span></a>
+                                        </div>
+                                        
+
+                                   
+
+                                    <!-- Add to Cart Button -->
+                                    <div class="product-action" style="z-index: 0;">
+                                        <a href="#" class="btn-product btn-cart" <% if (element.quantity < 0) { %>disabled<% } %> onclick="addToCa('<%= element._id %>')">
+                                            <!-- <span>Add to Cart</span> -->
+                                        </a>
+                                    </div>
+                                    
+                                </figure>
+
+                                <div class="product-body" >
+                                    <!-- <div class="product-cat">
+                                        <a href="#">Clothing</a>
+                                    </div> -->
+                                    <%= element.category?.name   %>
+                                    <h3 class="product-title"><a href="/productDetails?id=<%= element._id %>"><%= element.name %></a></h3>
+
+                                        
+                                        <!-- <span class="discount" style="font-weight: bold; font-size: larger; color: rgb(45, 126, 12); float: right;"><%= element.offerApplied %>% off</span> -->
+                                        <div class="product-price" style="font-size: larger;">
+                                        ₹<%= element.offerPrice %>
+                                        <p class="offer-price" style="text-decoration: line-through; margin-left:50px; margin-top: -18px; ">₹<%= element.price  %></p>
+                                        
+                                    </div>
+
+
+                                  
+                                        
+
+                                    
+                                        
+                                    <!-- <div class="product-nav product-nav-dots">
+                                        <a href="#" class="active" style="background: #e5dcb1;"><span class="sr-only">Color name</span></a>
+                                        <a href="#" style="background: #bacbd8;"><span class="sr-only">Color name</span></a>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+
+                  <%  }); %>
+                       
+                        
+
+                    </div>
+
+                  
+                </div>
+            </div>
+
+          
+        </div><!-- End .row -->
+
+      
+    </div><!-- End .container -->
+
+
+
+<!-- sweetalert message -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- addtocart -->
+<script>
+
+    function addToCart(productId) {
+        let data = { productId: productId }; 
+        console.log('data is:', data);
+
+        axios.post('/add-to-cart', data) // Adjust the route path as needed
+            .then(response => {
+                console.log('Product added to cart:', response.data);
+
+                // Show success message using SweetAlert
+                swal.fire({
+                    icon: 'success',
+                    title: 'Product added to cart!',
+                    text: 'The product has been added to your cart.',
+                    timer: 1500, // Time in milliseconds (adjust as needed)
+                    showConfirmButton: false
+                });
+            })
+            .catch(error => {
+                console.error('Error adding product to cart:', error);
+                // Show error message using SweetAlert if needed
+                swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add the product to cart. Please try again.'
+                });
+            });
+    }
+
+</script>
+
+
+<!-- addtoWishlist -->
+<script>
+    function addProductToWishlist(productId) {
+        event.preventDefault(); // Prevent the default action of the <a> tag
+
+        fetch(`/addToWishlist`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: productId })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update wishlist');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show a SweetAlert to indicate the product was added to the wishlist
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Product added to wishlist',
+                });
+            } else {
+                // Handle the case where the product could not be added to the wishlist
+                // This could involve showing an error message
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: 'Something went wrong',
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating wishlist:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: 'Something went wrong',
+            });
+        });
+    }
+</script>
+
+
+
+<!-- search product in shop -->
+<script>
+document.getElementById('searchForm').addEventListener('submit', async (event) => {
+event.preventDefault(); // Prevent default form submission
+
+const searchQuery = document.getElementById('searchQuery').value;
+const categoryId = 'yourCategoryId'; // Replace 'yourCategoryId' with the actual category ID
+
+document.getElementById('categoryId').value = categoryId;
+
+try {
+    window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&categoryId=${encodeURIComponent(categoryId)}`;
+
+    // const response = await fetch(`/search?q=${encodeURIComponent(searchQuery)}&categoryId=${encodeURIComponent(categoryId)}`);
+    // const data = await response.json();
+    
+    // console.log(data);
+} catch (error) {
+    console.log(error);
+}
+});
+
+</script>
+
+
+<%- include('../layouts/homefooter')  %>

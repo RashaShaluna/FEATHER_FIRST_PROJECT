@@ -86,3 +86,26 @@
   margin-left: 200px; 
 }
 
+/* Hide elements in mobile view */
+/* @media (max-width: 768px) {
+  .header-right .wishlist-link,
+  .header-right .cart-link,
+  .header-right .profile-link {
+      font-size: 2rem;
+  }
+} */
+
+/* Adjust size for larger screens */
+/* @media (min-width: 769px) { */
+  /* .header-right .wishlist-link i,
+  .header-right .cart-link i,
+  .header-right .profile-link i {
+      font-size: 18px; /* Adjust icon size */
+  /* } */
+/* 
+  .header-right .wishlist-link,
+  .header-right .cart-link,
+  .header-right .profile-link { */
+      /* font-size: 14px; /* Adjust text size */
+  /* } */ 
+/* } */

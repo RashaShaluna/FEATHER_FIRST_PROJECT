@@ -21,6 +21,13 @@ app.use('/',session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.locals.loggedIn = req.session.user ? true : false;
+  // res.locals.username = req.session.userData ? req.session.userData.name : null; 
+  next();
+});
+
+
 app.use(nocache());
 
 app.use(express.json());

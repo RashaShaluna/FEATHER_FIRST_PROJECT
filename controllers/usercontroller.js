@@ -16,10 +16,10 @@ const pageNotFound = async (req, res) => {
   }
 };
 
-// =================================================home page===============================================================
+// =================================================landing page===============================================================
 const loadlandingpage = async (req, res) => {
   try {
-    res.render('users/landingpage', { title: 'Feather - Landingpage' });
+    res.render('users/homepage', {title: 'Feather - Homengpage' });
     console.log('landing page loaded');
   } catch (error) {
     console.log('Home page not found', error.message); // backend error
@@ -27,15 +27,15 @@ const loadlandingpage = async (req, res) => {
   }
 };
 
-// =====================================load home===========================================================================
-const loadHome = async (req, res) => {
-  try {
-    res.render('users/homepage', { title: 'home page' });
-  } catch (error) {
-    console.log('Home1 page not found', error.message); // backend error
-    res.status(500).send('Server error'); // frontend error 
-  }
-};
+// ===================================== home page ===========================================================================
+// const loadHome = async (req, res) => {
+//   try {
+//     res.render('users/homepage', { title: 'home page' });
+//   } catch (error) {
+//     console.log('Home1 page not found', error.message); // backend error
+//     res.status(500).send('Server error'); // frontend error 
+//   }
+// };
 
 // ====================================register load=================================================================
 const loadregister = async (req, res) => {
@@ -138,7 +138,7 @@ async function sendVerificationEmail(email, otp ) {
   }
 }
 
-//======================================================veriyin otp==========================================================
+//====================================================== veriyin otp==========================================================
 const verifyOtp = async(req,res)=>{
       try {
 
@@ -177,7 +177,7 @@ const verifyOtp = async(req,res)=>{
 
           req.session.user = saveUserData._id;
        
-          res.json({success:true,redirectUrl:'/home'});
+          res.json({success:true,redirectUrl:'/'});
          
          }else{
            res.status(400).json({success:false,message:"Invalid OTP ,try again"})
@@ -191,7 +191,7 @@ const verifyOtp = async(req,res)=>{
       }
   }
 
-// =======================================================Resend otp============================================================ 
+// ======================================================= Resend otp ============================================================ 
 const resendOtp =   async (req,res) => {
   console.log('im in resend ');
   
@@ -281,7 +281,7 @@ const loginVerify = async (req, res) => {
     }
 
     req.session.user = findUser._id;
-    res.redirect('/home');
+    res.redirect('/');
 
   } catch (error) {
     console.log('Login page not found', error.message); 
@@ -535,12 +535,56 @@ const successpass = async (req,res) => {
 }
 
 
+//==================================================== shop =============================================================
+
+
+const mini= async(req,res)=>{
+  try {
+    res.render('users/minibag',{title:'Shop Page - Feather'});
+  } catch (error) {
+    console.log('error in shop');
+    res.redirect('/pageNotFound');
+  }
+}
+
+const cross= async(req,res)=>{
+  try {
+    res.render('users/crossbag',{title:'Shop Page - Feather'});
+  } catch (error) {
+    console.log('error in shop');
+    res.redirect('/pageNotFound');
+  }
+}
+
+const tote= async(req,res)=>{
+  try {
+    res.render('users/totebag',{title:'Shop Page - Feather'});
+  } catch (error) {
+    console.log('error in shop');
+    res.redirect('/pageNotFound');
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 module.exports = {
   loadlandingpage,
   pageNotFound,
   loadregister,
   registerVerify,
-  loadHome,
+  // loadHome,
   loadLogin,
   loginVerify,
   verifyOtp,
@@ -550,7 +594,10 @@ module.exports = {
   forgot,
   resetPass,
   confirmpass,
-  successpass
+  successpass,
+ mini,
+ cross,
+ tote
 };
 
 

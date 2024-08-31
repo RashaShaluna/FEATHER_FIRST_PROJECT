@@ -53,7 +53,8 @@ adminRouter.delete('/category/delete/:categoryId',adminAuth, categoryController.
 // product management
 adminRouter.get('/product',adminAuth,productController.productPage);
 adminRouter.get('/addproduct',adminAuth,productController.addproductpage);
-adminRouter.post('/addproduct', adminAuth, uploads.array('images', 4), productController.productAdding);
+adminRouter.post('/addproduct', adminAuth, uploads.array('images', 3), productController.productAdding);
+// adminRouter.post('/addproduct', adminAuth, uploads.single('image'), productController.productAdding);
 
 
 module.exports = adminRouter;
