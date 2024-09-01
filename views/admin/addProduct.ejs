@@ -108,13 +108,13 @@ input[type="file"]::-webkit-file-upload-text {
 .cropped-img-container {
   width: 200px;
   height: 200px;
-  /* background-color: #f8f9fa; */
+  background-color: #f8f9fa;
   margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-
+/* display: none; */
 }
 .cropped-img {
   width: 100%;
@@ -487,8 +487,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
       const croppedImageURL = croppedCanvas.toDataURL('image/png');  
       croppedImg.src = croppedImageURL;
-      croppedImg.style.display = "block";
-
+      croppedImg.style.display = "block"
+      
       const blob = await new Promise((resolve) => {
         croppedCanvas.toBlob((blob) => {
           console.log('Blob created:', blob);
@@ -509,7 +509,6 @@ document.addEventListener("DOMContentLoaded", function() {
       croppers[cropperIndex].destroy();
       croppers[cropperIndex] = null;
       imgView.style.display = "none";
-      cropperContainer.style.display = "none";
     });
   }
 
