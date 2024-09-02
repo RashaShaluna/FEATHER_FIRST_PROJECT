@@ -57,7 +57,7 @@ const customerBlocked = async(req,res)=>{
         res.redirect('/admin/users');
     } catch (error) {
         console.error('Error blocking user:', error);
-        res.redirect('/pageerror')
+        res.redirect('/admin/pageerror')
     }
 }
 
@@ -70,7 +70,7 @@ const customerUnBlock =async(req,res)=>{
     }catch(error){
         console.error('Error blocking user:', error);
 
-     res.redirect('/pageerror');
+     res.redirect('/admin/pageerror');
     }
 }
 

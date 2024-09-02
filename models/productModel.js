@@ -20,8 +20,9 @@ const productSchema = new Schema ({
         required:true
     },
     category:{
-        type:String,
-        required:true
+        type: Schema.Types.ObjectId, 
+        ref: 'Category' ,
+       required:true
     },
     quantity: {
         type: Number,
@@ -39,6 +40,18 @@ const productSchema = new Schema ({
     },offerprice: {
         type: Number,
         required: true
+    },
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false,
+    },
+    deletedAt:{
+        type:Date,
+        default:null,
     }
     
 },{timestamps:true})

@@ -54,7 +54,13 @@ adminRouter.delete('/category/delete/:categoryId',adminAuth, categoryController.
 adminRouter.get('/product',adminAuth,productController.productPage);
 adminRouter.get('/addproduct',adminAuth,productController.addproductpage);
 adminRouter.post('/addproduct', adminAuth, uploads.array('images', 3), productController.productAdding);
-// adminRouter.post('/addproduct', adminAuth, uploads.single('image'), productController.productAdding);
-
+adminRouter.get('/outstock',adminAuth,productController.outstockProduct);
+adminRouter.get('/instock',adminAuth,productController.instockProduct);
+adminRouter.get('/blockproduct',adminAuth,productController.productBlocked);
+adminRouter.get('/unblockproduct',adminAuth,productController.productUnBlock);
+adminRouter.delete('/product/delete/:productId', adminAuth, productController.softDeleteProduct);
+adminRouter.get('/editproduct/:productId', adminAuth, productController.editProduct);
+adminRouter.post('/editproduct/productId',adminAuth,  uploads.array('images',3) , productController.editingProduct);
+adminRouter.get('/deleteImage',adminAuth,productController.deleteSingleImage)
 
 module.exports = adminRouter;

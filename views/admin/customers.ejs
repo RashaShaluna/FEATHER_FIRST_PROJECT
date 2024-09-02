@@ -34,15 +34,11 @@
                                             <div>
                                                 <% if (data[i].isBlocked === false) { %>
                                                     <button class="btn mt-2" style="width: 70%;  background-color:rgba(12, 174, 22, 0.733)  ;   color:white"  onclick="confirmAction('/admin/blockCustomer?id=<%= data[i]._id %>','block')">
-                                                        <!-- <a href="/admin/blockCustomer?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;"> -->
                                                             UnBlock
-                                                        <!-- </a> -->
                                                     </button>
                                                 <% } else { %>
                                                     <button class="btn mt-2" style="width: 70%;  background-color:rgb(241, 0, 0);   color:white" onclick="confirmAction('/admin/unblockCustomer?id=<%= data[i]._id %>','unblock')">
-                                                        <!-- <a href="/admin/unblockCustomer?id=<%= data[i]._id %>" class="text-white" style="text-decoration: none;"> -->
                                                             Block
-                                                        <!-- </a> -->
                                                     </button>
                                                 <% } %>
                                             </div>

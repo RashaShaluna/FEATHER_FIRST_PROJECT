@@ -69,9 +69,6 @@
                                 </td>
                                 
                                 </td>
-                                
-                      
-                                
                               </tr>
                             <% }); %>
                           </tbody>
@@ -154,9 +151,7 @@
               location.reload()
             })
 
-            // if (!updateResponse.ok) {
-            //   throw new Error('Failed to update category');
-            // }
+            
 
             return {
               categoryName: editedName,
@@ -242,7 +237,7 @@
 function confirmAction(url, action) {
         const actionText = action === 'unlist' ? 'unlist' : 'list';
         Swal.fire({
-            title: `Are you sure you want to ${actionText} this user?`,
+            title: `Are you sure you want to ${actionText} this category?`,
             // text: "This action cannot be undone!",
             icon: 'warning',
             showCancelButton: true,

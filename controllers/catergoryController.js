@@ -168,7 +168,7 @@ const checkCategory = async (req, res) => {
 const softDeleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    console.log("Attempting to delete category with ID:", categoryId);
+    console.log(" delete category with ID:", categoryId);
 
     const updateResult = await Category.updateOne(
       { _id: categoryId },
