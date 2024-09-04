@@ -5,6 +5,8 @@ const fs = require('fs');
 const path = require('path');
 const {log} = require('console');
 const multer = require('multer');
+const mongoose = require('mongoose')
+
 // =========================================== Product page ===================================================================
 const productPage = async(req,res)=>{
     try {
@@ -18,10 +20,12 @@ const productPage = async(req,res)=>{
        console.log('Fetched Categories:', category);
 
        const product = await Product.find({
+        isDeleted: false, 
         $or: [
           { name: { $regex: search, $options: 'i' } },
           // { category: { $regex: search, $options: 'i' } },
-          { color: { $regex: search, $options: 'i' } }
+          { color: { $regex: search, $options: 'i' } },
+          
         ]
       }).populate('category').sort({ name: -1 });
 
@@ -67,7 +71,9 @@ const productAdding = async (req, res) => {
    log('Uploaded Files:', req.files);
    
     const { name, price, description, brand, category, quantity, offerprice, color } = req.body;
-    const images = req.files.map(file => `uploads/${file.filename}`); 
+    // const images = req.files.map(file => `uploads/${file.filename}`); 
+    const images = req.files.map(file => `${file.filename}`); 
+
     log('in add')
 
     // Check for existing product
@@ -163,22 +169,26 @@ const productUnBlock =async(req,res)=>{
 
 const softDeleteProduct = async (req, res) => {
   try {
-    log('in delete')
-    const productId = req.params.productId;
-    log('Deleting product id:', productId);
+    log('in delete one')
+    log('req',req.params.productId)
 
+    const productId = req.params.productId;
+    log(productId)
+
+    
     const updateResult = await Product.updateOne(
       { _id: productId },
       { $set: { isDeleted: true, deletedAt: new Date() } }
     );
+    console.log("Update result:", updateResult);
 
-    console.log('Update Result:', updateResult);
 
     if (updateResult.modifiedCount > 0) {
       res.json({ success: true, message: 'Product deleted successfully' });
     } else {
       res.json({ success: false, message: 'Product not found or already deleted' });
     }
+    
   } catch (error) {
     console.error("Error deleting product", error);
     res.status(500).json({ success: false, message: 'Server error' });
@@ -186,132 +196,136 @@ const softDeleteProduct = async (req, res) => {
 };
 
 
+
 // =========================================== edit product page ===============================================
 
-const editProduct = async(req,res)=>{
-  try {
-    log('in page edit')
-    const productId = req.params.id;
-    const product = await Product.findOne(productId);
-
-    const categories = await Category.find();
-    console.log('Product:', product);
-    res.render('admin/editProduct',{title:'Edit product', product, category: categories})
-  } catch (error) {
-    console.error(error);
-    res.redirect('/admin/pageerror');
-  }
-}
-
-// =========================================== edit product ===============================================
-
-const editingProduct = async(req,res)=>{
-  try {
-    log('product editing')
-     const productId = req.params.id;
-     const product = await Product.findOne({_id:productId});
-      const data = req.body;
-      const existingProduct = await Product.findOnd({
-        name:data.name,
-        _id:{$ne:productId}
-      })
+  const editProduct = async(req,res)=>{
+    try {
+      log('in page edit')
+      console.log('Product ID:', req.params.id);
+      const productId = req.params.id;
+      log('productid',productId);
       
-      if(existingProduct){
-        return res.status(400).json({messge:'Product with this name already exists . Try with another name'});
+      const isValidObjectId = mongoose.Types.ObjectId.isValid(productId);
+      if (!isValidObjectId) {
+        console.error('Invalid Product ID format');
+        return res.status(400).send('Invalid Product ID');
       }
-      const images =[];
 
-      if( req.files && req.files.length>0){
-        for(let i=0;i<req.files.length;i++){
-          images.push(req.files[i].filename);
+
+      const product = await Product.findById(productId);
+      const categories = await Category.find();
+      console.log('Product:', product);
+      if (!product) {
+        return res.status(404).send('Product not found');
+      }
+      res.render('admin/editProduct',{title:'Edit product', product, category: categories})
+    } catch (error) {
+      console.error(error);
+      res.redirect('/admin/pageerror');
+    }
+  }
+
+  // =========================================== edit product ===============================================
+
+  const editingProduct = async(req,res)=>{
+    try {
+      log('product editing')
+      const productId = req.params.id;
+      log('product id',productId);
+
+      const product = await Product.findOne({_id:productId});
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+        const data = req.body;
+        log('data',data)
+        const existingProduct = await Product.findOne({
+          name:data.name,
+          _id:{$ne:productId}
+        })
+        log('1')
+        if(existingProduct){
+          return res.status(400).json({messge:'Product with this name already exists . Try with another name'});
         }
+        const images =[];
+
+        if( req.files && req.files.length>0){
+          for(let i=0;i<req.files.length;i++){
+            images.push(req.files[i].filename);
+          }
+        }
+  log('2')
+        const category = await Category.findOne({ name: data.category });
+        if (!category) {
+          return res.status(400).json({ message: 'Invalid category name' });
+        }
+
+      const updateFields ={
+            name:data.name,
+            description:data.description,
+            category: category._id,
+            quantity:data.quantity,
+            price:data.price,
+            offerPrice:data.offerprice,
+            color:data.color
       }
+      // if(req.files.length>0){
+      //   updateFields.$push= {productImage:{$search:images}};
+      // }
 
-    const updateFields ={
-           name:data.name,
-           description:data.description,
-           category:data.category,
-           quantity:data.quantity,
-           price:data.price,
-           offerPrice:data.price,
-           color:data.color
+      if(req.files.length > 0){
+        updateFields.productImage = { $push: { $each: images } };
     }
-    if(req.files.length>0){
-      updateFields.$push= {productImage:{$search:images}};
-    }
-
-    await Product.findByIdAndUpdate(productId,updateFields,{new:true});
-    res.redirect("/admin/editProduct");
-
     
-  } catch (error) {
-     log('error in editing product',error);
-     res.redirect('/admin/pageerror');
+      await Product.findByIdAndUpdate(productId,updateFields,{new:true});
+      log('updated')
+      res.redirect("/admin/product");
+
+      
+    } catch (error) {
+      log('error in editing product',error);
+      res.redirect('/admin/pageerror');
+    }
   }
-}
-
-// const editingProduct= async (req, res) => {
-//   try {
-//     const productId = req.params.id;
-//     const product = await Product.findById(productId);
-
-//     if (!product) {
-//       return res.status(404).json({ message: 'Product not found' });
-//     }
-
-//     const updates = {
-//       name: req.body.name,
-//       category: req.body.category,
-//       price: parseFloat(req.body.price),
-//       offerprice: parseFloat(req.body.offerprice),
-//       quantity: parseInt(req.body.quantity),
-//       description: req.body.description,
-//       color: req.body.color
-//     };
-
-//     // Handle image uploads
-//     if (req.files && req.files.images) {
-//       const imagePaths = req.files.images.map(file => file.path.replace('public/', ''));
-//       updates.productImage = imagePaths;
-
-//       // Optional: delete old images from server
-//       product.productImage.forEach(image => {
-//         const oldImagePath = path.join('public', image);
-//         if (fs.existsSync(oldImagePath)) {
-//           fs.unlinkSync(oldImagePath);
-//         }
-//       });
-//     }
-
-//     await Product.findByIdAndUpdate(productId, updates);
-//     res.json({ message: 'Product updated successfully' });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Internal Server Error' });
-//   }
-// };
 
 
-const deleteSingleImage  = async(req,res)=>{
-   
+
+//============================delete the image============================
+const deleteSingleImage = async (req, res) => {
+  log('in delete')
+  const imageName = req.params.imageName;
+  log('image name',imageName)
+  const imagePath = path.join(process.env.IMAGE_BASE_PATH, imageName);
+  log('Resolved image path:', imagePath);
+
   try {
-    
-   const {imageNameToServer,productIdServer} = req.body;
-   const product = await Product.findByIdAndUpdate(productIdServer,{$pusll:{productImage:imageNameToServer}});
-   const imagePath = path .join('public','uploads','re-image',imageNameToServer);
-   if(fs.existsSync(imagePath)){
-    await fs.unlinkSync(imagePath);
-    log('Image deleted',imageNameToServer);
-   }else{
-    log('Image not found',imageNameToServer);
-   }
+    log('hited the try')
+    if (fs.existsSync(imagePath)) {
+      log('File exists, proceeding to delete.');
+      fs.unlinkSync(imagePath);
+      log('unsynck')
+          const result = await Product.updateOne(
+              { 'images': imageName },
+              { $pull: { 'images': imageName } }
+          );
+          
+        
+
+          if (result.nModified >0) {
+            res.json({ success: true, message: 'Image deleted from database.' });
+        } else {
+            res.json({ success: false, message: 'Image not found in database.' });
+        }
+        
+      } else {
+          res.json({ success: false, message: 'Image file not found.' });
+      }
   } catch (error) {
-   log(error)
-   res.redirect('/admin/pagerror');
+    log('error in deleting images',error)
+      res.json({ success: false, message: 'Error deleting image.' });
   }
-}
-
-
+};
 
 
 

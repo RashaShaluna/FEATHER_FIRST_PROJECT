@@ -72,7 +72,7 @@
 <button id="scroll-top" title="Back to Top"><i class="icon-arrow-up"></i></button>
 
 <!-- Mobile Menu -->
-<div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
+<div class="mobile-menu-overlay" sty></div><!-- End .mobil-menu-overlay -->
 
 <div class="mobile-menu-container">
 <div class="mobile-menu-wrapper">
@@ -92,22 +92,24 @@
         
             </li>
             <li>
-                <a  href="" class="sf-with-ul">Shop by category</a>
+                <a   class="sf-with-ul " style="color: white;">Shop by category</a>
                 <ul>
-                  
-                    <li><a href="/minibag">Mini bag</a></li>
-                    <li><a href="checkout.html">Crossbosy bag</a></li>
-                    <li><a href="wishlist.html">Shoulder bag</a></li>
-                    
+                    <% categories.forEach(category => { %>
+                        <li><a href="/shop"><%= category.name %></a></li>
+                    <% }); %>
                 </ul>
             </li>
             <li>
-                <a href="" class="sf-with-ul" >Pages</a>
+                <a class="sf-with-ul"  style="color: white;">Pages</a>
                 <ul>
                     <li><a href="cart.html">Cart</a></li>
                     <li><a href="checkout.html">Checkout</a></li>
                     <li><a href="wishlist.html">Wishlist</a></li>
                     <li><a href="wishlist.html">My Account</a></li>
+                    <% if (loggedIn) { %>
+                        <li><a href="/logOut">Log Out</a></li>
+
+                    <% } %>
 
                 </ul>
             </li>
@@ -258,7 +260,6 @@
 <script src="assets/js/owl.carousel.min.js"></script>
 <script src="assets/js/bootstrap-input-spinner.js"></script>
 <script src="assets/js/jquery.magnific-popup.min.js"></script>
-<!-- Main JS File -->
 <script src="assets/js/main.js"></script>
 <script src="assets/js/demos/demo-17.js"></script>
 

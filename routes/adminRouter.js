@@ -18,7 +18,11 @@ const sharp = require('sharp');
 const uploads = require('../uplaods');
 
 adminRouter.use(nocache());
-adminRouter.use(express.static('public'));
+// adminRouter.use(express.static('public'));
+adminRouter.use(express.static(path.join(__dirname, 'public')));
+// adminRouter.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+adminRouter.use('/images', express.static(path.join(__dirname, '../public')));
+
 adminRouter.use('/',session({
     secret: process.env.SECRET_KEY,
     resave: false,
@@ -59,8 +63,8 @@ adminRouter.get('/instock',adminAuth,productController.instockProduct);
 adminRouter.get('/blockproduct',adminAuth,productController.productBlocked);
 adminRouter.get('/unblockproduct',adminAuth,productController.productUnBlock);
 adminRouter.delete('/product/delete/:productId', adminAuth, productController.softDeleteProduct);
-adminRouter.get('/editproduct/:productId', adminAuth, productController.editProduct);
-adminRouter.post('/editproduct/productId',adminAuth,  uploads.array('images',3) , productController.editingProduct);
-adminRouter.get('/deleteImage',adminAuth,productController.deleteSingleImage)
+adminRouter.get('/editproduct/:id', adminAuth, productController.editProduct);
+adminRouter.post('/editproduct/:id',adminAuth,  uploads.array('images',3) , productController.editingProduct);
+adminRouter.delete('/deleteImage/:imageName',adminAuth,productController.deleteSingleImage)
 
 module.exports = adminRouter;

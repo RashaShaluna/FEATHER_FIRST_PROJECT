@@ -1409,3 +1409,352 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 </body>
+
+<div class="col-12 col-md-6 mb-3">
+  <div class="card-body">
+    <label for="input">Upload Image 1:</label>
+    <div class="text-center">
+      <img  id="imgView1" class="img-fluid mb-2">
+
+    </div>
+    <input class="form-control" type="file"  id="input1" name="images" accept="image/png, image/jpeg, image/jpg" >
+    <i onclick="deleteSingleImage('<%=product.images[i]%>','<%=product._id%>')" style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
+
+    <div id="images-error1" class="error-message mt-2"></div>
+  </div>
+  <!-- Image Cropper -->
+  <div class="image-cropper d-flex flex-column align-items-center">
+    <div id="croppedImgContainer1" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+      <img src="" id="croppedImg1" alt="Cropped Image" class="cropped-img img-fluid">
+  </div>
+  
+    <button type="button" id="saveButton1" class="btn btn-sm btn-primary">crop</button>
+  </div>
+</div>
+
+
+ <!-- Image 2 -->
+ <div class="col-12 col-md-6 mb-3">
+  <div class="card-body">
+    <label for="input">Upload Image 2:</label>
+    <div class="text-center">
+      <img src=""  id="imgView2" class="img-fluid mb-2">
+    </div>
+    <input class="form-control" type="file"  id="input2"  name="images"accept="image/png, image/jpeg, image/jpg">
+    <div id="images-error1" class="error-message mt-2"></div>
+  </div>
+  <!-- Image Cropper -->
+  <div class="image-cropper d-flex flex-column align-items-center">
+    <div id="croppedImgContainer2" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+
+      <img src="" id="croppedImg2" alt="Cropped Image" class="cropped-img img-fluid">
+    </div>
+    <button type="button" id="saveButton2" class="btn btn-sm btn-primary">crop</button>
+  </div>
+</div>
+
+<!-- Image 3 -->
+<div class="col-12 col-md-6 mb-3">
+  <div class="card-body">  
+    <label for="input">Upload Image 3:</label>
+    <div class="text-center">
+      <img src=""  id="imgView3" class="img-fluid mb-2">
+    </div>
+    <input class="form-control" type="file"  id="input3" name="images" accept="image/png, image/jpeg, image/jpg">
+    <div id="images-error3" class="error-message mt-2"></div>
+  </div>
+  <!-- Image Cropper -->
+  <div class="image-cropper d-flex flex-column align-items-center">
+    <div id="croppedImgContainer3" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+      <img src=""  id="croppedImg3"alt="Cropped Image" class="cropped-img img-fluid">
+    </div>
+    <button type="button" id="saveButton3" class="btn btn-sm btn-primary">crop</button>
+  </div>
+
+  src="/public/uploads/<%=product.productImage[i]%>"    <div class="col-md-12">
+                                           <div class="mb-4">
+                                               <div class="col-12">
+                                                   <td>
+                                                       <input type="hidden" value="" id="imageDatas">
+                                                       <img class="rounded" style="width: 50px; height: 60px;"
+                                                           src=""
+                                                           alt="">
+                                                       <i onclick="" style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
+                                                   </td>
+                                               </div>
+                                              
+                                           </div>
+                                       </div>
+                              
+                                       div class="col-12 col-md-6 mb-3">
+                                       <div class="card-body">
+                                         <label for="input">Upload Image 1:</label>
+                                         <div class="text-center">
+                                           <img id="imgView1" class="img-fluid mb-2" src="<%= product.images[0] %>" alt="Product Image 1">
+                                         </div>
+                                         <input class="form-control" type="file" id="input1" name="images" accept="image/png, image/jpeg, image/jpg">
+                                         <i onclick="deleteSingleImage('<%= product.images[0] %>', '<%= product._id %>')" style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
+                                         <div id="images-error1" class="error-message mt-2"></div>
+                                       </div>
+                                       <!-- Image Cropper -->
+                                       <div class="image-cropper d-flex flex-column align-items-center">
+                                         <div id="croppedImgContainer1" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                                           <img src="" id="croppedImg1" alt="Cropped Image" class="cropped-img img-fluid">
+                                         </div>
+                                         <button type="button" id="saveButton1" class="btn btn-sm btn-primary">crop</button>
+                                       </div>
+                                     </div>
+                                     
+                                     <!-- Image 2 -->
+                                     <div class="col-12 col-md-6 mb-3">
+                                       <div class="card-body">
+                                         <label for="input">Upload Image 2:</label>
+                                         <div class="text-center">
+                                           <img id="imgView2" class="img-fluid mb-2" src="<%= product.images[1] %>" alt="Product Image 2">
+                                         </div>
+                                         <input class="form-control" type="file" id="input2" name="images" accept="image/png, image/jpeg, image/jpg">
+                                         <div id="images-error2" class="error-message mt-2"></div>
+                                       </div>
+                                       <!-- Image Cropper -->
+                                       <div class="image-cropper d-flex flex-column align-items-center">
+                                         <div id="croppedImgContainer2" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                                           <img src="" id="croppedImg2" alt="Cropped Image" class="cropped-img img-fluid">
+                                         </div>
+                                         <button type="button" id="saveButton2" class="btn btn-sm btn-primary">crop</button>
+                                       </div>
+                                     </div>
+                                     
+                                     <!-- Image 3 -->
+                                     <div class="col-12 col-md-6 mb-3">
+                                       <div class="card-body">
+                                         <label for="input">Upload Image 3:</label>
+                                         <div class="text-center">
+                                           <img id="imgView3" class="img-fluid mb-2" src="<%= product.images[2] %>" alt="Product Image 3">
+                                         </div>
+                                         <input class="form-control" type="file" id="input3" name="images" accept="image/png, image/jpeg, image/jpg">
+                                         <div id="images-error3" class="error-message mt-2"></div>
+                                       </div>
+                                       <!-- Image Cropper -->
+                                       <div class="image-cropper d-flex flex-column align-items-center">
+                                         <div id="croppedImgContainer3" class="cropped-img-container" style="width: 200px; height: 200px; background-color: #f8f9fa; margin-bottom: 10px; display: flex; justify-content: center; align-items: center;">
+                                           <img src="" id="croppedImg3" alt="Cropped Image" class="cropped-img img-fluid">
+                                         </div>
+                                         <button type="button" id="saveButton3" class="btn btn-sm btn-primary">crop</button>
+                                       </div>
+                                     </div>
+                                     
+                                             <!-- </div> -->
+                                             <!-- </div> -->
+                                             document.addEventListener("DOMContentLoaded", function() {
+                                              const croppers = [];
+                                              let imageCount = document.querySelectorAll('#existing-images img').length;
+                                            
+                                              function validateForm() {
+                                                let isValid = true;
+                                            
+                                                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                                            
+                                                // Validate Product Name
+                                                const productName = document.getElementById('product_name').value.trim();
+                                                if (productName === '') {
+                                                  document.getElementById('productName-error').textContent = 'Product name is required.';
+                                                  document.getElementById('productName-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Category
+                                                const category = document.getElementById('category').value.trim();
+                                                if (category === '') {
+                                                  document.getElementById('category-error').textContent = 'Category is required.';
+                                                  document.getElementById('category-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Regular Price
+                                                const regularPrice = document.querySelector('input[name="price"]').value.trim();
+                                                if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
+                                                  document.getElementById('regularPrice-error').textContent = 'Price is required.';
+                                                  document.getElementById('regularPrice-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Sale Price
+                                                const salePrice = document.querySelector('input[name="offerprice"]').value.trim();
+                                                if (salePrice === '' || isNaN(salePrice) || parseFloat(salePrice) < 0) {
+                                                  document.getElementById('salePrice-error').textContent = 'Offer price is required.';
+                                                  document.getElementById('salePrice-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Quantity
+                                                const quantity = document.getElementById('quantity').value.trim();
+                                                if (quantity === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
+                                                  document.getElementById('quantity-error').textContent = 'Quantity is required.';
+                                                  document.getElementById('quantity-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Description
+                                                const description = document.getElementById('descriptionid').value.trim();
+                                                if (description === '') {
+                                                  document.getElementById('description-error').textContent = 'Description is required.';
+                                                  document.getElementById('description-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Color
+                                                const color = document.getElementById('color').value.trim();
+                                                if (color === '') {
+                                                  document.getElementById('color-error').textContent = 'Color is required.';
+                                                  document.getElementById('color-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                // Validate Images
+                                                const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+                                                let imageValid = false;
+                                                imageInputs.forEach(input => {
+                                                  if (input.files.length > 0) {
+                                                    imageValid = true;
+                                                  }
+                                                });
+                                                if (!imageValid) {
+                                                  document.getElementById('images-error').textContent = 'Image is required';
+                                                  document.getElementById('images-error').style.display = 'block';
+                                                  isValid = false;
+                                                }
+                                            
+                                                return isValid;
+                                              }
+                                            
+                                              function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
+                                                const inputElement = document.getElementById(inputId);
+                                                const imgView = document.getElementById(imgViewId);
+                                                const croppedImg = document.getElementById(croppedImgId);
+                                                const saveButton = document.getElementById(saveButtonId);
+                                                const cropperContainer = document.getElementById('croppedImgContainer' + cropperIndex);
+                                            
+                                                inputElement.addEventListener("change", function(event) {
+                                                  const files = event.target.files;
+                                                  if (files && files.length > 0) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = function(e) {
+                                                      imgView.src = e.target.result;
+                                                      imgView.style.display = "block";
+                                            
+                                                      if (croppers[cropperIndex]) {
+                                                        croppers[cropperIndex].destroy();
+                                                      }
+                                            
+                                                      croppers[cropperIndex] = new Cropper(imgView, {
+                                                        aspectRatio: 1,
+                                                        viewMode: 2,
+                                                        preview: '.cropped-img-container img',
+                                                        autoCropArea: 1,
+                                                        movable: true,
+                                                        scalable: true,
+                                                        zoomable: true,
+                                                        rotatable: true,
+                                                        cropBoxResizable: true,
+                                                        minCropBoxWidth: 100,
+                                                        minCropBoxHeight: 100
+                                                      });
+                                            
+                                                      cropperContainer.style.display = "flex";
+                                                    };
+                                                    reader.readAsDataURL(files[0]);
+                                                  }
+                                                });
+                                            
+                                                saveButton.addEventListener("click", async function() {
+                                                
+                                            
+                                           const croppedCanvas = croppers[cropperIndex].getCroppedCanvas({
+                                                  width: 200, // Set the width of the cropped image
+                                                  height: 300 // Set the height of the cropped image
+                                                });    
+                                                  
+                                            
+                                                  const croppedImageURL = croppedCanvas.toDataURL('image/png');  
+                                                  croppedImg.src = croppedImageURL;
+                                                  croppedImg.style.display = "block"
+                                                  
+                                                  const blob = await new Promise((resolve) => {
+                                                    croppedCanvas.toBlob((blob) => {
+                                                      console.log('Blob created:', blob);
+                                                      resolve(blob);
+                                                    }, 'image/png');
+                                                  });
+                                            
+                                                  const file = new File([blob], `cropped-image-${cropperIndex}.png`, { type: 'image/png' });
+                                                  const dataTransfer = new DataTransfer();
+                                                  dataTransfer.items.add(file);
+                                                  document.getElementById(inputId).files = dataTransfer.files;
+                                            
+                                                  croppers[cropperIndex].destroy();
+                                                  croppers[cropperIndex] = null;
+                                                  imgView.style.display = "none";
+                                                });
+                                              }
+                                            
+                                              handleImageUpload('input1', 'imgView1', 'croppedImg1', 'saveButton1', 1);
+                                              handleImageUpload('input2', 'imgView2', 'croppedImg2', 'saveButton2', 2);
+                                              handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
+                                            
+                                            
+                                        
+                                        
+                                          //       function viewImage(event, cropperIndex) {
+                                          //   const inputId = `input${cropperIndex}`;
+                                          //   const imgViewId = `imgView${cropperIndex}`;
+                                          //   const croppedImgId = `croppedImg${cropperIndex}`;
+                                          //   const saveButtonId = `saveButton${cropperIndex}`;
+                                          //   handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex);
+                                          // }
+                                        
+                                          
+                                          // function deleteImage(element) { 
+                                          //       const imagePath = element.getAttribute('data-image');
+                                          //       fetch(`/admin/deleteImage`, {
+                                          //           method: 'DELETE',
+                                          //           headers: {
+                                          //               'Content-Type': 'application/json'
+                                          //           },
+                                          //           body: JSON.stringify({ imagePath })
+                                          //       })
+                                          //       .then(response => response.json())
+                                          //       .then(data => {
+                                          //           if (data.success) {
+                                          //               // Success alert
+                                          //               Swal.fire({
+                                          //                   icon: 'success',
+                                          //                   title: 'Deleted!',
+                                          //                   text: 'Image has been deleted.',
+                                          //                   timer: 2000,
+                                          //                   showConfirmButton: false
+                                          //               });
+                                          //               // Remove the image from the DOM
+                                          //               document.getElementById(`image-container-${imageId}`).remove();
+                                          //           } else {
+                                          //               // Error alert
+                                          //               Swal.fire({
+                                          //                   icon: 'error',
+                                          //                   title: 'Error!',
+                                          //                   text: 'Failed to delete image.',
+                                          //               });
+                                          //           }
+                                          //       })
+                                          //       .catch(error => {
+                                          //           // Network or other error alert
+                                          //           Swal.fire({
+                                          //               icon: 'error',
+                                          //               title: 'Error!',
+                                          //               text: 'An unexpected error occurred.',
+                                          //           });
+                                          //       });
+                                          // }
+                                        })
+                                          
+                                        onchange="viewImage(event, 1)"
+                                        onchange="viewImage(event, 2)"
+                                        onchange="viewImage(event, 3)"

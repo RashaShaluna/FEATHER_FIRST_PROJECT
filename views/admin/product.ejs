@@ -95,12 +95,15 @@
                             <td>
                               <div style="display: flex; align-items: center; gap: 10px;">
                                 <a href="/admin/editproduct/<%= data._id %>" class="edit-product">
-                                  <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="#" class="delete-product" data-product-id="<%=data._id%> ">
-                                  <!-- data - data(product) -->
+                                
+                                <a href="#" class="delete-product" data-product-id="<%= data._id %>">
                                   <i class="fas fa-trash-alt"></i>
+                              </a>
+                              
                                 </a>
+                                
                               </div>
                             </td>
                           </tr>
@@ -192,13 +195,14 @@ document.addEventListener("DOMContentLoaded", function() {
             ).then(() => {
               const row = button.closest('tr');
               row.remove();
-              // Optionally, you can redirect or update the page
-              // window.location.href = '/admin/product';
-            });
+              location.reload()
+          });
+          console.log('removed')
           } else {
             Swal.fire('Error!', data.message, 'error');
           }
         } catch (error) {
+          console.log(error)
           Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
         }
       }

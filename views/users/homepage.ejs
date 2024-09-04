@@ -1,4 +1,4 @@
-<%- include('../layouts/homeheader') %>
+<%- include('../layouts/homeheader', { categories: categories }) %>
 
 
 <body>
@@ -28,274 +28,36 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-new" role="tabpanel" aria-labelledby="tab-new-link">
                         <div class="row justify-content-center">
+                            <% products.forEach(product => { %>
                             <div class="col-6 col-md-4 col-lg-3">
                                 <div class="product product-4">
                                     <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-1.jpg" alt="Product image" class="product-image">
+                                        <a href="/product/<%= product._id %>">
+                                            <img src="/uploads/<%= product.images[0] %>" alt="Product image" class="product-image">
                                         </a>
-
+    
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
                                         </div><!-- End .product-action -->
-
+    
                                         <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
                                         </div><!-- End .product-action -->
                                     </figure><!-- End .product-media -->
-
+    
                                     <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Clothing</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Linen-blend dress</a></h3><!-- End .product-title -->
+                                        <h3 class="product-title"><a href="/product/<%= product._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                         <div class="product-price">
-                                            $60.00
+                                            <span class="new-price"><%= '₹' + product.offerprice %></span>
+                                            <span class="old-price"><%= '₹' + product.price %></span>
                                         </div><!-- End .product-price -->
                                     </div><!-- End .product-body -->
                                 </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-
-                            <!-- product 2
-                              -->
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <span class="product-label label-primary">Sale</span>
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-2.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-2-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Denica Tote Bag</a></h3><!-- End .product-title -->
-
-                                        <div class="product-price">
-                                            <span class="new-price">Now ₹4,500</span>
-                                            <span class="old-price">Was ₹5,099</span>
-                                        </div><!-- End .product-price -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <!-- product 3 -->
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-3.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-3-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
-                                            <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Clothing</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Harbour Crossbody Bag</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            ₹3,200
-                                        </div><!-- End .product-price -->
-                                        <!-- <div class="product-nav product-nav-dots"> -->
-                                            <!-- <a href="#" class="active" style="background: #9fac76;"><span class="sr-only">Color name</span></a> -->
-                                            <!-- <a href="#" style="background: #333333;"><span class="sr-only">Color name</span></a> -->
-                                        <!-- </div> -->
-                                        <!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <!-- p4 -->
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-7.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-7-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
-                                            <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Handbags</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Rope Tote Bag</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            ₹1,200
-                                        </div><!-- End .product-price -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-4.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-4-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
-                                            <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Handbags</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Bucket Bag</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            ₹1,500
-                                        </div><!-- End .product-price -->
-                                        <!-- <div class="product-nav product-nav-dots"> -->
-                                            <!-- <a href="#" class="active" style="background: #e3a84d;"><span class="sr-only">Color name</span></a> -->
-                                            <!-- <a href="#" style="background: #f48a5b;"><span class="sr-only">Color name</span></a> -->
-                                            <!-- <a href="#" style="background: #333333;"><span class="sr-only">Color name</span></a> -->
-                                        <!-- </div> -->
-                                        <!-- End .product-nav -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-5.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-5-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
-                                            <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Clothing</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Finon Crossbody Bag </a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            ₹2,099
-                                        </div><!-- End .product-price -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-6.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-6-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
-                                            <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Clothing</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Golden Slik Bag</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            ₹3,500
-                                        </div><!-- End .product-price -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
-
-                            <div class="col-6 col-md-4 col-lg-3">
-                                <div class="product product-4">
-                                    <figure class="product-media">
-                                        <span class="product-label label-sale">Sale</span>
-                                        <a href="product.html">
-                                            <img src="assets/images/demos/demo-17/products/product-8.jpg" alt="Product image" class="product-image">
-                                            <!-- <img src="assets/images/demos/demo-17/products/product-8-2.jpg" alt="Product image" class="product-image-hover"> -->
-                                        </a>
-
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                            <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
-                                            <!-- <a href="#" class="btn-product-icon btn-compare" title="Compare"><span>Compare</span></a> -->
-                                        </div><!-- End .product-action -->
-
-                                        <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
-                                        </div><!-- End .product-action -->
-                                    </figure><!-- End .product-media -->
-
-                                    <div class="product-body">
-                                        <div class="product-cat">
-                                            <!-- <a href="#">Shoes</a> -->
-                                        </div><!-- End .product-cat -->
-                                        <h3 class="product-title"><a href="product.html">Fiji Tote Bag</a></h3><!-- End .product-title -->
-                                        <div class="product-price">
-                                            <span class="new-price">Now ₹1800</span>
-                                            <span class="old-price">Was ₹2500</span>
-                                        </div><!-- End .product-price -->
-                                    </div><!-- End .product-body -->
-                                </div><!-- End .product -->
-                            </div><!-- End .col-sm-6 col-md-4 col-lg-3 -->
+                            </div><!-- End .col-6 col-md-4 col-lg-3 -->
+                            <% }) %>
                         </div><!-- End .row -->
-                    </div><!-- .End .tab-pane -->
+                    </div><!-- End .tab-pane -->
+                </div><!-- End .tab-content -->
 
                     
 

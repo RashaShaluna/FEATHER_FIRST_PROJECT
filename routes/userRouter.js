@@ -3,6 +3,10 @@ const router = express.Router();
 const userController = require('../controllers/usercontroller');
 const passport = require('passport');
 const {userAuth,adminAuth} = require('../middleware/auth')
+const path = require('path');
+
+router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
+
 
 // home
 router.get('/pageNotFound',userController.pageNotFound);
@@ -30,9 +34,8 @@ router.post('/resetPass/:_id/:token',userController. confirmpass);
 router.get('/changedpass',userController.successpass);
 
 // shop
-router.get('/minibag',userController.mini);
-router.get('/minibag',userController.cross);
-router.get('/minibag',userController.tote);
+router.get('/shop/:categoryId',userController.shop);
+
 
 
 

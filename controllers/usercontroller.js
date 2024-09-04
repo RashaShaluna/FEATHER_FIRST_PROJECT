@@ -1,11 +1,13 @@
 const User = require('../models/userSchema');
+const Product = require('../models/productModel');
+const Category = require('../models/category');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const env = require('dotenv').config();
 // const crypto = require('crypto');
 const Otp = require('../models/otp');
 const jwt = require('jsonwebtoken');
-
+const {log} = require('console');
 
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
@@ -19,7 +21,11 @@ const pageNotFound = async (req, res) => {
 // =================================================landing page===============================================================
 const loadlandingpage = async (req, res) => {
   try {
-    res.render('users/homepage', {title: 'Feather - Homengpage' });
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    log(categories)
+    const products = await Product.find().limit(4);
+    log('product',products)
+    res.render('users/homepage', {title: 'Feather - Homengpage' , products: products,categories: categories});
     console.log('landing page loaded');
   } catch (error) {
     console.log('Home page not found', error.message); // backend error
@@ -27,22 +33,15 @@ const loadlandingpage = async (req, res) => {
   }
 };
 
-// ===================================== home page ===========================================================================
-// const loadHome = async (req, res) => {
-//   try {
-//     res.render('users/homepage', { title: 'home page' });
-//   } catch (error) {
-//     console.log('Home1 page not found', error.message); // backend error
-//     res.status(500).send('Server error'); // frontend error 
-//   }
-// };
 
 // ====================================register load=================================================================
 const loadregister = async (req, res) => {
   console.log('welcome to register');
 
   try {
-    res.render('users/register', { title: 'Feather - registerpage' });
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    log(categories)
+    res.render('users/register', { title: 'Feather - registerpage' ,categories: categories});
     console.log('register page');
   } catch (error) {
     console.log('register page not found', error.message); // backend error
@@ -234,7 +233,9 @@ const loadLogin = async (req, res) => {
  
   console.log('welcome to login');
   try {
-    res.render('users/login', { title: 'Feather - loginpage' });
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    log(categories)
+    res.render('users/login', { title: 'Feather - loginpage',categories: categories });
     console.log('login page');
   } catch (error) {
     console.log('Login page not found', error.message); 
@@ -537,33 +538,48 @@ const successpass = async (req,res) => {
 
 //==================================================== shop =============================================================
 
-
-const mini= async(req,res)=>{
+const shop = async (req, res) => {
   try {
-    res.render('users/minibag',{title:'Shop Page - Feather'});
-  } catch (error) {
-    console.log('error in shop');
+    // Fetch all categories that are listed and not deleted
+    const categories = await Category.find({ isListed: true, isDeleted: false });
+    if (!categories) {
+      return res.redirect('/pageNotFound');
+    }
+
+    // Get categoryId from URL parameters if present
+    const categoryId = req.params.categoryId;
+
+    // Initialize products array
+    let products = [];
+
+    if (categoryId) {
+      // Find products by the selected category that are not blocked
+      products = await Product.find({
+        category: categoryId,
+        isBlocked: false,
+        isDeleted: false
+      });
+    } else {
+      // If no categoryId, get products from all categories
+      products = await Product.find({
+        isBlocked: false,
+        isDeleted: false
+      });
+    }
+
+    // Render the view with the products and categories
+    res.render('users/shop', {
+      title: 'shop - feather',
+      categories, // Pass categories to the view
+      products
+    });
+  } catch (err) {
+    console.error(err);
     res.redirect('/pageNotFound');
   }
-}
+};
 
-const cross= async(req,res)=>{
-  try {
-    res.render('users/crossbag',{title:'Shop Page - Feather'});
-  } catch (error) {
-    console.log('error in shop');
-    res.redirect('/pageNotFound');
-  }
-}
 
-const tote= async(req,res)=>{
-  try {
-    res.render('users/totebag',{title:'Shop Page - Feather'});
-  } catch (error) {
-    console.log('error in shop');
-    res.redirect('/pageNotFound');
-  }
-}
 
 
 
@@ -595,9 +611,7 @@ module.exports = {
   resetPass,
   confirmpass,
   successpass,
- mini,
- cross,
- tote
+  shop,
 };
 
 

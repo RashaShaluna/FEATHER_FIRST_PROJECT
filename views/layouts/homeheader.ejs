@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title><%= title ? title : 'Feather bags ' %></title></title>
+    <title><%= title ? title : 'Feather bags ' %></title>
     <meta name="keywords" content="HTML5 Template">
     <meta name="description" content="Feather - Bootstrap eCommerce Template">
     <meta name="author" content="p-themes">
@@ -25,16 +25,16 @@
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
     <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css">
     <link rel="stylesheet" href="assets/css/plugins/magnific-popup/magnific-popup.css">
-    <!-- Main CSS File -->
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/skins/skin-demo-17.css">
     <link rel="stylesheet" href="assets/css/demos/demo-17.css">
+
     <!-- mystyle CSS -->
     <link rel="stylesheet" href="/mystyle.css">
-    <script src="assets/js/main.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -100,12 +100,16 @@
                                             <div class="menu-col">
                                                 <div class="row">
                                                     <div class="col-md-6">
+                                                        <% if (categories && categories.length > 0) { %>
+                                                            <div class="category-header">
+                                                              <ul>
+                                                                <% categories.forEach(category => { %>
+                                                                  <li><a href="/shop/<%= category._id %>"><%= category.name %></a></li>
+                                                                <% }) %>
+                                                              </ul>
+                                                            </div>
+                                                          <% } %>
                                                         
-                                                        <ul>
-                                                            <li><a href="/minibag">Mini Bag</a></li>
-                                                            <li><a href="checkout.html">Crossbosy Bag</a></li>
-                                                            <li><a href="wishlist.html">Tote Bag</a></li>
-                                                        </ul>
                                                     </div><!-- End .col-md-6 -->
                                                 </div><!-- End .row -->
                                             </div><!-- End .menu-col -->
@@ -127,6 +131,11 @@
                                                                 <li><a href="checkout.html">Checkout</a></li>
                                                                 <li><a href="wishlist.html">Wishlist</a></li>
                                                                 <li><a href="dashboard.html">My Account</a></li>
+                                                                <% if (loggedIn) { %>
+                                                                    <li><a href="/logOut">Log Out</a></li>
+
+                                                                <% } %>
+
                                                             </ul>
                                                         </div><!-- End .col-md-6 -->
                                                     </div><!-- End .row -->
@@ -155,5 +164,6 @@
         </div><!-- End .header-bottom -->
     </header>
 
+    <!-- <script src="assets/js/main.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
