@@ -34,8 +34,8 @@ router.post('/resetPass/:_id/:token',userController. confirmpass);
 router.get('/changedpass',userController.successpass);
 
 // shop
-router.get('/shop/:categoryId',userController.shop);
-
+router.get('/shop/:categoryId?',userController.shop);
+router.get('/product/:id',userController. productView);
 
 
 

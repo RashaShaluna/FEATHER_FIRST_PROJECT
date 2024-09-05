@@ -17,21 +17,23 @@
     <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
     <link rel="manifest" href="assets/images/icons/site.html">
     <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666"> -->
-    <link rel="shortcut icon" href="assets/images/icons/favicon.png">
+    <link rel="shortcut icon" href="/assets/images/icons/favicon.png">
     <meta name="apple-mobile-web-app-title" content="Feather">
     <meta name="application-name" content="Feather">
     <meta name="msapplication-TileColor" content="#cc9966">
-    <meta name="msapplication-config" content="assets/images/icons/browserconfig.xml">
+    <meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <link rel="stylesheet" href="/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
     <!-- Plugins CSS File -->
-    <link rel="stylesheet" href="assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/plugins/owl-carousel/owl.carousel.css">
-    <link rel="stylesheet" href="assets/css/plugins/magnific-popup/magnific-popup.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/skins/skin-demo-17.css">
-    <link rel="stylesheet" href="assets/css/demos/demo-17.css">
+    <link rel="stylesheet" href="/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/skins/skin-demo-17.css">
+    <link rel="stylesheet" href="/assets/css/demos/demo-17.css">
+    <link rel="stylesheet" href="assets/css/plugins/nouislider/nouislider.css">
+
 
     <!-- mystyle CSS -->
     <link rel="stylesheet" href="/mystyle.css">
@@ -57,7 +59,7 @@
 
                 <div class="header-center">
                     <a href="homepage.ejs" class="logo">
-                        <img src="assets/images/logo.png" alt="Feather
+                        <img src="/assets/images/logo.png" alt="Feather
                  Logo" width="210" height="30">
                     </a>
                 </div><!-- End .header-left -->
@@ -104,7 +106,8 @@
                                                             <div class="category-header">
                                                               <ul>
                                                                 <% categories.forEach(category => { %>
-                                                                  <li><a href="/shop/<%= category._id %>"><%= category.name %></a></li>
+                                                                    <li style="white-space: nowrap;">
+                                                                        <a href="/shop/<%= category._id %>"><%= category.name %></a></li>
                                                                 <% }) %>
                                                               </ul>
                                                             </div>
@@ -130,10 +133,9 @@
                                                                 <li><a href="cart.html">Cart</a></li>
                                                                 <li><a href="checkout.html">Checkout</a></li>
                                                                 <li><a href="wishlist.html">Wishlist</a></li>
-                                                                <li><a href="dashboard.html">My Account</a></li>
                                                                 <% if (loggedIn) { %>
+                                                                    <li><a href="dashboard.html">My Account</a></li>
                                                                     <li><a href="/logOut">Log Out</a></li>
-
                                                                 <% } %>
 
                                                             </ul>

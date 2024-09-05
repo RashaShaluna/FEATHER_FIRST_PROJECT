@@ -486,6 +486,7 @@ const resetPass = async (req, res) => {
 };
 
 
+// ======================================================================== conform password ===============================================
 const confirmpass = async(req,res)=>{  
     try {
       const { _id, token } = req.params;
@@ -540,38 +541,58 @@ const successpass = async (req,res) => {
 
 const shop = async (req, res) => {
   try {
-    // Fetch all categories that are listed and not deleted
-    const categories = await Category.find({ isListed: true, isDeleted: false });
-    if (!categories) {
-      return res.redirect('/pageNotFound');
-    }
-
-    // Get categoryId from URL parameters if present
+    log('in shop')
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+   log('cat', categories)
+   const page = parseInt(req.query.page) || 1;
+   const limit = 6;  
     const categoryId = req.params.categoryId;
+    const skip = (page - 1) * limit;
+    log('id',categoryId)
 
-    // Initialize products array
     let products = [];
-
+    let totalProducts = 0;
+    let categoryName = '';
+    
     if (categoryId) {
-      // Find products by the selected category that are not blocked
-      products = await Product.find({
+      const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
+    log('categor',category);
+      if (category) {
+        categoryName = category.name;
+      }
+      log('categoryName',categoryName)
+
+      totalProducts = await Product.countDocuments({
         category: categoryId,
         isBlocked: false,
         isDeleted: false
       });
+
+
+      products = await Product.find({
+        category: categoryId,
+        isBlocked: false,
+        isDeleted: false
+      }).limit(limit)
+      .skip(skip);
     } else {
-      // If no categoryId, get products from all categories
       products = await Product.find({
         isBlocked: false,
         isDeleted: false
-      });
+      }).limit(limit)
+      .skip(skip);
     }
 
-    // Render the view with the products and categories
+    const totalPages = Math.ceil(totalProducts / limit);
+
     res.render('users/shop', {
       title: 'shop - feather',
-      categories, // Pass categories to the view
-      products
+      categories,
+      products,
+      currentPage: page,
+      totalPages,
+      categoryName,
+      // category
     });
   } catch (err) {
     console.error(err);
@@ -580,12 +601,54 @@ const shop = async (req, res) => {
 };
 
 
+// ========================================================================= Product single view ==================================================================
+const productView = async (req, res) => {
+  try {
+      log('in product');
+      const productId = req.params.id; 
+      log('product id', productId);
+
+      // Fetch product details and populate category
+      const product = await Product.findOne({
+          _id: productId,
+          isBlocked: false,     // Ensure product is not blocked
+          isDeleted: false      // Ensure product is not deleted
+      }).populate({
+          path: 'category',
+          match: { isDeleted: false, islisted: true } // Fetch only categories that are not deleted and listed
+      });
+
+      log('product', product);
+
+      // Check if product or category is not found
+      if (!product || !product.category) {
+        return res.status(404).render('404', { message: 'Product or category not found' });
+    }
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    log('cat', categories)
+
+    const category = await Category.findById(req.params.categoryId);
 
 
+    const relatedProducts = await Product.find({
+      _id: { $ne: productId },
+      // category: product.category._id,
+      isBlocked: false,
+      isDeleted: false
+    }).limit(4); 
 
-
-
-
+      res.render('users/productDetails', {
+        title: `${product.name} - Feather`,
+        product,
+        categories,
+        relatedProducts,
+        
+      });
+    } catch (error) {
+      log(error);
+      res.redirect('/pageNotFound');
+    }
+};
 
 
 
@@ -612,6 +675,7 @@ module.exports = {
   confirmpass,
   successpass,
   shop,
+  productView
 };
 
 

@@ -4,7 +4,7 @@
             <div class="row">
                 <div class="col-sm-6 col-lg-3">
                     <div class="widget widget-about">
-                        <img src="assets/images/logo.png" class="footer-logo" alt="Footer Logo" width="200" height="30">
+                        <img src="/assets/images/logo.png" class="footer-logo" alt="Footer Logo" width="200" height="30">
                         <p>Discover the power and strength of Feather – your companion for stylish, high-quality bags designed to suit your diverse needs. </p>
 
                         <!-- <div class="social-icons">
@@ -18,6 +18,7 @@
                     </div><!-- End .widget about-widget -->
                 </div><!-- End .col-sm-6 col-lg-3 -->
 
+             
                 <div class="col-sm-6 col-lg-3">
                     <div class="widget">
                         <h4 class="widget-title">Useful Links</h4><!-- End .widget-title -->
@@ -61,6 +62,11 @@
             </div><!-- End .row -->
         </div><!-- End .container -->
     </div><!-- End .footer-middle -->
+               
+
+              
+        </div><!-- End .container -->
+    </div><!-- End .footer-middle -->
 
     <div class="footer-bottom">
         <div class="container">
@@ -93,11 +99,16 @@
             </li>
             <li>
                 <a   class="sf-with-ul " style="color: white;">Shop by category</a>
-                <ul>
-                    <% categories.forEach(category => { %>
-                        <li><a href="/shop"><%= category.name %></a></li>
-                    <% }); %>
-                </ul>
+                <% if (categories && categories.length > 0) { %>
+                    <div class="category-header">
+                      <ul>
+                        <% categories.forEach(category => { %>
+                            <li style="white-space: nowrap;">
+                                <a href="/shop/<%= category._id %>"><%= category.name %></a></li>
+                        <% }) %>
+                      </ul>
+                    </div>
+                  <% } %>
             </li>
             <li>
                 <a class="sf-with-ul"  style="color: white;">Pages</a>
@@ -105,11 +116,14 @@
                     <li><a href="cart.html">Cart</a></li>
                     <li><a href="checkout.html">Checkout</a></li>
                     <li><a href="wishlist.html">Wishlist</a></li>
-                    <li><a href="wishlist.html">My Account</a></li>
                     <% if (loggedIn) { %>
+                        <li><a href="wishlist.html">My Account</a></li>
                         <li><a href="/logOut">Log Out</a></li>
 
-                    <% } %>
+                    <% }else{%>
+                       <li> <a href="/login">Login</a></li>
+                        <li><a href="/register">Register</a></li> 
+                        <% } %>
 
                 </ul>
             </li>
@@ -137,132 +151,21 @@
 </div> -
 <-- End .mobile-menu-container -->
 
-<!-- Sign in / Register Mo3dal -->
-<div class="modal fade" id="signin-modal" tabindex="-1" role="dialog" aria-hidden="true">
-<div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-        <div class="modal-body">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true"><i class="icon-close"></i></span>
-            </button>
-
-            <div class="form-box">
-                <div class="form-tab">
-                    <ul class="nav nav-pills nav-fill" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="signin-tab" data-toggle="tab" href="#signin" role="tab" aria-controls="signin" aria-selected="true">Sign In</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">Register</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content" id="tab-content-5">
-                        <div class="tab-pane fade show active" id="signin" role="tabpanel" aria-labelledby="signin-tab">
-                            <form action="#">
-                                <div class="form-group">
-                                    <label for="singin-email">Username or email address *</label>
-                                    <input type="text" class="form-control" id="singin-email" name="singin-email" required>
-                                </div><!-- End .form-group -->
-
-                                <div class="form-group">
-                                    <label for="singin-password">Password *</label>
-                                    <input type="password" class="form-control" id="singin-password" name="singin-password" required>
-                                </div><!-- End .form-group -->
-
-                                <div class="form-footer">
-                                    <button type="submit" class="btn btn-outline-primary-2">
-                                        <span>LOG IN</span>
-                                        <i class="icon-long-arrow-right"></i>
-                                    </button>
-
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="signin-remember">
-                                        <label class="custom-control-label" for="signin-remember">Remember Me</label>
-                                    </div><!-- End .custom-checkbox -->
-
-                                    <a href="#" class="forgot-link">Forgot Your Password?</a>
-                                </div><!-- End .form-footer -->
-                            </form>
-                            <div class="form-choice">
-                                <p class="text-center">or sign in with</p>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-g">
-                                            <i class="icon-google"></i>
-                                            Login With Google
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-f">
-                                            <i class="icon-facebook-f"></i>
-                                            Login With Facebook
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                </div><!-- End .row -->
-                            </div><!-- End .form-choice -->
-                        </div><!-- .End .tab-pane -->
-                        <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                            <form action="#">
-                                <div class="form-group">
-                                    <label for="register-email">Your email address *</label>
-                                    <input type="email" class="form-control" id="register-email" name="register-email" required>
-                                </div><!-- End .form-group -->
-
-                                <div class="form-group">
-                                    <label for="register-password">Password *</label>
-                                    <input type="password" class="form-control" id="register-password" name="register-password" required>
-                                </div><!-- End .form-group -->
-
-                                <div class="form-footer">
-                                    <button type="submit" class="btn btn-outline-primary-2">
-                                        <span>SIGN UP</span>
-                                        <i class="icon-long-arrow-right"></i>
-                                    </button>
-
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="register-policy" required>
-                                        <label class="custom-control-label" for="register-policy">I agree to the <a href="#">privacy policy</a> *</label>
-                                    </div><!-- End .custom-checkbox -->
-                                </div><!-- End .form-footer -->
-                            </form>
-                            <div class="form-choice">
-                                <p class="text-center">or sign in with</p>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login btn-g">
-                                            <i class="icon-google"></i>
-                                            Login With Google
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                    <div class="col-sm-6">
-                                        <a href="#" class="btn btn-login  btn-f">
-                                            <i class="icon-facebook-f"></i>
-                                            Login With Facebook
-                                        </a>
-                                    </div><!-- End .col-6 -->
-                                </div><!-- End .row -->
-                            </div><!-- End .form-choice -->
-                        </div><!-- .End .tab-pane -->
-                    </div><!-- End .tab-content -->
-                </div><!-- End .form-tab -->
-            </div><!-- End .form-box -->
-        </div><!-- End .modal-body -->
-    </div><!-- End .modal-content -->
-</div><!-- End .modal-dialog -->
-</div><!-- End .modal -->
 
 <!-- Plugins JS File -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/bootstrap.bundle.min.js"></script>
-<script src="assets/js/jquery.hoverIntent.min.js"></script>
-<script src="assets/js/jquery.waypoints.min.js"></script>
-<script src="assets/js/superfish.min.js"></script>
-<script src="assets/js/owl.carousel.min.js"></script>
-<script src="assets/js/bootstrap-input-spinner.js"></script>
-<script src="assets/js/jquery.magnific-popup.min.js"></script>
-<script src="assets/js/main.js"></script>
-<script src="assets/js/demos/demo-17.js"></script>
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/jquery.hoverIntent.min.js"></script>
+<script src="/assets/js/jquery.waypoints.min.js"></script>
+<script src="/assets/js/superfish.min.js"></script>
+<script src="/assets/js/owl.carousel.min.js"></script>
+<script src="/assets/js/jquery.elevateZoom.min.js"></script>
+<script src="/assets/js/bootstrap-input-spinner.js"></script>
+<script src="/assets/js/jquery.magnific-popup.min.js"></script>
+<script src="/assets/js/main.js"></script>
+<script src="/assets/js/demos/demo-17.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <!-- molla/category.html  22 Nov 2019 10:02:52 GMT -->
 </html>

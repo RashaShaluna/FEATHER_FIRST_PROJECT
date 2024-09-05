@@ -1,10 +1,15 @@
 <%- include('../layouts/homeheader') %>
+
 <body>
 	<div class="page-wrapper">
         <main class="main">
             <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
                 <div class="container">
-                    <h1 class="page-title" style="color: #c49213;"><%= categoryName %></h1>
+                    <h1 class="page-title" style="color: #c49213;"> <% if (categoryName) { %>
+                        <%= categoryName %>
+                    <% } else { %>
+                        All Products
+                    <% } %></h1>
                 </div><!-- End .container -->
             </div><!-- End .page-header -->
 
@@ -51,6 +56,17 @@
                                                     <span class="new-price"><%= '₹' + product.offerprice %></span>
                                                     <span class="old-price"><%= '₹' + product.price %></span>
                                                 </div><!-- End .product-price -->
+                                                <div class="ratings-container">
+                                                    <div class="ratings">
+                                                        <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
+                                                    </div><!-- End .ratings -->
+                                                    <span class="ratings-text">( 2 Reviews )</span>
+                                                </div><!-- End .rating-container -->
+                                                <div class="product-nav product-nav-thumbs" >
+                                                    <% if(product.quantity==0 || product.status == 'Out of stock') {%>
+                                                        <p style="font-size: 12px;">(Out of stock)</p>
+                                                        <% } %>
+                                                </div><!-- End .product-nav -->
                                             </div><!-- End .product-body -->
                                         </div><!-- End .product -->
                                     </div><!-- End .col-6 col-md-4 col-lg-4 -->
@@ -60,18 +76,19 @@
 
                             <nav aria-label="Page navigation">
                                 <ul class="pagination justify-content-center">
-                                    <li class="page-item disabled">
-                                        <a class="page-link page-link-prev" href="#" aria-label="Previous" tabindex="-1" aria-disabled="true">
+                                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
                                             <span aria-hidden="true"><i class="icon-long-arrow-left"></i></span>Prev
                                         </a>
                                     </li>
-                                    <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                    <li class="page-item-total">of 6</li>
-                                    <li class="page-item">
-                                        <a class="page-link page-link-next" href="#" aria-label="Next">
-                                            Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
+                                    <% for(let i = 1; i <= totalPages; i++) { %>
+                                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                        </li>
+                                      <% } %>
+                                      <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                                          Next <span aria-hidden="true"><i class="icon-long-arrow-right"></i></span>
                                         </a>
                                     </li>
                                 </ul>
@@ -84,28 +101,37 @@
                 					<a href="#" class="sidebar-filter-clear">Clean All</a>
                 				</div><!-- End .widget widget-clean -->
 
-                				<div class="widget widget-collapsible">
-    								<h3 class="widget-title">
-									    <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
-									        Category
-									    </a>
-									</h3><!-- End .widget-title -->
+                				
 
-									<div class="collapse show" id="widget-1">
-										<div class="widget-body">
-											<div class="filter-items filter-items-count">
-												<div class="filter-item">
-													<div class="custom-control custom-checkbox">
-														<input type="checkbox" class="custom-control-input" id="cat-1">
-														<label class="custom-control-label" for="cat-1">Dresses</label>
-													</div><!-- End .custom-checkbox -->
-													<span class="item-count">3</span>
-												</div><!-- End .filter-item -->
-
-										</div><!-- End .widget-body -->
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
-
+                                    <div class="widget widget-collapsible">
+                                        <h3 class="widget-title">
+                                            <a data-toggle="collapse" href="#widget-1" role="button" aria-expanded="true" aria-controls="widget-1">
+                                                Category
+                                            </a>
+                                        </h3>
+                                    
+                                        <div class="collapse show" id="widget-1">
+                                            <div class="widget-body">
+                                                <div class="filter-items filter-items-count">
+                                                    <% if (categories && categories.length > 0) { %>
+                                                        <% categories.forEach((category, index) => { %>
+                                                            <div class="filter-item">
+                                                                <div class="custom-control custom-checkbox">
+                                                                    <input type="checkbox" class="custom-control-input" id="cat-<%= index + 1 %>">
+                                                                    <label class="custom-control-label" for="cat-<%= index + 1 %>">
+                                                                        <%= category.name %>
+                                                                    </label>
+                                                                </div>
+                                                                <span class="item-count"><%= category.productCount %></span>                                                            </div>
+                                                        <% }); %>
+                                                    <% } else { %>
+                                                        <p>No categories available</p>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
         						
 
 									
