@@ -2943,3 +2943,351 @@ module.exports = {
     unlistProduct,
     deleteImage
 };
+
+
+
+let cropper1, cropper2, cropper3;
+
+// Initialize Cropper based on the image number
+function initCropper(imageElement, imageNumber) {
+    // Destroy any existing cropper instance
+    if (imageNumber === 1 && cropper1) cropper1.destroy();
+    if (imageNumber === 2 && cropper2) cropper2.destroy();
+    if (imageNumber === 3 && cropper3) cropper3.destroy();
+
+    // Create a new cropper instance
+    let cropperInstance = new Cropper(imageElement, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true,
+        rotatable: true,
+        scalable: true,
+    });
+
+    // Store the cropper instance
+    if (imageNumber === 1) cropper1 = cropperInstance;
+    if (imageNumber === 2) cropper2 = cropperInstance;
+    if (imageNumber === 3) cropper3 = cropperInstance;
+}
+
+// Handle file change and initialize the cropper
+function handleFileChange(event, imageNumber) {
+    const imagePreview = document.getElementById('imgView' + imageNumber);
+    const file = event.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            initCropper(imagePreview, imageNumber);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Crop the image based on the selected cropper instance
+function cropImage(imageNumber) {
+    let cropperInstance;
+    if (imageNumber === 1) cropperInstance = cropper1;
+    if (imageNumber === 2) cropperInstance = cropper2;
+    if (imageNumber === 3) cropperInstance = cropper3;
+
+    if (cropperInstance) {
+        const canvas = cropperInstance.getCroppedCanvas({
+            width: 200,
+            height: 300,
+        });
+
+        const imagePreview = document.getElementById('imgView' + imageNumber);
+        imagePreview.src = canvas.toDataURL(); // Update the preview with the cropped image
+
+        // Optional: reset the cropper if you need to crop again
+        cropperInstance.destroy();
+        if (imageNumber === 1) cropper1 = null;
+        if (imageNumber === 2) cropper2 = null;
+        if (imageNumber === 3) cropper3 = null;
+    }
+}
+
+// Event listeners for file inputs and crop buttons
+document.getElementById('input1').addEventListener('change', (event) => {
+    handleFileChange(event, 1);
+});
+document.getElementById('saveButton1').addEventListener('click', () => {
+    cropImage(1);
+});
+
+document.getElementById('input2').addEventListener('change', (event) => {
+    handleFileChange(event, 2);
+});
+document.getElementById('saveButton2').addEventListener('click', () => {
+    cropImage(2);
+});
+
+document.getElementById('input3').addEventListener('change', (event) => {
+    handleFileChange(event, 3);
+});
+document.getElementById('saveButton3').addEventListener('click', () => {
+    cropImage(3);
+});
+// document.getElementById('productForm').addEventListener('submit', function(e) {
+  //     e.preventDefault(); // Prevent the default form submission
+  
+  //     // Add any additional form processing here
+  //     // For example, you could create FormData and append other fields
+  
+  //     const formData = new FormData(this);
+  
+  //     // Send the form data using fetch or another AJAX method
+  //     fetch('/editproduct/:id', {
+  //         method: 'POST',
+  //         body: formData,
+  //     })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //         console.log('Success:', data);
+  //     })
+  //     .catch(error => {
+  //         console.error('Error:', error);
+  //     });
+  // });
+  
+  document.getElementById('productForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevent the default form submission
+  
+      const formData = new FormData(this);
+      ['input1', 'input2', 'input3'].forEach((inputId) => {
+          const input = document.getElementById(inputId);
+          if (input.files.length > 0) {
+              formData.append('images[]', input.files[0]);
+          }
+      });
+      fetch(`/admin/editproduct/${productId}`,{
+          method: 'POST',
+          body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+          Swal.fire({
+              title: 'Success!',
+              text: 'Images have been uploaded successfully.',
+              icon: 'success',
+              confirmButtonText: 'Okay'
+          });
+      })
+      .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Something went wrong. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'Okay'
+          });
+          console.error('Error:', error);
+      });
+  });
+
+
+
+  let cropper1, cropper2, cropper3;
+
+function initCropper(imageElement, imageNumber) {
+    if (imageNumber === 1 && cropper1) cropper1.destroy();
+    if (imageNumber === 2 && cropper2) cropper2.destroy();
+    if (imageNumber === 3 && cropper3) cropper3.destroy();
+
+    let cropperInstance = new Cropper(imageElement, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true,
+        rotatable: true,
+        scalable: true,
+    });
+
+    if (imageNumber === 1) cropper1 = cropperInstance;
+    if (imageNumber === 2) cropper2 = cropperInstance;
+    if (imageNumber === 3) cropper3 = cropperInstance;
+}
+
+function handleFileChange(event, imageNumber) {
+    const imagePreview = document.getElementById('imgView' + imageNumber);
+    const file = event.target.files[0];
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            initCropper(imagePreview, imageNumber);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function cropImage(imageNumber) {
+    let cropperInstance;
+    if (imageNumber === 1) cropperInstance = cropper1;
+    if (imageNumber === 2) cropperInstance = cropper2;
+    if (imageNumber === 3) cropperInstance = cropper3;
+
+    if (cropperInstance) {
+        const canvas = cropperInstance.getCroppedCanvas({
+            width: 200,
+            height: 300,
+        });
+
+        canvas.toBlob((blob) => {
+            const fileName = `cropped-image-${imageNumber}.png`;
+            const file = new File([blob], fileName, { type: 'image/png' });
+
+            const input = document.getElementById('input' + imageNumber);
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            input.files = dataTransfer.files;
+
+           
+            const imagePreview = document.getElementById('imgView' + imageNumber);
+            imagePreview.src = canvas.toDataURL();
+
+            cropperInstance.destroy();
+            if (imageNumber === 1) cropper1 = null;
+            if (imageNumber === 2) cropper2 = null;
+            if (imageNumber === 3) cropper3 = null;
+        });
+      }
+    }
+document.getElementById('input1').addEventListener('change', (event) => {
+    handleFileChange(event, 1);
+});
+document.getElementById('saveButton1').addEventListener('click', () => {
+    cropImage(1);
+});
+
+document.getElementById('input2').addEventListener('change', (event) => {
+    handleFileChange(event, 2);
+});
+document.getElementById('saveButton2').addEventListener('click', () => {
+    cropImage(2);
+});
+
+document.getElementById('input3').addEventListener('change', (event) => {
+    handleFileChange(event, 3);
+});
+document.getElementById('saveButton3').addEventListener('click', () => {
+    cropImage(3);
+});
+ 
+document.getElementById('productForm').addEventListener('submit', function(e) {
+      e.preventDefault(); 
+  
+      const formData = new FormData(this);
+      ['input1', 'input2', 'input3'].forEach((inputId) => {
+          const input = document.getElementById(inputId);
+          if (input.files.length > 0) {
+              formData.append('images[]', input.files[0]);
+          }
+      });
+      fetch(`/admin/editproduct/${productId}`,{
+          method: 'POST',
+          body: formData,
+      })
+      .then(response => response.json())
+      .then(data => {
+          Swal.fire({
+              title: 'Success!',
+              text: 'Images have been uploaded successfully.',
+              icon: 'success',
+              confirmButtonText: 'Okay'
+          });
+      })
+      .catch(error => {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Something went wrong. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'Okay'
+          });
+          console.error('Error:', error);
+      });
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.btn-delete-image').forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-id');
+      const image = this.getAttribute('data-image');
+      const imageContainer = this.closest('.image-container');
+
+      // Send a DELETE request to the server to remove the image
+      fetch(`/admin/products/${productId}/delete-image`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Remove the image from the UI
+          imageContainer.remove();
+
+          // Update the hidden input field
+          const existingImages = JSON.parse(document.getElementById('existingImages').value);
+          const updatedImages = existingImages.filter(img => img !== image);
+          document.getElementById('existingImages').value = JSON.stringify(updatedImages);
+        } else {
+          console.error('Error deleting image:', data.message);
+        }
+      })
+      .catch(err => console.error('Error:', err));
+    });
+  });
+});
+
+
+        <!-- Existing Images Section -->
+                <div class="form-group mt-2">
+                  <label for="productImage">Existing Images</label>
+                  <div id="existing-images" class="d-flex flex-wrap">
+                    <% for (let i = 0; i < product.images.length; i++) { %>
+                      <div class="me-2 position-relative image-container">
+                        <img src="/uploads/<%= product.images[i] %>" alt="Image <%= i + 1 %>" class="img-thumbnail existing-image" style="max-width: 100px; max-height: 100px;" />
+                            <button type="button" class="btn btn-delete-image" data-id="<%= product._id %>" data-image="<%= product.images[i] %>">
+                               <i class="fa fa-times"></i>
+                        </button>
+                      </div>
+                    <% } %>
+                  </div>
+                  <input type="hidden" name="existingImages" id="existingImages" value='<%= JSON.stringify(product.images) %>'>
+                </div>
+
+                 <!-- Add New Images -->
+                 <fieldset class="new-images">
+                  <div class="body-title mb-10">Add New Images</div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="file" id="input1" name="images" class="small-input" style="width: 250px;" onchange="handleFileSelect(event, 'imgView1', 'input1', 'saveButton1')">
+                        <img id="imgView1" src="" class="img-fluid mb-2" style="display:none;">
+                        <button type="button" id="saveButton1" class="btn btn-sm btn-primary" style='margin-top: 17px;' onclick="cropImage(1)">Crop</button>
+                    </div>
+                    <di v class="col-md-4">
+                        <input type="file" id="input2" name="images" class="small-input" style="width: 250px;" onchange="handleFileSelect(event, 'imgView2', 'input2', 'saveButton2')">
+                        <img id="imgView2" src="" class="img-fluid mb-2" style="display:none;">
+                        <button type="button" id="saveButton2" class="btn btn-sm btn-primary" style='margin-top: 17px' onclick="cropImage(2)">Crop</button>
+                    </div>
+                    <div class="col-md-4">
+                      <input type="file" id="input3" name="images" class="small-input" style="width: 250px;" onchange="handleFileSelect(event, 'imgView3', 'input3', 'saveButton3')">
+                        <img id="imgViewe3" src="" class="img-fluid mb-2" style="display:none;">
+                        <button type="button" id="saveButton3" class="btn btn-sm btn-primary" style='margin-top: 17px' onclick="cropImage(3)">Crop</button>
+                    </div>
+                </div>
+                
+                  </div>
+                  <div class="error-message" style="color: red;" id="error-images"></div>
+              </fieldset>
+              
+          <!-- </div> -->

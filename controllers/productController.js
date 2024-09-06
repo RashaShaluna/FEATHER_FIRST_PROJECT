@@ -249,14 +249,15 @@ const softDeleteProduct = async (req, res) => {
         if(existingProduct){
           return res.status(400).json({messge:'Product with this name already exists . Try with another name'});
         }
-        const images =[];
-
-        if( req.files && req.files.length>0){
-          for(let i=0;i<req.files.length;i++){
-            images.push(req.files[i].filename);
-          }
-        }
+        // const newImages = [];
+        // if (req.files) {
+        //   for (const file of req.files) {
+        //     newImages.push(file.filename);
+        //   }
+        // }
   log('2')
+  // const updatedImages = product.images.concat(newImages);
+
         const category = await Category.findOne({ name: data.category });
         if (!category) {
           return res.status(400).json({ message: 'Invalid category name' });
@@ -269,19 +270,20 @@ const softDeleteProduct = async (req, res) => {
             quantity:data.quantity,
             price:data.price,
             offerPrice:data.offerprice,
-            color:data.color
+            color:data.color,
+            // images: updatedImages
       }
       // if(req.files.length>0){
       //   updateFields.$push= {productImage:{$search:images}};
       // }
 
-      if(req.files.length > 0){
-        updateFields.productImage = { $push: { $each: images } };
-    }
+     
     
-      await Product.findByIdAndUpdate(productId,updateFields,{new:true});
+      // await Product.findByIdAndUpdate(productId,updateFields,{new:true});
       log('updated')
-      res.redirect("/admin/product");
+      // res.json({ message: 'Product updated successfully' });
+
+      res.redirect("/admin/product")
 
       
     } catch (error) {
@@ -293,39 +295,36 @@ const softDeleteProduct = async (req, res) => {
 
 
 //============================delete the image============================
-const deleteSingleImage = async (req, res) => {
-  try {
-    log('in deltete')
-    const { productId, image } = req.body;
+// const deleteSingleImage = async (req, res) => {
+//   try {
+//     log('in deltete')
+//     const { id } = req.params;
+//     const { image } = req.body;
 
-    // Validate input
-    if (!productId || !image) {
-        return res.status(400).json({ success: false, message: 'Invalid input' });
-    }
+//     const product = await Product.findById(id);
 
-    // Find the product
-    const product = await Product.findById(productId);
-    if (!product) {
-        return res.status(404).json({ success: false, message: 'Product not found' });
-    }
+//     if (!product) {
+//       return res.status(404).json({ success: false, message: 'Product not found' });
+//     }
+//     product.images = product.images.filter(img => img !== image);
 
-    // Remove the image from the product
-    const imageIndex = product.images.indexOf(image);
-    if (imageIndex > -1) {
-        product.images.splice(imageIndex, 1);
-        await product.save();
-        console.log('Image deleted successfully from database');
-    } else {
-        return res.status(400).json({ success: false, message: 'Image not found' });
-    }
+//     await product.save();
 
-    // Respond with success
-    res.json({ success: true });
-  } catch (error) {
-    log(error);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-}
+//     // Optionally, delete the image file from the uploads directory
+//     const fs = require('fs');
+//     const imagePath = `public/uploads/${image}`;
+//     fs.unlink(imagePath, (err) => {
+//       if (err) {
+//         console.error('Error deleting image file:', err);
+//       }
+//     });
+
+//     res.json({ success: true });
+//   } catch (error) {
+//     log(error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// }
 
 
 module.exports = {
@@ -339,6 +338,6 @@ module.exports = {
     softDeleteProduct,
     editProduct,
     editingProduct,
-    deleteSingleImage
+    // deleteSingleImage
 
 }

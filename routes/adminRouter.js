@@ -65,9 +65,9 @@ adminRouter.get('/unblockproduct',adminAuth,productController.productUnBlock);
 adminRouter.delete('/product/delete/:productId', adminAuth, productController.softDeleteProduct);
 adminRouter.get('/editproduct/:id', adminAuth, productController.editProduct);
 adminRouter.post('/editproduct/:id',adminAuth,  uploads.array('images',3) , productController.editingProduct);
-adminRouter.delete('/deleteImage', adminAuth, (req, res) => {
-  console.log('Received DELETE request at /admin/deleteImage'); // Debugging
-  productController.deleteSingleImage(req, res);
-});
+// adminRouter.delete('/admin/products/:id/delete-image', adminAuth, (req, res) => {
+//   console.log('Received DELETE request at /admin/deleteImage'); 
+//   productController.deleteSingleImage(req, res);
+// });
 
 module.exports = adminRouter;
