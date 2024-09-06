@@ -23,7 +23,7 @@ const loadlandingpage = async (req, res) => {
   try {
     const categories = await Category.find({ islisted: true, isDeleted: false });
     log(categories)
-    const products = await Product.find().limit(4);
+    const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
     log('product',products)
     res.render('users/homepage', {title: 'Feather - Homengpage' , products: products,categories: categories});
     console.log('landing page loaded');
@@ -250,6 +250,12 @@ const loginVerify = async (req, res) => {
     console.log('Req body:', req.body); 
     const { email, password } = req.body;
 
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    console.log('Categories:', categories);
+    const products = await Product.find({ isBlocked: false, isDeleted: false }).limit(4);
+    console.log('Products:', products);
+
+
     console.log('log1');
     
     if (!email || !password) {
@@ -258,18 +264,18 @@ const loginVerify = async (req, res) => {
         : !email 
         ? 'Email is required'
         : 'Password is required';
-      return res.render('users/login', { title: 'Feather - loginpage', message });
+      return res.render('users/login', { title: 'Feather - loginpage', message ,categories, products});
     }
 
     const findUser = await User.findOne({ isAdmin: 0, email: email });
 
     if (!findUser) {
       console.log('User not found');
-      return res.render('users/login', { title: 'Feather - loginpage', message: 'User not found' });
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'User not found' ,categories, products});
     }
 
     if (findUser.isBlocked) {
-      return res.render('users/login', { title: 'Feather - loginpage', message: 'User is blocked by admin' });
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'User is blocked by admin' ,categories, products});
     }
 
     console.log('Password from request:', req.body.password);
@@ -278,15 +284,17 @@ const loginVerify = async (req, res) => {
     const passwordMatch = await bcrypt.compare(password, findUser.password);
 
     if (!passwordMatch) {
-      return res.render('users/login', { title: 'Feather - loginpage', message: 'Incorrect Password' });
+      return res.render('users/login', { title: 'Feather - loginpage', message: 'Incorrect Password' ,categories, products});
     }
 
     req.session.user = findUser._id;
+
+    // res.render('users/homepage', { title: 'Home page -Feather',categories, products});
     res.redirect('/');
 
   } catch (error) {
     console.log('Login page not found', error.message); 
-    res.render('users/login', { title: 'Feather - loginpage', message: 'Login failed, please try again' });
+    res.render('users/login', { title: 'Feather - loginpage', message: 'Login failed, please try again',categories, products });
   }
 };
 
@@ -542,17 +550,45 @@ const successpass = async (req,res) => {
 const shop = async (req, res) => {
   try {
     log('in shop')
-    const categories = await Category.find({ islisted: true, isDeleted: false });
-   log('cat', categories)
+    const categories = await Category.aggregate([
+      {
+          $match: { isDeleted: false, islisted: true }
+      },
+      {
+          $lookup: {
+              from: 'products',
+              localField: '_id',
+              foreignField: 'category',
+              as: 'products'
+          }
+      },
+      {
+        $addFields: {
+            productCount: { $size: "$products" }
+        }
+      },
+      {
+          $project: {
+              name: 1,
+              slug: 1,
+              productCount: 1
+          }
+      }
+    ]);
+       log('cat', categories)
+
    const page = parseInt(req.query.page) || 1;
    const limit = 6;  
     const categoryId = req.params.categoryId;
     const skip = (page - 1) * limit;
+
     log('id',categoryId)
 
     let products = [];
     let totalProducts = 0;
     let categoryName = '';
+    let colors = [];
+   
     
     if (categoryId) {
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
@@ -568,21 +604,42 @@ const shop = async (req, res) => {
         isDeleted: false
       });
 
-
       products = await Product.find({
         category: categoryId,
         isBlocked: false,
         isDeleted: false
       }).limit(limit)
       .skip(skip);
+
+
+      colors = await Product.distinct('color', {
+        isBlocked: false,
+        isDeleted: false
+      });
+      log('c',colors)
+
+
+     
     } else {
       products = await Product.find({
         isBlocked: false,
         isDeleted: false
       }).limit(limit)
       .skip(skip);
-    }
 
+      colors = await Product.distinct('color', {
+        isBlocked: false,
+        isDeleted: false
+      });
+      log('c',colors)
+
+    }
+    colors = colors.map(color => ({
+      name: color || 'Unknown Color',  
+      hex: color || '#000000' 
+    }));
+
+    
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('users/shop', {
@@ -592,6 +649,7 @@ const shop = async (req, res) => {
       currentPage: page,
       totalPages,
       categoryName,
+      colors
       // category
     });
   } catch (err) {
@@ -608,27 +666,22 @@ const productView = async (req, res) => {
       const productId = req.params.id; 
       log('product id', productId);
 
-      // Fetch product details and populate category
       const product = await Product.findOne({
           _id: productId,
-          isBlocked: false,     // Ensure product is not blocked
-          isDeleted: false      // Ensure product is not deleted
+          isBlocked: false,    
+          isDeleted: false     
       }).populate({
           path: 'category',
-          match: { isDeleted: false, islisted: true } // Fetch only categories that are not deleted and listed
+          match: { isDeleted: false, islisted: true } 
       });
 
       log('product', product);
 
-      // Check if product or category is not found
       if (!product || !product.category) {
         return res.status(404).render('404', { message: 'Product or category not found' });
     }
     const categories = await Category.find({ islisted: true, isDeleted: false });
     log('cat', categories)
-
-    const category = await Category.findById(req.params.categoryId);
-
 
     const relatedProducts = await Product.find({
       _id: { $ne: productId },
@@ -642,7 +695,6 @@ const productView = async (req, res) => {
         product,
         categories,
         relatedProducts,
-        
       });
     } catch (error) {
       log(error);

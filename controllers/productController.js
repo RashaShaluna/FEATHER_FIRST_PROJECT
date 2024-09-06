@@ -6,6 +6,7 @@ const path = require('path');
 const {log} = require('console');
 const multer = require('multer');
 const mongoose = require('mongoose')
+const env = require('dotenv').config();
 
 // =========================================== Product page ===================================================================
 const productPage = async(req,res)=>{
@@ -293,40 +294,38 @@ const softDeleteProduct = async (req, res) => {
 
 //============================delete the image============================
 const deleteSingleImage = async (req, res) => {
-  log('in delete')
-  const imageName = req.params.imageName;
-  log('image name',imageName)
-  const imagePath = path.join(process.env.IMAGE_BASE_PATH, imageName);
-  log('Resolved image path:', imagePath);
-
   try {
-    log('hited the try')
-    if (fs.existsSync(imagePath)) {
-      log('File exists, proceeding to delete.');
-      fs.unlinkSync(imagePath);
-      log('unsynck')
-          const result = await Product.updateOne(
-              { 'images': imageName },
-              { $pull: { 'images': imageName } }
-          );
-          
-        
+    log('in deltete')
+    const { productId, image } = req.body;
 
-          if (result.nModified >0) {
-            res.json({ success: true, message: 'Image deleted from database.' });
-        } else {
-            res.json({ success: false, message: 'Image not found in database.' });
-        }
-        
-      } else {
-          res.json({ success: false, message: 'Image file not found.' });
-      }
+    // Validate input
+    if (!productId || !image) {
+        return res.status(400).json({ success: false, message: 'Invalid input' });
+    }
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+        return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    // Remove the image from the product
+    const imageIndex = product.images.indexOf(image);
+    if (imageIndex > -1) {
+        product.images.splice(imageIndex, 1);
+        await product.save();
+        console.log('Image deleted successfully from database');
+    } else {
+        return res.status(400).json({ success: false, message: 'Image not found' });
+    }
+
+    // Respond with success
+    res.json({ success: true });
   } catch (error) {
-    log('error in deleting images',error)
-      res.json({ success: false, message: 'Error deleting image.' });
+    log(error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-};
-
+}
 
 
 module.exports = {

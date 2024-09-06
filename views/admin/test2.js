@@ -148,3 +148,89 @@ uploadButtons.forEach((uploadButton, index) => {
             </div>
             
         
+const shop = async (req, res) => {
+  try {
+    log('in shop')
+    const categories = await Category.aggregate([
+      {
+          $match: { isDeleted: false, islisted: true }
+      },
+      {
+          $lookup: {
+              from: 'products',
+              localField: '_id',
+              foreignField: 'category',
+              as: 'products'
+          }
+      },
+      {
+        $addFields: {
+            productCount: { $size: "$products" }
+        }
+      },
+      {
+          $project: {
+              name: 1,
+              slug: 1,
+              productCount: 1
+          }
+      }
+    ]);
+       log('cat', categories)
+
+   const page = parseInt(req.query.page) || 1;
+   const limit = 6;  
+    const categoryId = req.params.categoryId;
+    const skip = (page - 1) * limit;
+
+    log('id',categoryId)
+
+    let products = [];
+    let totalProducts = 0;
+    let categoryName = '';
+    
+    if (categoryId) {
+      const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
+    log('categor',category);
+      if (category) {
+        categoryName = category.name;
+      }
+      log('categoryName',categoryName)
+
+      totalProducts = await Product.countDocuments({
+        category: categoryId,
+        isBlocked: false,
+        isDeleted: false
+      });
+
+
+      products = await Product.find({
+        category: categoryId,
+        isBlocked: false,
+        isDeleted: false
+      }).limit(limit)
+      .skip(skip);
+    } else {
+      products = await Product.find({
+        isBlocked: false,
+        isDeleted: false
+      }).limit(limit)
+      .skip(skip);
+    }
+
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    res.render('users/shop', {
+      title: 'shop - feather',
+      categories,
+      products,
+      currentPage: page,
+      totalPages,
+      categoryName,
+      // category
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/pageNotFound');
+  }
+};

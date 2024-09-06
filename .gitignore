@@ -5,7 +5,9 @@ node_modules
 test.js
 adminish
 upload
-
+test
+test2.js
+test.ejs
 # # Logs
 # logs
 # *.log
