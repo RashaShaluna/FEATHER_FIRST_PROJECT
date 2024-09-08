@@ -253,7 +253,7 @@
                         <!-- Image Cropper -->
                         <div class="image-cropper d-flex flex-column align-items-center">
                           <div id="croppedImgContainer1" class="cropped-img-container">
-                            <img src="/uploads/<%=product.images[0]%>" id="croppedImg1" alt="Cropped Image" class="cropped-img img-fluid">
+                            <img src="/uploads/<%= product.images[0] %>" id="croppedImg1" alt="Cropped Image" class="cropped-img img-fluid">
                           </div>
                           <button type="button" id="saveButton1" class="btn btn-sm btn-primary">Crop</button>
                         </div>
@@ -272,7 +272,7 @@
                         <!-- Image Cropper -->
                         <div class="image-cropper d-flex flex-column align-items-center">
                           <div id="croppedImgContainer2" class="cropped-img-container">
-                            <img src="/uploads/<%=product.images[1]%>" id="croppedImg2" alt="Cropped Image" class="cropped-img img-fluid">
+                            <img src="/uploads/<%= product.images[1] %>" id="croppedImg2" alt="Cropped Image" class="cropped-img img-fluid">
                           </div>
                           <button type="button" id="saveButton2" class="btn btn-sm btn-primary">Crop</button>
                         </div>
@@ -291,7 +291,7 @@
                         <!-- Image Cropper -->
                         <div class="image-cropper d-flex flex-column align-items-center">
                           <div id="croppedImgContainer3" class="cropped-img-container">
-                            <img src="/uploads/<%=product.images[2]%>" id="croppedImg3" alt="Cropped Image" class="cropped-img img-fluid">
+                            <img src="/uploads/<%= product.images[2] %>" id="croppedImg3" alt="Cropped Image" class="cropped-img img-fluid">
                           </div>
                           <button type="button" id="saveButton3" class="btn btn-sm btn-primary">Crop</button>
                         </div>
@@ -329,7 +329,6 @@
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-    <!-- <script src="./node_modules/cropperjs/dist/cropper.min.js"></script> -->
     
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -491,12 +490,15 @@
           if (validateForm()) {
             const formData = new FormData(this);
       
-            fetch('/admin/addproduct', {
+            const productId = '<%= product._id %>'; 
+
+            fetch(`/admin/ediproduct/${productId}`, {
               method: 'POST',
               body: formData
             })
             .then(response => response.json())
             .then(data => {
+            
               console.log('Success:', data);
       
               Swal.fire({

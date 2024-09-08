@@ -10,6 +10,7 @@ router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/asse
 
 // home
 router.get('/pageNotFound',userController.pageNotFound);
+router.get('/serverError',userController.serverError);
 router.get('/', userController.loadlandingpage);
 // router.get('/home',userController.loadHome);
 

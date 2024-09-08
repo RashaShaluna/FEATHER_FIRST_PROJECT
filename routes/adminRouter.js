@@ -23,10 +23,11 @@ adminRouter.use(express.static(path.join(__dirname, 'public')));
 // adminRouter.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 adminRouter.use('/images', express.static(path.join(__dirname, '../public')));
 
-adminRouter.use('/',session({
+adminRouter.use(session({
     secret: process.env.SECRET_KEY,
     resave: false,
     saveUninitialized: true, 
+    
   }));
   
 adminRouter.use(express.json());
@@ -35,7 +36,7 @@ adminRouter.use(express.urlencoded({ extended: true }));
 // Login management
 adminRouter.get('/pageerror',adminController.pageerror);
 adminRouter.get('/log', adminController.Login);
-adminRouter.post('/log', adminController.admincheck);
+adminRouter.post('/log',adminController.admincheck);
 adminRouter.get('/adminLogout',adminController.adminLogout);
 adminRouter.get('/dashboard',adminAuth,adminController.dashboard);
 
@@ -65,9 +66,6 @@ adminRouter.get('/unblockproduct',adminAuth,productController.productUnBlock);
 adminRouter.delete('/product/delete/:productId', adminAuth, productController.softDeleteProduct);
 adminRouter.get('/editproduct/:id', adminAuth, productController.editProduct);
 adminRouter.post('/editproduct/:id',adminAuth,  uploads.array('images',3) , productController.editingProduct);
-// adminRouter.delete('/admin/products/:id/delete-image', adminAuth, (req, res) => {
-//   console.log('Received DELETE request at /admin/deleteImage'); 
-//   productController.deleteSingleImage(req, res);
-// });
+
 
 module.exports = adminRouter;

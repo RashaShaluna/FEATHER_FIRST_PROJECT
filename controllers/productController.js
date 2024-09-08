@@ -229,72 +229,126 @@ const softDeleteProduct = async (req, res) => {
 
   // =========================================== edit product ===============================================
 
-  const editingProduct = async(req,res)=>{
-    try {
-      log('product editing')
-      const productId = req.params.id;
-      log('product id',productId);
+  // const editingProduct = async(req,res)=>{
+  //   try {
+  //     log('product editing')
+  //     const productId = req.params.id;
+  //     log('product id',productId);
+  //     const uploadedImages = req.files;
+  //     log('Uploaded Images:', uploadedImages);
 
-      const product = await Product.findOne({_id:productId});
-      if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
-      }
-        const data = req.body;
-        log('data',data)
-        const existingProduct = await Product.findOne({
-          name:data.name,
-          _id:{$ne:productId}
-        })
-        log('1')
-        if(existingProduct){
-          return res.status(400).json({messge:'Product with this name already exists . Try with another name'});
-        }
-        // const newImages = [];
-        // if (req.files) {
-        //   for (const file of req.files) {
-        //     newImages.push(file.filename);
-        //   }
-        // }
-  log('2')
-  // const updatedImages = product.images.concat(newImages);
+  //   let imagePaths = [];
+  //   const products = await Product.find({isBlocked:false,isDeleted:false,  _id: productId,
+  //   });
 
-        const category = await Category.findOne({ name: data.category });
-        if (!category) {
-          return res.status(400).json({ message: 'Invalid category name' });
-        }
+  //   const category = await Category.findOne({ name: req.body.category ,isDeleted:false,islisted:false});
+  // if(!category){
+  //   res.redirect('/admin/pageerror');
+  // }
+  // // const categoryId = category._id;
 
-      const updateFields ={
-            name:data.name,
-            description:data.description,
-            category: category._id,
-            quantity:data.quantity,
-            price:data.price,
-            offerPrice:data.offerprice,
-            color:data.color,
-            // images: updatedImages
-      }
-      // if(req.files.length>0){
-      //   updateFields.$push= {productImage:{$search:images}};
-      // }
+  //       log('1')
+  //       if (uploadedImages && uploadedImages.length > 0) {
+  //         for (let i = 0; i < uploadedImages.length; i++) {
+  //           const file = uploadedImages[i];
+  //           const filePath = path.join('public/uploads', file.filename);
+  //           const outputFilePath = path.join('public/uploads', `cropped_${file.filename}`);
+  //           imagePaths.push(`cropped_${file.filename}`);
+  //           fs.unlinkSync(filePath);
+  //         }
+  //       }
+  //        log('2')
 
-     
+        
+  //       const updatedProduct = {
+  //         name: req.body.name,
+  //         category: req.body.category,
+  //         price: parseFloat(req.body.price),
+  //         offerprice: parseFloat(req.body.offerprice),
+  //         quantity: parseInt(req.body.quantity),
+  //         description: req.body.description,
+  //         color: req.body.color,
+  //         images: imagePaths
+  //       };
+
+  //     await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
+
     
-      // await Product.findByIdAndUpdate(productId,updateFields,{new:true});
-      log('updated')
-      // res.json({ message: 'Product updated successfully' });
+  //     log('updated')
+  //     // res.json({ message: 'Product updated successfully' });
 
-      res.redirect("/admin/product")
+  //     res.redirect("/admin/product")
 
       
-    } catch (error) {
-      log('error in editing product',error);
-      res.redirect('/admin/pageerror');
+  //   } catch (error) {
+  //     log('error in editing product',error);
+  //     res.redirect('/admin/pageerror');
+  //   }
+  // }
+
+const editingProduct = async(req,res)=>{
+  try{
+
+  
+  const productId = req.params.id;
+  log('Product ID:', productId);
+    let product = await Product.findById(productId);
+    log(product);
+
+  const { name, category, price, offerprice, quantity, description, color } = req.body;
+
+  const categoryData = await Category.findOne({ name: category });
+  if (!categoryData) {
+    return res.status(404).json({ error: 'Category not found' });  }
+
+
+
+    let imagePaths = product.images;
+
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file, index) => {
+        if (file) {
+          imagePaths[index] = `/uploads/${file.filename}`; 
+        }
+      });
     }
+
+
+  product.name = name;
+  product.category = categoryData._id;
+  product.price = price;
+  product.offerprice = offerprice;
+  product.quantity = quantity;
+  product.description = description;
+  product.color = color;
+  product.images = images;
+
+  if (imagePaths.length > 0) {
+    product.images = imagePaths;  // Replace old images with new ones
   }
+log('imagepath ', imagePaths);
+  await product.save();
+
+  res.redirect('/admin/product');
+}catch (error) {
+  console.error('Error updating product:', error);
+  res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+
+
+
+
+
+
+
 
 
 
 //============================delete the image============================
+
 // const deleteSingleImage = async (req, res) => {
 //   try {
 //     log('in deltete')

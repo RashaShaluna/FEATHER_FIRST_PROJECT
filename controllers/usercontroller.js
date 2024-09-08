@@ -12,24 +12,35 @@ const {log} = require('console');
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
   try {
-    res.render('page-404');
+    res.render('pages/page-404');
   } catch (error) {
     res.redirect('/pageNotFound');
   }
 };
 
+//============================================= 500 page========================================================================
+const serverError =async(req,res)=>{
+  try {
+    res.render('pages/server-500');
+  } catch (error) {
+    log(error )
+    res.redirect('/serverError');
+  }
+}
+
+
 // =================================================landing page===============================================================
 const loadlandingpage = async (req, res) => {
   try {
     const categories = await Category.find({ islisted: true, isDeleted: false });
-    log(categories)
+    // log(categories)
     const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
-    log('product',products)
+    // log('product',products)
     res.render('users/homepage', {title: 'Feather - Homengpage' , products: products,categories: categories});
     console.log('landing page loaded');
   } catch (error) {
     console.log('Home page not found', error.message); // backend error
-    res.render('pageNotFound',{ title:'Feather - 404'});
+    res.redirect('/pageNotFound');
   }
 };
 
@@ -40,12 +51,12 @@ const loadregister = async (req, res) => {
 
   try {
     const categories = await Category.find({ islisted: true, isDeleted: false });
-    log(categories)
+    // log(categories)
     res.render('users/register', { title: 'Feather - registerpage' ,categories: categories});
     console.log('register page');
   } catch (error) {
-    console.log('register page not found', error.message); // backend error
-    res.status(500).send('Server error'); // frontend error 
+    console.log('register page not found', error.message); 
+    res.redirect('/serverError');
   }
 };
 
@@ -186,8 +197,8 @@ const verifyOtp = async(req,res)=>{
 
        }catch (error) {
           console.error(error.message+" error in verifyOtp");
-          res.status(500).send("Server error");
-      }
+          res.redirect('/serverError');
+        }
   }
 
 // ======================================================= Resend otp ============================================================ 
@@ -222,8 +233,8 @@ const resendOtp =   async (req,res) => {
 }
    catch (error) {
      console.error("error in resending",error);
-     res.status(500).json({success:false,message:'Server error  in resent'})
-  }
+     res.redirect('/serverError');
+    }
       
 };
 
@@ -239,23 +250,24 @@ const loadLogin = async (req, res) => {
     console.log('login page');
   } catch (error) {
     console.log('Login page not found', error.message); 
-    res.status(500).send('Server error'); 
+    res.redirect('/serverError');
   }
 };
 
 
 //===================================================Verify login================================================================
 const loginVerify = async (req, res) => {
+  const categories = await Category.find({ islisted: true, isDeleted: false });
+  // console.log('Categories:', categories);
+  const products = await Product.find({ isBlocked: false, isDeleted: false }).limit(4);
+  // console.log('Products:', products);
+
+
   try {
     console.log('Req body:', req.body); 
     const { email, password } = req.body;
 
-    const categories = await Category.find({ islisted: true, isDeleted: false });
-    console.log('Categories:', categories);
-    const products = await Product.find({ isBlocked: false, isDeleted: false }).limit(4);
-    console.log('Products:', products);
-
-
+  
     console.log('log1');
     
     if (!email || !password) {
@@ -294,7 +306,7 @@ const loginVerify = async (req, res) => {
 
   } catch (error) {
     console.log('Login page not found', error.message); 
-    res.render('users/login', { title: 'Feather - loginpage', message: 'Login failed, please try again',categories, products });
+    res.render('users/login', { title: 'Feather - loginpage', message: 'Login failed, please try again',categories, products});
   }
 };
 
@@ -434,7 +446,7 @@ const forgot = async (req, res) => {
     }
   } catch (error) {
     console.log('Error in forgot password:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    res.redirect('/serverError');
   }
 };
 
@@ -530,7 +542,7 @@ const confirmpass = async(req,res)=>{
       
     } catch (error) {
       console.log('Error in confirm pass',error)
-      res.status(500).json({succes:false,message:'Server error'});
+      res.redirect('/serverError');
     }
 }
 
@@ -727,7 +739,8 @@ module.exports = {
   confirmpass,
   successpass,
   shop,
-  productView
+  productView,
+  serverError
 };
 
 

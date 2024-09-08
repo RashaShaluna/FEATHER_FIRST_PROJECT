@@ -36,9 +36,11 @@ const admincheck = async (req, res) => {
 
         }
         const admin = await User.findOne({ isAdmin: true, email: email });
+        console.log('Admin from DB:', admin);
 
         if (admin) {
             const isMatch = await bcrypt.compare(password, admin.password);
+            console.log('Password Match:', isMatch);
 
             if (isMatch) {
                 req.session.admin = true;
@@ -46,13 +48,23 @@ const admincheck = async (req, res) => {
             } else {
                 return  res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Incorrect password' });
             }
+            // if (isMatch) {
+            //     // Set session for admin user
+            //     req.session.admin = true;
+            //     return res.redirect('/admin/dashboard');
+            // } else {
+            //     return res.render('admin/adminLogin', {
+            //         title: 'Feather-Admin Login',
+            //         message: 'Incorrect password'
+            //     });
+            // }
         } else {
             console.log('Not an admin');
             return res.render('admin/adminLogin', { title: 'Feather-Admin Login', message: 'Login failed, please try again' });
         }
     } catch (error) {
         console.error('Error verifying admin credentials:', error);
-        return res.redirect('/pageNotFound');
+        res.redirect('/pageerror');
     }
 };
 
@@ -65,7 +77,7 @@ const dashboard = async (req, res) =>
             console.log('Admin dashboard loaded');
         } catch (error) {
             console.error('Error loading admin dashboard:', error);
-            res.redirect('/pageerror');
+            res.redirect('/admin/pageerror');
         }
     } else {
         res.redirect('/admin/log');
@@ -76,7 +88,11 @@ const dashboard = async (req, res) =>
 //============================page error=====================================================
 
 const pageerror = async(req,res)=>{
+    try {
      res.render('admin/pageerror');
+    } catch (error) {
+        res.redirect('/admin/pageerror');
+    }
 }
 
 // ==========================Log out==========================================================
