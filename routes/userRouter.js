@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/usercontroller');
 const passport = require('passport');
-const {userAuth,adminAuth} = require('../middleware/auth')
+const userAuth = require('../middleware/userAuth');
 const path = require('path');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
@@ -11,21 +11,21 @@ router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/asse
 // home
 router.get('/pageNotFound',userController.pageNotFound);
 router.get('/serverError',userController.serverError);
-router.get('/', userController.loadlandingpage);
-// router.get('/home',userController.loadHome);
+router.get('/',userAuth.logout,userController.loadlandingpage);
+router.get('/home',userAuth.isBlocked,userController.loadHome);
 
 // register
 router.get('/register', userController.loadregister);
-router.post('/register', userController.registerVerify);
+router.post('/register',userController.registerVerify);
 
 // otp
 router.post('/verifyotp', userController.verifyOtp);
 router.post('/resendotp',userController.resendOtp);
 
 // login
-router.get('/login', userController.loadLogin)
+router.get('/login',userController.loadLogin)
 router.post('/login', userController.loginVerify)
-router.get('/logOut',userController.logOut)
+router.get('/logOut',userAuth.logout,userController.logOut)
 
 // password
 router.get('/forgotpass',userController.forgotpass);
@@ -35,9 +35,12 @@ router.post('/resetPass/:_id/:token',userController. confirmpass);
 router.get('/changedpass',userController.successpass);
 
 // shop
-router.get('/shop/:categoryId?',userController.shop);
-router.get('/product/:id',userController. productView);
+router.get('/shop/:categoryId?',userAuth.isBlocked,userController.shop);
+router.get('/product/:id',userAuth.isBlocked,userController. productView);
 
+// profile
+router.get('/profile',userController.userProfile);
+router.post('/editprofile', userController.updateprofile);
 
 
 
@@ -61,12 +64,15 @@ router.get('/product/:id',userController. productView);
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/register'}),(req,res)=>{
-    res.redirect('/')
+    res.redirect('/home')
 })
 
 // ----------------------facebook---------------------
 router.get('/auth/facebook', passport.authenticate('facebook', { scope: 'email' }));
-router.get('/auth/facebook/callback',passport.authenticate('facebook', {failureRedirect: '/register',}),function (req, res) { res.redirect('/');});
+router.get('/auth/facebook/callback',passport.authenticate('facebook', {failureRedirect: '/register',}),function (req, res) { 
+    
+    res.redirect('/home');
+});
 
 
 

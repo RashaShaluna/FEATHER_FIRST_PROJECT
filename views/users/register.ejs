@@ -1,4 +1,4 @@
-<%- include('../layouts/homeheader') %>
+<%- include('../layouts/homeheader', { categories: categories }) %>
 <body>
     <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17"  style="background-color: white">
         <div class="container">
@@ -30,6 +30,12 @@
                                 </div><!-- End .form-group -->
 
                                 <div class="form-group">
+                                    <label for="phone">Phone Number *</label>
+                                    <input  type="string" class="form-control" id="phone" name="phone">
+                                    <div id="error5" class="error-message"></div>
+                                </div><!-- End .form-group -->
+
+                                <div class="form-group">
                                     <label for="password">Password *</label>
                                     <input type="password" class="form-control" id="password" name="password">
                                     <div id="error3" class="error-message"></div>
@@ -54,13 +60,13 @@
                                     <div class="col-sm-6">
                                         <a href="/auth/google" class="btn btn-login btn-g">
                                             <i class="icon-google"></i>
-                                            Login With Google
+                                            Signup With Google
                                         </a>
                                     </div><!-- End .col-6 -->
                                     <div class="col-sm-6">
                                         <a href="/auth/facebook" class="btn btn-login btn-f">
                                             <i class="icon-facebook-f"></i>
-                                            Login With Facebook
+                                            Signup With Facebook
                                         </a>
                                     </div><!-- End .col-6 -->
                                 </div><!-- End .row -->
@@ -80,11 +86,15 @@
             const email = document.getElementById('email');
             const password = document.getElementById('password');
             const cpassword = document.getElementById('cpassword');
+            const phone = document.getElementById('phone');
+
 
             const error1 = document.getElementById('error1');
             const error2 = document.getElementById('error2');
             const error3 = document.getElementById('error3');
             const error4 = document.getElementById('error4');
+            const error5 = document.getElementById('error5');
+
             const registerId = document.getElementById('registerId');
 
             function nameValidate() {
@@ -112,6 +122,19 @@
                 } else {
                     error2.style.display = "none";
                     error2.innerHTML = '';
+                }
+            }
+            
+            function phoneValidate(){
+                const phoneVal = phone.value;
+                const phonePattern = /^[0-9]{10}$/;
+
+                if (!phonePattern.test(phoneVal)) {
+                   error5.style.display = 'block'
+                   error5.innerHTML = 'Please enter a valid phone number (10 digits).';
+                }else {
+                    error5.style.display = "none";
+                    error5.innerHTML = '';
                 }
             }
 
@@ -149,8 +172,9 @@
                 nameValidate();
                 emailValidate();
                 passwordValidate();
+                phoneValidate();
 
-                if (error1.textContent || error2.textContent || error3.textContent || error4.textContent) {
+                if (error1.textContent || error2.textContent || error3.textContent || error4.textContent|| error5.textContent) {
                     e.preventDefault();
                 }
             });

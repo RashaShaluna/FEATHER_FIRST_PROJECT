@@ -32,17 +32,44 @@ const serverError =async(req,res)=>{
 // =================================================landing page===============================================================
 const loadlandingpage = async (req, res) => {
   try {
+    console.log(req.session); // Check if session is being persisted
     const categories = await Category.find({ islisted: true, isDeleted: false });
-    // log(categories)
     const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
     // log('product',products)
-    res.render('users/homepage', {title: 'Feather - Homengpage' , products: products,categories: categories});
+    res.render('users/landingpage', {title: 'Feather - Homengpage' ,
+       products: products,
+       categories: categories,
+      });
     console.log('landing page loaded');
   } catch (error) {
     console.log('Home page not found', error.message); // backend error
     res.redirect('/pageNotFound');
   }
 };
+
+// ============================== Home page ==================================================
+
+const loadHome = async (req, res) => {
+  try {
+    log('home page loaded');
+
+    console.log(req.session); // Check if session is being persisted
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+    const user = req.session.user ;
+    log(user)
+    const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
+    // log('product',products)
+
+    res.render('users/homepage', {title: 'Feather - Homengpage' ,
+       products: products,
+       categories: categories,
+      });
+  } catch (error) {
+    console.log('Home page not found', error); 
+    res.redirect('/pageNotFound');
+  }
+};
+
 
 
 // ====================================register load=================================================================
@@ -56,21 +83,23 @@ const loadregister = async (req, res) => {
     console.log('register page');
   } catch (error) {
     console.log('register page not found', error.message); 
-    res.redirect('/serverError');
+    res.redirect('/pageNotFound');
   }
 };
 
 //=================================== register validation ========================================
 const registerVerify = async (req, res) => {
   try {
-    const { name, email, password,cpassword} = req.body;
+    const { name, email, password,cpassword,phone} = req.body;
+    const categories = await Category.find({ islisted: true, isDeleted: false });
 
    
  console.log('verfying1')
     if (password !== cpassword) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
-        message: 'Password do not match'
+        message: 'Password do not match',
+        categories: categories
       });
     }
     console.log('verfying1')
@@ -79,7 +108,8 @@ const registerVerify = async (req, res) => {
     if (findUser) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
-        message: 'User already exists'
+        message: 'User already exists',
+        categories: categories
       });
     }
     console.log('verfying1')
@@ -88,22 +118,28 @@ const registerVerify = async (req, res) => {
 
     const emailSent = await sendVerificationEmail(email, otp);
     console.log('verfying1')
-
+    if (!email || email.trim() === '') {
+      return res.render('users/register', {
+       title: 'Feather - registerpage',
+       message: 'All feilds required',
+     });
+   }
     if (!emailSent) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
-        message: 'Email sending failed. Please try again.'
+        message: 'Email sending failed. Please try again.',
+        categories: categories
       });
     } 
      req.session.userOtp = otp;
-    req.session.userData = {email,password,name};
+    req.session.userData = {email,password,name,phone};
 
     // req.session.pass1 = password;
     console.log('User session data:', req.session.userData);
 
     console.log('otp is ', otp);
 
-    res.render('users/otp', { title: 'OTP Verification' });
+    res.render('users/otp', { title: 'OTP Verification',});
   } catch (error) {
     console.log('Verifying register has a problem', error); // backend error
     res.redirect('/pageNotFound');
@@ -151,50 +187,36 @@ async function sendVerificationEmail(email, otp ) {
 //====================================================== veriyin otp==========================================================
 const verifyOtp = async(req,res)=>{
       try {
-
         console.log('session ',req.session);
-
           const {otp} = req.body;
-
         console.log('req',req.body);
-
-          console.log('otp in verify ',otp);
-  
+          console.log('otp in verify ',otp);  
           const user = req.session.userData
-
            console.log(req.session.userOtp);
-
           console.log('user',user);
-
+          const categories = await Category.find({ islisted: true, isDeleted: false });
+          const products = await Product.find({isBlocked:false,isDeleted:false});
           if(otp == req.session.userOtp){
-  
               const passHash= await bcrypt.hash(user.password, 10);
-
      console.log('pass',passHash);
         const saveUserData = new User({
                   name: user.name,
                   email: user.email,
-                  password: passHash
+                  password: passHash,
+                  phone:user.phone
               })
-
           console.log('coming to saveuserdata');
-
           console.log('saveuserdata',saveUserData);
-
           await saveUserData.save();
-
+        
         console.log('saved')
 
           req.session.user = saveUserData._id;
-       
-          res.json({success:true,redirectUrl:'/'});
-         
+          res.render('users/home', { success:true,title: 'Home page -Feather',categories, products});
          }else{
            res.status(400).json({success:false,message:"Invalid OTP ,try again"})
            console.log(error)
          }
-         
-
        }catch (error) {
           console.error(error.message+" error in verifyOtp");
           res.redirect('/serverError');
@@ -245,18 +267,19 @@ const loadLogin = async (req, res) => {
   console.log('welcome to login');
   try {
     const categories = await Category.find({ islisted: true, isDeleted: false });
-    log(categories)
+    // log(categories)
     res.render('users/login', { title: 'Feather - loginpage',categories: categories });
     console.log('login page');
   } catch (error) {
     console.log('Login page not found', error.message); 
-    res.redirect('/serverError');
+    res.redirect('/pageNotFound');
   }
 };
 
 
 //===================================================Verify login================================================================
 const loginVerify = async (req, res) => {
+  log('verifyinh it')
   const categories = await Category.find({ islisted: true, isDeleted: false });
   // console.log('Categories:', categories);
   const products = await Product.find({ isBlocked: false, isDeleted: false }).limit(4);
@@ -298,11 +321,13 @@ const loginVerify = async (req, res) => {
     if (!passwordMatch) {
       return res.render('users/login', { title: 'Feather - loginpage', message: 'Incorrect Password' ,categories, products});
     }
-
-    req.session.user = findUser._id;
+ 
+      req.session.user = findUser._id;
+      // req.session.user.save();
+      log('saved')
+     res.redirect('/home');
 
     // res.render('users/homepage', { title: 'Home page -Feather',categories, products});
-    res.redirect('/');
 
   } catch (error) {
     console.log('Login page not found', error.message); 
@@ -501,7 +526,7 @@ const resetPass = async (req, res) => {
     }
   } catch (error) {
     console.log('Error in reset password:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    res.redirect('/serverError')
   }
 };
 
@@ -542,7 +567,7 @@ const confirmpass = async(req,res)=>{
       
     } catch (error) {
       console.log('Error in confirm pass',error)
-      res.redirect('/serverError');
+    return   res.redirect('/serverError');
     }
 }
 
@@ -552,8 +577,8 @@ const successpass = async (req,res) => {
          res.render('users/successpass')
        } catch (error) {
         console.log('error in successpass',error);
-        return res.status(400).json({ success: false, message: 'Error in success pass' });
-       }
+      return  res.redirect('/pageNotFound');
+      }
 }
 
 
@@ -562,6 +587,8 @@ const successpass = async (req,res) => {
 const shop = async (req, res) => {
   try {
     log('in shop')
+    const user = req.session.user ;
+    log('user',user);
     const categories = await Category.aggregate([
       {
           $match: { isDeleted: false, islisted: true }
@@ -661,12 +688,14 @@ const shop = async (req, res) => {
       currentPage: page,
       totalPages,
       categoryName,
-      colors
+      colors,
+      user: user,
+
       // category
     });
   } catch (err) {
     console.error(err);
-    res.redirect('/pageNotFound');
+   return  res.redirect('/pageNotFound');
   }
 };
 
@@ -710,16 +739,116 @@ const productView = async (req, res) => {
       });
     } catch (error) {
       log(error);
-      res.redirect('/pageNotFound');
+     return res.redirect('/pageNotFound');
     }
 };
 
 
+// ======================================================== User profile ===================================================
+const userProfile = async (req, res) => {
+  try {
+    log('in profile');
+    console.log('Session user:', req.session.user);
 
+    const userId =  req.session.user;
+    log('userid', userId);
+    
+    if(userId){
+      const user = await User.findOne({ _id: userId, isBlocked: false });
+      log('user', user);
+      const categories = await Category.find({ islisted: true, isDeleted: false });
+      log('in profile 2')
+     return  res.render('users/userProfile', {
+        title: 'Account - Feather',
+        categories: categories,
+        user: user
+      });
+    }else{
+     res.redirect('/pageNotFound');
+    }
+   
+  } catch (error) {
+    console.error(error);
+    return res.redirect('/serverError');
 
+  }
+};
 
+// ================================== upadating profile ===========================
 
+const updateprofile = async (req, res) => {
+  try {
+    const userId = req.session.user; // Get the user ID from the session
+    log('userId:', userId);
 
+    const { name, email, phone, password, confirmPassword, currentPassword } = req.body;
+    log('req.body:', req.body);
+
+    // Fetch categories for rendering the profile page
+    const categories = await Category.find({ islisted: true, isDeleted: false });
+
+    // Fetch the current user from the database to get the existing password
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.redirect('/serverError');
+    }
+
+    // Check if current password is provided
+    if (currentPassword) {
+      // Compare the provided current password with the stored hashed password
+      const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordMatch) {
+        // If the password does not match, return an error
+        return res.render('users/userProfile', {
+          title: 'Account - Feather',
+          message: 'Current password is incorrect',
+          categories: categories,
+          user: user,
+        });
+      }
+    }
+
+    // Password matching validation for new password and confirm password
+    let hashedPassword = null;
+    if (password && confirmPassword) {
+      if (password !== confirmPassword) {
+        return res.render('users/userProfile', {
+          title: 'Account - Feather',
+          message: 'New passwords do not match',
+          categories: categories,
+          user: user,
+        });
+      }
+      hashedPassword = await bcrypt.hash(password, 10); // Hash the new password
+    }
+
+    // Prepare the data to update
+    const updateData = { name, email, phone };
+    if (hashedPassword) {
+      updateData.password = hashedPassword; // Update password if new password is provided
+    }
+    log('update data:', updateData);
+
+    // Update the user's profile in the database
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    log('saved:', updatedUser);
+
+    if (updatedUser) {
+      req.session.userData = updatedUser; // Update session data
+      return res.render('users/userProfile', {
+        title: 'Account - Feather',
+        categories: categories,
+        user: updatedUser,
+        message: 'Profile updated successfully'
+      });
+    } else {
+      res.redirect('/serverError');
+    }
+  } catch (error) {
+    console.log('error:', error);
+    res.redirect('/serverError');
+  }
+};
 
 
 module.exports = {
@@ -727,7 +856,7 @@ module.exports = {
   pageNotFound,
   loadregister,
   registerVerify,
-  // loadHome,
+  loadHome,
   loadLogin,
   loginVerify,
   verifyOtp,
@@ -740,7 +869,9 @@ module.exports = {
   successpass,
   shop,
   productView,
-  serverError
+  serverError,
+  userProfile,
+  updateprofile
 };
 
 

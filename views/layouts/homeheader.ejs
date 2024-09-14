@@ -73,14 +73,9 @@
                         <a href="#" class="cart-link text-dark mx-1">
                             <i class="icon-shopping-cart"></i>
                         </a>
-                        <% if (loggedIn) { %>
-                            <a href="/profile" class="profile-link mx-2 text-dark">
-                                <i class="fa-solid fa-user"></i>
-                            </a>
-                        <% } else { %>
                             <a href="/login" class="profile-link mx-1 text-dark">Login/</a>
                             <a href="/register" class="profile-link mx-1 text-dark">Register</a>
-                        <% } %>
+                      
                     </div>  <!--right header-->
             </div><!-- End .container -->
         </div><!--End .header-middle -->
@@ -134,11 +129,7 @@
                                                                 <li><a href="cart.html">Cart</a></li>
                                                                 <li><a href="checkout.html">Checkout</a></li>
                                                                 <li><a href="wishlist.html">Wishlist</a></li>
-                                                                <% if (loggedIn) { %>
-                                                                    <li><a href="dashboard.html">My Account</a></li>
-                                                                    <li><a href="/logOut">Log Out</a></li>
-                                                                <% } %>
-
+            
                                                             </ul>
                                                         </div><!-- End .col-md-6 -->
                                                     </div><!-- End .row -->

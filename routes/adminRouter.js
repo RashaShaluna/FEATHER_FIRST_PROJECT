@@ -13,14 +13,14 @@ const adminController=require("../controllers/adminController");
 const customerController = require('../controllers/customerController');
 const categoryController = require('../controllers/catergoryController');
 const productController = require('../controllers/productController');
-const {userAuth,adminAuth} = require('../middleware/auth')
+const adminAuth = require('../middleware/adminAuth');
 const sharp = require('sharp');
 const uploads = require('../uplaods');
 
 adminRouter.use(nocache());
 // adminRouter.use(express.static('public'));
 adminRouter.use(express.static(path.join(__dirname, 'public')));
-// adminRouter.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+adminRouter.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 adminRouter.use('/images', express.static(path.join(__dirname, '../public')));
 
 adminRouter.use(session({
@@ -38,34 +38,36 @@ adminRouter.get('/pageerror',adminController.pageerror);
 adminRouter.get('/log', adminController.Login);
 adminRouter.post('/log',adminController.admincheck);
 adminRouter.get('/adminLogout',adminController.adminLogout);
-adminRouter.get('/dashboard',adminAuth,adminController.dashboard);
+adminRouter.get('/dashboard',adminAuth.isAdmin,adminController.dashboard);
 
 // customer management
-adminRouter.get('/users',adminAuth,customerController.customerInfo);
-adminRouter.get('/blockCustomer',adminAuth,customerController.customerBlocked);
-adminRouter.get('/unblockCustomer',adminAuth,customerController.customerUnBlock);
+adminRouter.get('/users',adminAuth.isAdmin,customerController.customerInfo);
+adminRouter.get('/blockCustomer',adminAuth.isAdmin,customerController.customerBlocked);
+adminRouter.get('/unblockCustomer',adminAuth.isAdmin,customerController.customerUnBlock);
 
 // category  management
-adminRouter.get('/category',adminAuth,categoryController.categoryInfo);
-adminRouter.post('/addCategory',adminAuth,categoryController.addCategory);
-adminRouter.get('/addCategory',adminAuth,categoryController.addCategoryPage);
-adminRouter.get('/listCategory',adminAuth,categoryController.listCategory);
-adminRouter.get('/unlistCategory',adminAuth,categoryController.unListCategory);
-adminRouter.post('/editCategory',adminAuth,categoryController.editCategory);
-adminRouter.post('/check-category', adminAuth, categoryController.checkCategory);
-adminRouter.delete('/category/delete/:categoryId',adminAuth, categoryController.softDeleteCategory);
+adminRouter.get('/category',adminAuth.isAdmin,categoryController.categoryInfo);
+adminRouter.post('/addCategory',adminAuth.isAdmin,categoryController.addCategory);
+adminRouter.get('/addCategory',adminAuth.isAdmin,categoryController.addCategoryPage);
+adminRouter.get('/listCategory',adminAuth.isAdmin,categoryController.listCategory);
+adminRouter.get('/unlistCategory',adminAuth.isAdmin,categoryController.unListCategory);
+adminRouter.post('/editCategory',adminAuth.isAdmin,categoryController.editCategory);
+adminRouter.post('/check-category', adminAuth.isAdmin, categoryController.checkCategory);
+adminRouter.delete('/category/delete/:categoryId',adminAuth.isAdmin, categoryController.softDeleteCategory);
 
 // product management
-adminRouter.get('/product',adminAuth,productController.productPage);
-adminRouter.get('/addproduct',adminAuth,productController.addproductpage);
-adminRouter.post('/addproduct', adminAuth, uploads.array('images', 3), productController.productAdding);
-adminRouter.get('/outstock',adminAuth,productController.outstockProduct);
-adminRouter.get('/instock',adminAuth,productController.instockProduct);
-adminRouter.get('/blockproduct',adminAuth,productController.productBlocked);
-adminRouter.get('/unblockproduct',adminAuth,productController.productUnBlock);
-adminRouter.delete('/product/delete/:productId', adminAuth, productController.softDeleteProduct);
-adminRouter.get('/editproduct/:id', adminAuth, productController.editProduct);
-adminRouter.post('/editproduct/:id',adminAuth,  uploads.array('images',3) , productController.editingProduct);
+adminRouter.get('/product',adminAuth.isAdmin,productController.productPage);
+adminRouter.get('/addproduct',adminAuth.isAdmin,productController.addproductpage);
+adminRouter.post('/addproduct', adminAuth.isAdmin, uploads.array('images', 3), productController.productAdding);
+adminRouter.get('/outstock',adminAuth.isAdmin,productController.outstockProduct);
+adminRouter.get('/instock',adminAuth.isAdmin,productController.instockProduct);
+adminRouter.get('/blockproduct',adminAuth.isAdmin,productController.productBlocked);
+adminRouter.get('/unblockproduct',adminAuth.isAdmin,productController.productUnBlock);
+adminRouter.delete('/product/delete/:productId', adminAuth.isAdmin, productController.softDeleteProduct);
+adminRouter.get('/editproduct/:id',  productController.editProduct);
+adminRouter.post('/editproduct/:id',  uploads.array('images',3) , productController.editingProduct);
+adminRouter.delete('/delete-image',productController.deleteSingleImage)
+
 
 
 module.exports = adminRouter;

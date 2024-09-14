@@ -1,0 +1,217 @@
+<%- include('../layouts/header') %>
+<body>
+        <main class="main">
+        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        		<div class="container">
+        			<h1 class="page-title">My Account<span>Shop</span></h1>
+        		</div><!-- End .container -->
+        	</div><!-- End .page-header -->
+            <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">My Account</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+
+            <div class="page-content">
+            	<div class="dashboard">
+	                <div class="container">
+	                	<div class="row">
+	                		<aside class="col-md-4 col-lg-3">
+	                			<ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
+								    <li class="nav-item">
+								        <a class="nav-link active" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="true">Account Details</a>
+								    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+                    </li>
+								    <li class="nav-item">
+								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
+								    </li>
+								   
+								    <li class="nav-item">
+								        <a class="nav-link" href="#">Sign Out</a>
+								    </li>
+								</ul>
+	                		</aside><!-- End .col-lg-3 -->
+
+	                		<div class="col-md-8 col-lg-9">
+	                			
+                    <div class="tab-pane fade show active" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
+                      <form id="accountForm" action="/editprofile"  method="POST">
+                        <% if (typeof message !== 'undefined' && message) { %>
+                            <div class="alert alert-info msg text-center mt-1">
+                                <%= message %>
+                            </div>
+                        <% } %>
+                          <div class="d-flex justify-content-end">
+                              <button type="button" id="editButton" class="btn btn-light">
+                                  <i class="fa fa-pencil"></i> Edit
+                              </button>
+                          </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="name">Name*</label>
+                                <input type="text" name="name" id="name" class="form-control" value="<%= user.name %>" disabled>
+                                <div id="error1" class="error-message"></div>
+
+                              </div>
+                            <div class="col-sm-6">
+                                <label for="phone">Phone Number*</label>
+                                <input type="text" name="phone" id="phone" class="form-control" value="<%= user.phone %>" disabled>
+                                <div id="error2" class="error-message"></div>
+
+                              </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label for="email">Email Address*</label>
+                                <input type="email" name="email" id="email" class="form-control" value="<%= user.email %>" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                              <a href="#" id="changePasswordLink" style="display: none;">Change Password</a>
+                            </div>
+                        </div>
+
+                        <div id="passwordFields" style="display: none;">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="currentPassword">Current Password</label>
+                                    <input type="password" name="currentPassword" id="currentPassword" class="form-control">
+                                    <div id="error3" class="error-message"></div>
+                                  </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="newPassword">New Password</label>
+                                    <input type="password"  name="password" id="newPassword" class="form-control">
+                                    <div id="error4" class="error-message"></div>
+                                  </div>
+                                <div class="col-sm-6">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control">
+                                    <div id="error5" class="error-message"></div>
+                                  </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                         
+                          <div class="col-sm-12">
+                              <button type="submit" class="btn btn-outline-primary-2" style="display: none;">
+                                  <span>SAVE CHANGES</span>
+                                  <i class="icon-long-arrow-right"></i>
+                              </button>
+                          </div>
+                        </div>
+                    </form>
+                    
+              
+                    
+								    </div><!-- .End .tab-pane -->
+								</div>
+	                		</div><!-- End .col-lg-9 -->
+	                	</div><!-- End .row -->
+	                </div><!-- End .container -->
+                </div><!-- End .dashboard -->
+            </div><!-- End .page-content -->
+        </main><!-- End .main -->
+        <script>
+         
+          
+         document.addEventListener('DOMContentLoaded',()=>{
+          const name = document.getElementById('name');
+          const phone = document.getElementById('phone');
+
+          const error1 = document.getElementById('error1');
+          const error2 = document.getElementById('error2');
+
+          const accountForm = document.getElementById('accountForm');
+          function nameValidate() {
+                const nameVal = name.value;
+                const namePattern = /^[A-Za-z\s]+$/;
+                if (nameVal.trim() === '') {
+                    error1.style.display = 'block';
+                    error1.innerHTML = 'Please enter a valid name';
+                } else if (!namePattern.test(nameVal)) {
+                    error1.style.display = 'block';
+                    error1.innerHTML = 'Name can only contain alphabets and spaces';
+                } else {
+                    error1.style.display = 'none';
+                    error1.innerHTML = '';
+                }
+            }
+            function phoneValidate(){
+                const phoneVal = phone.value;
+                const phonePattern = /^[0-9]{10}$/;
+
+                if (!phonePattern.test(phoneVal)) {
+                   error2.style.display = 'block'
+                   error2.innerHTML = 'Please enter a valid phone number (10 digits).';
+                }else {
+                    error2.style.display = "none";
+                    error2.innerHTML = '';
+                }
+            }
+
+            accountForm.addEventListener('submit',(e)=>{
+              nameValidate();
+              phoneValidate();
+             
+              if(error1.textContent||error2.textContent){
+                e.preventDefault();
+              }
+            })
+        })
+ // Enable form fields when "Edit" button is clicked
+ document.getElementById('editButton').addEventListener('click', function() {
+              // Get all input fields in the form
+              var inputs = document.querySelectorAll('#accountForm input');
+              // Enable all input fields
+              inputs.forEach(function(input) {
+                  input.disabled = false;
+              });
+              this.style.display= 'none';
+              // Show the save changes button
+              document.querySelector('#accountForm button[type="submit"]').style.display = 'block';
+              document.getElementById('changePasswordLink').style.display = 'block';
+
+          });
+          
+          // Toggle password fields visibility
+          document.getElementById('changePasswordLink').addEventListener('click', function(event) {
+              event.preventDefault();
+              var passwordFields = document.getElementById('passwordFields');
+              if (passwordFields.style.display === 'none') {
+                  passwordFields.style.display = 'block';
+              } else {
+                  passwordFields.style.display = 'none';
+              }
+          });
+
+
+
+  document.getElementById('accountForm').addEventListener('submit', function (e) {
+    e.preventDefault();  // Prevent default form submission temporarily
+
+    const formData = new FormData(this);
+
+    // Log each key-value pair in form data to see if it is being collected correctly
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    // Submit the form after logging data
+    this.submit();
+  });
+
+          </script>
+          
+<%- include('../layouts/footer') %>
+</body>

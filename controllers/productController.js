@@ -18,7 +18,7 @@ const productPage = async(req,res)=>{
         search = req.query.search;
        }
        const category = await Category.find({islisted:true ,isDeleted:false});
-       console.log('Fetched Categories:', category);
+      //  console.log('Fetched Categories:', category);
 
        const product = await Product.find({
         isDeleted: false, 
@@ -53,7 +53,7 @@ const addproductpage = async(req,res)=>{
          try {
           log('in add product page')
             const category = await Category.find({islisted:true ,isDeleted:false});
-            console.log('Fetched Categories:', category);
+            // console.log('Fetched Categories:', category);
             res.render('admin/addProduct',{category,title:'Add Product - Feather'});
          } catch (error) {
             console.log(error);
@@ -181,7 +181,7 @@ const softDeleteProduct = async (req, res) => {
       { _id: productId },
       { $set: { isDeleted: true, deletedAt: new Date() } }
     );
-    console.log("Update result:", updateResult);
+    // console.log("Update result:", updateResult);
 
 
     if (updateResult.modifiedCount > 0) {
@@ -216,7 +216,7 @@ const softDeleteProduct = async (req, res) => {
 
       const product = await Product.findById(productId);
       const categories = await Category.find();
-      console.log('Product:', product);
+      // console.log('Product:', product);
       if (!product) {
         return res.status(404).send('Product not found');
       }
@@ -286,61 +286,59 @@ const softDeleteProduct = async (req, res) => {
   //   }
   // }
 
-const editingProduct = async(req,res)=>{
-  try{
-
-  
-  const productId = req.params.id;
-  log('Product ID:', productId);
-    let product = await Product.findById(productId);
-    log(product);
-
-  const { name, category, price, offerprice, quantity, description, color } = req.body;
-
-  const categoryData = await Category.findOne({ name: category });
-  if (!categoryData) {
-    return res.status(404).json({ error: 'Category not found' });  }
-
-
-
-    let imagePaths = product.images;
-
-    if (req.files && req.files.length > 0) {
-      req.files.forEach((file, index) => {
-        if (file) {
-          imagePaths[index] = `/uploads/${file.filename}`; 
+  const editingProduct = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const files = req.files;
+        
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
         }
-      });
+
+        let categoryId = null;
+        if (req.body.category) {
+            const category = await Category.findOne({ name: req.body.category });
+            if (category) {
+                categoryId = category._id;
+            } else {
+                return res.status(400).json({ message: 'Category not found' });
+            }
+        }
+
+        let updatedData = {
+            name: req.body.name,
+            price: req.body.price,
+            offerprice: req.body.offerprice,
+            description: req.body.description,
+            quantity: req.body.quantity,
+            color: req.body.color,
+            category: categoryId
+        };
+
+        if (files && files.length >= 3) { 
+            console.log('Images provided, updating images...');
+            const imgPath = files.map(file => file.filename);
+            updatedData.images = imgPath;  
+            console.log('Updated image paths:', updatedData.images);
+        } else {
+            console.log('No images provided or less than 3 images, skipping image update.');
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId, 
+            { $set: updatedData }, 
+            { new: true } 
+        );
+
+        console.log('Product updated successfully:', updatedProduct);
+        res.redirect('/admin/product');
+
+    } catch (error) {
+        console.error('Error updating product:', error);
+        res.status(500).json({ message: 'Error updating product', error });
     }
-
-
-  product.name = name;
-  product.category = categoryData._id;
-  product.price = price;
-  product.offerprice = offerprice;
-  product.quantity = quantity;
-  product.description = description;
-  product.color = color;
-  product.images = images;
-
-  if (imagePaths.length > 0) {
-    product.images = imagePaths;  // Replace old images with new ones
-  }
-log('imagepath ', imagePaths);
-  await product.save();
-
-  res.redirect('/admin/product');
-}catch (error) {
-  console.error('Error updating product:', error);
-  res.status(500).json({ error: 'Internal server error' });
-  }
 };
-
-
-
-
-
-
 
 
 
@@ -350,35 +348,80 @@ log('imagepath ', imagePaths);
 //============================delete the image============================
 
 // const deleteSingleImage = async (req, res) => {
-//   try {
-//     log('in deltete')
-//     const { id } = req.params;
-//     const { image } = req.body;
+//     try {
+//         const { imagePath } = req.body;
 
-//     const product = await Product.findById(id);
+//         // Delete the image from the server
+//         const fullPath = path.join(__dirname, 'uploads', imagePath);
+//         if (fs.existsSync(fullPath)) {
+//             fs.unlinkSync(fullPath);
+//         } else {
+//             return res.status(404).json({ success: false, message: 'Image not found' });
+//         }
 
-//     if (!product) {
-//       return res.status(404).json({ success: false, message: 'Product not found' });
+//         // Optionally, remove the image reference from the product document
+//         const productId = req.query.productId; // Retrieve productId from query params or elsewhere
+//         await Product.findByIdAndUpdate(productId, { $pull: { images: imagePath } });
+
+//         res.json({ success: true });
+//     } catch (error) {
+//         console.error('Error deleting image:', error);
+//         res.status(500).json({ success: false, message: 'Error deleting image' });
 //     }
-//     product.images = product.images.filter(img => img !== image);
+// });
 
-//     await product.save();
 
-//     // Optionally, delete the image file from the uploads directory
-//     const fs = require('fs');
-//     const imagePath = `public/uploads/${image}`;
-//     fs.unlink(imagePath, (err) => {
-//       if (err) {
-//         console.error('Error deleting image file:', err);
-//       }
-//     });
+// Define the base path for images
+// const IMAGE_BASE_PATH = 'C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public/uploads';
 
-//     res.json({ success: true });
-//   } catch (error) {
-//     log(error);
-//     res.status(500).json({ success: false, message: 'Server error' });
-//   }
-// }
+
+
+// Function to delete a single image
+const deleteSingleImage = async (req, res) => {
+  const { imagePath } = req.body;
+
+  console.log('Received imagePath:', imagePath);
+
+  // Ensure imagePath does not have leading slashes
+  // const image = '/new-images.png';
+
+  // Construct the full file path
+  const filePath = path.join('C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public', imagePath);
+
+  // Log the constructed filePath
+  console.log('Constructed filePath:', filePath);
+
+  try {
+    // Check if the file exists
+    if (fs.existsSync(filePath)) {
+      // Log that the file exists
+      console.log('File exists. Attempting to delete.');
+
+      // Delete the image file
+      fs.unlinkSync(filePath);
+      
+      // Log success
+      console.log('File successfully deleted:', filePath);
+
+      // Send success response
+      res.status(200).json({ success: true, message: 'Image deleted successfully' });
+    } else {
+      // Log that the file was not found
+      console.error('File not found:', filePath);
+
+      // Send error response
+      res.status(404).json({ success: false, message: 'Image not found' });
+    }
+  } catch (error) {
+    // Log any error that occurs
+    console.error('Error deleting image:', error);
+
+    // Send error response
+    res.status(500).json({ success: false, message: 'Error deleting image' });
+  }
+};
+
+
 
 
 module.exports = {
@@ -392,6 +435,6 @@ module.exports = {
     softDeleteProduct,
     editProduct,
     editingProduct,
-    // deleteSingleImage
+    deleteSingleImage
 
 }

@@ -1,4 +1,8 @@
-<%- include('../layouts/homeheader') %>
+<% if (user) { %>
+    <%- include('../layouts/header') %>
+<% } else { %>
+    <%- include('../layouts/homeheader') %>
+<% } %>
 
 <body>
 	<div class="page-wrapper">
