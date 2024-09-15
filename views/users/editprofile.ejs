@@ -1,0 +1,206 @@
+<%- include('../layouts/header') %>
+<body>
+        <main class="main">
+            <%- include('../layouts/topbarprofile') %>
+
+            <div class="page-content">
+            	<div class="dashboard">
+	                <div class="container">
+	                	<div class="row">
+                            <%- include('../layouts/sidebarprofile') %>
+
+	                		<div class="col-md-8 col-lg-9">
+
+                                <div class="tab-pane">
+                                    <form id="accountForm" action="/editprofile"  method="POST">
+
+                        <a href="/forgotpass" class="forgot-link" style="color: #1cc0a0;">Forgot Your Password?</a>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-light" >
+                                <span>Back to Profile</span>
+                                <i class="icon-long-arrow-right"></i>
+                            </button>
+                          
+                          </div>
+                        <% if (typeof message !== 'undefined' && message) { %>
+                            <div class="alert alert-info msg text-center">
+                                <%= message %>
+                            </div>
+                        <% } %>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="name">Name*</label>
+                                <input type="text" name="name" id="name" class="form-control" value="<%= user.name %>">
+                                <div id="error1" class="error-message"></div>
+
+                              </div>
+                            <div class="col-sm-6">
+                                <label for="phone">Phone Number*</label>
+                                <input type="text" name="phone" id="phone" class="form-control" value="<%= user.phone %>">
+                                <div id="error2" class="error-message"></div>
+
+                              </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label for="email">Email Address*</label>
+                                <input type="email" name="email" id="email" class="form-control" value="<%= user.email %>" readonly>
+                            </div>
+                        </div>
+
+                        <!-- <div class="row">
+                            <div class="col-sm-6">
+                              <a href="#" id="changePasswordLink" >Change Password</a>
+                            </div>
+                        </div> -->
+
+                        <div id="passwordFields" >
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="currentPassword">Current Password (leave blank to leave unchanged)</label>
+                                    <input type="password" name="currentPassword" id="currentPassword" class="form-control">
+                                  
+                                    <div id="error3" class="error-message"></div>
+                                  </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <label for="newPassword">New Password (leave blank to leave unchanged)</label>
+                                    <input type="password"  name="password" id="newPassword" class="form-control" >
+                                    <div id="error4" class="error-message"></div>
+                                  </div>
+                                <div class="col-sm-6">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" >
+                                    <div id="error5" class="error-message"></div>
+                                  </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                         
+                          <div class="col-sm-12">
+                              <button type="submit" class="btn btn-outline-primary-2" >
+                                  <span>SAVE CHANGES</span>
+                                  <i class="icon-long-arrow-right"></i>
+                              </button>
+                          </div>
+                        </div>
+                    </form>
+        	         </div><!-- .End .tab-pane -->
+                    </div>
+                </div><!-- End .col-lg-9 -->
+            </div><!-- End .row -->
+        </div><!-- End .container -->
+    </div><!-- End .dashboard -->
+</div><!-- End .page-content -->
+</main><!-- End .main -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const name = document.getElementById('name');
+        const phone = document.getElementById('phone');
+        const currentPassword = document.getElementById('currentPassword');
+        const newPassword = document.getElementById('newPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const error1 = document.getElementById('error1');
+        const error2 = document.getElementById('error2');
+        const error3 = document.getElementById('error3');
+        const error4 = document.getElementById('error4');
+        const error5 = document.getElementById('error5');
+
+        const accountForm = document.getElementById('accountForm');
+        const saveButton = document.querySelector('#accountForm button[type="submit"]');
+        // const changePasswordLink = document.getElementById('changePasswordLink');
+        // const passwordFields = document.getElementById('passwordFields');
+    
+        function nameValidate() {
+            const nameVal = name.value;
+            const namePattern = /^[A-Za-z\s]+$/;
+            if (nameVal.trim() === '') {
+                error1.style.display = 'block';
+                error1.innerHTML = 'Please enter a valid name';
+            } else if (!namePattern.test(nameVal)) {
+                error1.style.display = 'block';
+                error1.innerHTML = 'Name can only contain alphabets and spaces';
+            } else {
+                error1.style.display = 'none';
+                error1.innerHTML = '';
+            }
+        }
+    
+        function phoneValidate() {
+            const phoneVal = phone.value;
+            const phonePattern = /^[0-9]{10}$/;
+    
+            if (!phonePattern.test(phoneVal)) {
+                error2.style.display = 'block';
+                error2.innerHTML = 'Please enter a valid phone number (10 digits).';
+            } else {
+                error2.style.display = 'none';
+                error2.innerHTML = '';
+            }
+        }
+        function passwordValidate() {
+        const currentPasswordVal = currentPassword.value.trim();
+        const newPasswordVal = newPassword.value.trim();
+        const confirmPasswordVal = confirmPassword.value.trim();
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; // Requires at least 8 characters, 1 letter, and 1 number
+
+        // If no password fields are filled, no need for validation
+        if (!currentPasswordVal && !newPasswordVal && !confirmPasswordVal) {
+            // No validation required if all password fields are empty
+            error3.style.display = 'none';
+            error4.style.display = 'none';
+            error5.style.display = 'none';
+            return true;
+        }
+
+        // Check if current password is filled
+        if (!currentPasswordVal) {
+            error3.style.display = 'block';
+            error3.innerHTML = 'Please enter your current password if you wish to change it.';
+            return false;
+        } else {
+            error3.style.display = 'none';
+        }
+
+        // Check if new password and confirm password match
+        if (newPasswordVal !== confirmPasswordVal) {
+            error4.style.display = 'block';
+            error4.innerHTML = 'New password and confirm password do not match.';
+            return false;
+        } else {
+            error4.style.display = 'none';
+        }
+
+        // Check if new password meets the strength criteria
+        if (!passwordPattern.test(newPasswordVal)) {
+            error4.style.display = 'block';
+            error4.innerHTML = 'Password must be at least 6 characters long and contain both letters and numbers.';
+            return false;
+        } else {
+            error4.style.display = 'none';
+        }
+
+        return true;
+    }
+        accountForm.addEventListener('submit', (e) => {
+            nameValidate();
+            phoneValidate();
+    
+            // Prevent form submission if there are errors
+            if (error1.textContent || error2.textContent) {
+                e.preventDefault();
+            }
+            if (!passwordValidate()) {
+            e.preventDefault();
+        }
+        });
+    
+     
+    });
+    </script>
+          
+<%- include('../layouts/footer') %>
+</body>

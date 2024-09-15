@@ -5,14 +5,16 @@ const passport = require('passport');
 const userAuth = require('../middleware/userAuth');
 const path = require('path');
 
+const addressController = require('../controllers/addressescontroller');
+
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
 
 // home
 router.get('/pageNotFound',userController.pageNotFound);
 router.get('/serverError',userController.serverError);
-router.get('/',userAuth.logout,userController.loadlandingpage);
-router.get('/home',userAuth.isBlocked,userController.loadHome);
+router.get('/',userController.loadlandingpage);
+router.get('/home',userController.loadHome);
 
 // register
 router.get('/register', userController.loadregister);
@@ -25,7 +27,7 @@ router.post('/resendotp',userController.resendOtp);
 // login
 router.get('/login',userController.loadLogin)
 router.post('/login', userController.loginVerify)
-router.get('/logOut',userAuth.logout,userController.logOut)
+router.get('/logOut',userController.logOut)
 
 // password
 router.get('/forgotpass',userController.forgotpass);
@@ -35,13 +37,16 @@ router.post('/resetPass/:_id/:token',userController. confirmpass);
 router.get('/changedpass',userController.successpass);
 
 // shop
-router.get('/shop/:categoryId?',userAuth.isBlocked,userController.shop);
-router.get('/product/:id',userAuth.isBlocked,userController. productView);
+router.get('/shop/:categoryId?',userController.shop);
+router.get('/product/:id',userController. productView);
 
 // profile
 router.get('/profile',userController.userProfile);
+router.get('/editProfile',userController.editProfile);
 router.post('/editprofile', userController.updateprofile);
 
+// address
+router.get('/address',addressController.loadAddress);
 
 
 

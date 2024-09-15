@@ -8,7 +8,7 @@ const env = require('dotenv').config();
 const Otp = require('../models/otp');
 const jwt = require('jsonwebtoken');
 const {log} = require('console');
-
+const flash = require('connect-flash');
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
   try {
@@ -760,6 +760,7 @@ const userProfile = async (req, res) => {
       log('in profile 2')
      return  res.render('users/userProfile', {
         title: 'Account - Feather',
+        activeTab: 'account-details', 
         categories: categories,
         user: user
       });
@@ -774,72 +775,93 @@ const userProfile = async (req, res) => {
   }
 };
 
-// ================================== upadating profile ===========================
 
+// ======================================================== edit profile ===================================================
+const editProfile = async (req, res) => {
+  try {
+    log('in edit profile');
+    console.log('Session user:', req.session.user);
+
+    const userId =  req.session.user;
+    log('userid', userId);
+    
+    if(userId){
+      const user = await User.findOne({ _id: userId, isBlocked: false });
+      log('user', user);
+      const categories = await Category.find({ islisted: true, isDeleted: false });
+      log('in profile 2')
+     return  res.render('users/editprofile', {
+        title: 'Edit account - Feather',
+        activeTab: 'account-details', 
+        categories: categories,
+        user: user
+      });
+    }else{
+     res.redirect('/pageNotFound');
+    }
+   
+  } catch (error) {
+    console.error(error);
+    return res.redirect('/serverError');
+
+  }
+};
+
+// ====================================================== upadating profile ================================================
 const updateprofile = async (req, res) => {
   try {
-    const userId = req.session.user; // Get the user ID from the session
+    const userId = req.session.user; 
     log('userId:', userId);
 
     const { name, email, phone, password, confirmPassword, currentPassword } = req.body;
     log('req.body:', req.body);
 
-    // Fetch categories for rendering the profile page
     const categories = await Category.find({ islisted: true, isDeleted: false });
 
-    // Fetch the current user from the database to get the existing password
     const user = await User.findById(userId);
     if (!user) {
       return res.redirect('/serverError');
     }
-
-    // Check if current password is provided
-    if (currentPassword) {
-      // Compare the provided current password with the stored hashed password
-      const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isPasswordMatch) {
-        // If the password does not match, return an error
-        return res.render('users/userProfile', {
-          title: 'Account - Feather',
-          message: 'Current password is incorrect',
-          categories: categories,
-          user: user,
-        });
-      }
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.render('users/editprofile', {
+        title: 'Account - Feather',
+        message: 'Current password is incorrect',
+        activeTab: 'account-details' ,
+        categories: categories,
+        user: user,
+      });
     }
-
-    // Password matching validation for new password and confirm password
     let hashedPassword = null;
     if (password && confirmPassword) {
       if (password !== confirmPassword) {
-        return res.render('users/userProfile', {
+        return res.render('users/editprofile', {
           title: 'Account - Feather',
           message: 'New passwords do not match',
+          activeTab: 'account-details' ,
           categories: categories,
           user: user,
         });
       }
-      hashedPassword = await bcrypt.hash(password, 10); // Hash the new password
+      hashedPassword = await bcrypt.hash(password, 10); 
     }
 
-    // Prepare the data to update
     const updateData = { name, email, phone };
     if (hashedPassword) {
-      updateData.password = hashedPassword; // Update password if new password is provided
+      updateData.password = hashedPassword; 
     }
     log('update data:', updateData);
 
-    // Update the user's profile in the database
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
     log('saved:', updatedUser);
 
     if (updatedUser) {
-      req.session.userData = updatedUser; // Update session data
+      req.session.userData = updatedUser; 
       return res.render('users/userProfile', {
         title: 'Account - Feather',
+        activeTab: 'account-details' ,
         categories: categories,
         user: updatedUser,
-        message: 'Profile updated successfully'
       });
     } else {
       res.redirect('/serverError');
@@ -871,7 +893,8 @@ module.exports = {
   productView,
   serverError,
   userProfile,
-  updateprofile
+  updateprofile,
+  editProfile,
 };
 
 
