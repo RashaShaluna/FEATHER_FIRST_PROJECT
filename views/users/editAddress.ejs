@@ -195,12 +195,11 @@
                 error8.style.display = 'block';
                 isValid = false;
             }
-
-            // if (landmark.value.trim() === '') {
-            //     error9.textContent = 'Landmark is required.';
-            //     error9.style.display = 'block';
-            //     isValid = false;
-            // }
+            if (phone.value.trim() === alternatePhone.value.trim()) {
+                error8.textContent = 'Alternate phone number cannot be the same as the primary phone number.';
+                error8.style.display = 'block';
+                isValid = false;
+            }
 
             if (isValid) {
                 event.target.submit(); 

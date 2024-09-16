@@ -14,7 +14,7 @@ router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/asse
 router.get('/pageNotFound',userController.pageNotFound);
 router.get('/serverError',userController.serverError);
 router.get('/',userController.loadlandingpage);
-router.get('/home',userController.loadHome);
+router.get('/home',userAuth.isLogin,userController.loadHome);
 
 // register
 router.get('/register', userController.loadregister);
@@ -36,8 +36,8 @@ router.get('/resetPass/:_id/:token',userController.resetPass);
 router.post('/resetPass/:_id/:token',userController. confirmpass);
 router.get('/changedpass',userController.successpass);
 
-// shop
-router.get('/shop/:categoryId?',userController.shop);
+// product
+router.get('/shop/:categoryId',userController.shop);
 router.get('/product/:id',userController. productView);
 
 // profile
@@ -46,14 +46,12 @@ router.get('/editProfile',userController.editProfile);
 router.post('/editprofile', userController.updateprofile);
 
 // address
-router.get('/address',addressController.loadAddress);
-router.get('/addAddress',addressController.addAddress);
-router.post('/addAddress',addressController.addAddressVerify);
-router.delete('/deleteAddress/:id',addressController.deleteAddress);
-router.get('/editAddress/:id',addressController.editAddress);
-router.post('/editAddress/:id',addressController.editAddressVerify);
-
-
+router.get('/address',userAuth.isLogin,addressController.loadAddress);
+router.get('/addAddress',userAuth.isLogin,addressController.addAddress);
+router.post('/addAddress',userAuth.isLogin,addressController.addAddressVerify);
+router.delete('/deleteAddress/:id',userAuth.isLogin,addressController.deleteAddress);
+router.get('/editAddress/:id',userAuth.isLogin,addressController.editAddress);
+router.post('/editAddress/:id',userAuth.isLogin,addressController.editAddressVerify);
 
 
 

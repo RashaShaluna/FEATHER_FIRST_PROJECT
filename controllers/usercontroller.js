@@ -584,59 +584,217 @@ const successpass = async (req,res) => {
 
 //==================================================== shop =============================================================
 
+// const shop = async (req, res) => {
+//   try {
+//     log('in shop')
+//     const user = req.session.user ;
+//     log('user',user);
+//     const categories = await Category.aggregate([
+//       {
+//           $match: { isDeleted: false, islisted: true }
+//       },
+//       {
+//           $lookup: {
+//               from: 'products',
+//               localField: '_id',
+//               foreignField: 'category',
+//               as: 'products'
+//           }
+//       },
+//       {
+//         $addFields: {
+//             productCount: { $size: "$products" }
+//         }
+//       },
+//       {
+//           $project: {
+//               name: 1,
+//               slug: 1,
+//               productCount: 1
+//           }
+//       }
+//     ]);
+//        log('cat', categories)
+
+//    const page = parseInt(req.query.page) || 1;
+//    const limit = 6;  
+//     const categoryId = req.params.categoryId;
+//     const skip = (page - 1) * limit;
+//     const sort = req.query.sort || 'relevant'; // Default sorting
+
+
+//     log('id',categoryId)
+
+//     let products = [];
+//     let totalProducts = 0;
+//     let categoryName = '';
+//     let colors = [];
+   
+//     let sortOptions = {};
+//     switch (sort) {
+//       case 'a-z':
+//         sortOptions = { name: 1 };
+//         break;
+//       case 'z-a':
+//         sortOptions = { name: -1 };
+//         break;
+//       case 'low-high':
+//         sortOptions = { price: 1 };
+//         break;
+//       case 'high-low':
+//         sortOptions = { price: -1 };
+//         break;
+//       case 'popularity':
+//         sortOptions = { popularity: -1 }; // Assuming you have a popularity field
+//         break;
+//       case 'newest':
+//         sortOptions = { createdAt: -1 }; // Assuming you have a createdAt field
+//         break;
+//       default:
+//         sortOptions = {}; // Default sorting by relevance or any field you consider as default
+//         break;
+//     }
+    
+
+//     if (categoryId) {
+//       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
+//     log('categor',category);
+//       if (category) {
+//         categoryName = category.name;
+//       }
+//       log('categoryName',categoryName)
+
+//       totalProducts = await Product.countDocuments({
+//         category: categoryId,
+//         isBlocked: false,
+//         isDeleted: false
+//       });
+
+//       products = await Product.find({
+//         category: categoryId,
+//         isBlocked: false,
+//         isDeleted: false
+//       }).limit(limit)
+//       .skip(skip)
+//       .sort(sortOptions)
+
+//     } else {
+//       products = await Product.find({
+//         isBlocked: false,
+//         isDeleted: false
+//       }).limit(limit)
+//       .skip(skip)
+//       .sort(sortOptions)
+
+//     }
+    
+
+    
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.render('users/shop', {
+//       title: 'shop - feather',
+//       categories,
+//       products,
+//       currentPage: page,
+//       totalPages,
+//       categoryName,
+//       user: user,
+//       categoryId ,
+//       sort 
+//       // category
+//     });
+//   } catch (err) {
+//     console.error(err);
+//    return  res.redirect('/pageNotFound');
+//   }
+// };
+
 const shop = async (req, res) => {
   try {
-    log('in shop')
-    const user = req.session.user ;
-    log('user',user);
+    log('in shop');
+    const user = req.session.user;
+    log('user', user);
+
     const categories = await Category.aggregate([
       {
-          $match: { isDeleted: false, islisted: true }
+        $match: { isDeleted: false, islisted: true }
       },
       {
-          $lookup: {
-              from: 'products',
-              localField: '_id',
-              foreignField: 'category',
-              as: 'products'
-          }
-      },
-      {
-        $addFields: {
-            productCount: { $size: "$products" }
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: 'category',
+          as: 'products'
         }
       },
       {
-          $project: {
-              name: 1,
-              slug: 1,
-              productCount: 1
-          }
+        $addFields: {
+          productCount: { $size: "$products" }
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          slug: 1,
+          productCount: 1
+        }
       }
     ]);
-       log('cat', categories)
+    log('cat', categories);
 
-   const page = parseInt(req.query.page) || 1;
-   const limit = 6;  
-    const categoryId = req.params.categoryId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 6;
     const skip = (page - 1) * limit;
+    const sort = req.query.sort || 'Featured'; 
+    const categoryId = req.params.categoryId || '';
+    const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
+    const minPrice = req.query.minPrice || 0;
+    const maxPrice = req.query.maxPrice || 10000;
 
-    log('id',categoryId)
 
     let products = [];
     let totalProducts = 0;
     let categoryName = '';
     let colors = [];
+    let sortOptions = {};
+
+    switch (sort) {
+      case 'a-z':
+        sortOptions = { name: 1 };
+        break;
+      case 'z-a':
+        sortOptions = { name: -1 };
+        break;
+      case 'low-high':
+        sortOptions = { price: 1 };
+        break;
+      case 'high-low':
+        sortOptions = { price: -1 };
+        break;
+      case 'popularity':
+        sortOptions = { popularity: -1 }; 
+        break;
+      case 'newest':
+        sortOptions = { createdAt: -1 }; 
+        break;
+      default:
+        sortOptions = { featured: 1 }; 
+        break;
+    }
    
-    
+
     if (categoryId) {
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-    log('categor',category);
+      log('categor', category);
       if (category) {
         categoryName = category.name;
       }
-      log('categoryName',categoryName)
+      log('categoryName', categoryName);
 
+
+      
+      
       totalProducts = await Product.countDocuments({
         category: categoryId,
         isBlocked: false,
@@ -647,42 +805,47 @@ const shop = async (req, res) => {
         category: categoryId,
         isBlocked: false,
         isDeleted: false
-      }).limit(limit)
+      })
+      .sort(sortOptions)
+      .limit(limit)
       .skip(skip);
-
-
+      
       colors = await Product.distinct('color', {
+        category: categoryId,
         isBlocked: false,
         isDeleted: false
       });
-      log('c',colors)
-
-
-     
+      log('c', colors);
     } else {
+      
+      totalProducts = await Product.countDocuments({
+        isBlocked: false,
+        isDeleted: false
+      });
+
       products = await Product.find({
         isBlocked: false,
         isDeleted: false
-      }).limit(limit)
+      })
+      .sort(sortOptions)
+      .limit(limit)
       .skip(skip);
 
       colors = await Product.distinct('color', {
         isBlocked: false,
         isDeleted: false
       });
-      log('c',colors)
+      log('c', colors);
 
     }
-    colors = colors.map(color => ({
-      name: color || 'Unknown Color',  
-      hex: color || '#000000' 
-    }));
-
     
+  
+    
+ 
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('users/shop', {
-      title: 'shop - feather',
+      title: 'Shop - Feather',
       categories,
       products,
       currentPage: page,
@@ -690,15 +853,16 @@ const shop = async (req, res) => {
       categoryName,
       colors,
       user: user,
-
-      // category
+      sort, // Pass sort parameter
+      categoryId, // Pass categoryId parameter
+      
     });
+
   } catch (err) {
     console.error(err);
-   return  res.redirect('/pageNotFound');
+    return res.redirect('/pageNotFound');
   }
 };
-
 
 // ========================================================================= Product single view ==================================================================
 const productView = async (req, res) => {

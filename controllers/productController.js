@@ -49,7 +49,7 @@ const productPage = async(req,res)=>{
 
 // ================================================================= Add product  page =================================================
 
-const addproductpage = async(req,res)=>{
+const   addproductpage = async(req,res)=>{
          try {
           log('in add product page')
             const category = await Category.find({islisted:true ,isDeleted:false});
@@ -385,41 +385,31 @@ const deleteSingleImage = async (req, res) => {
   // Ensure imagePath does not have leading slashes
   // const image = '/new-images.png';
 
-  // Construct the full file path
   const filePath = path.join('C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public', imagePath);
 
-  // Log the constructed filePath
   console.log('Constructed filePath:', filePath);
 
   try {
-    // Check if the file exists
     if (fs.existsSync(filePath)) {
-      // Log that the file exists
       console.log('File exists. Attempting to delete.');
 
-      // Delete the image file
       fs.unlinkSync(filePath);
       
-      // Log success
       console.log('File successfully deleted:', filePath);
 
-      // Send success response
       res.status(200).json({ success: true, message: 'Image deleted successfully' });
     } else {
-      // Log that the file was not found
       console.error('File not found:', filePath);
 
-      // Send error response
       res.status(404).json({ success: false, message: 'Image not found' });
     }
   } catch (error) {
-    // Log any error that occurs
     console.error('Error deleting image:', error);
 
-    // Send error response
     res.status(500).json({ success: false, message: 'Error deleting image' });
   }
 };
+
 
 
 
@@ -435,6 +425,6 @@ module.exports = {
     softDeleteProduct,
     editProduct,
     editingProduct,
-    deleteSingleImage
+    deleteSingleImage,
 
 }

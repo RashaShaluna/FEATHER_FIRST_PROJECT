@@ -21,6 +21,7 @@ const isLogin =(req, res, next) => {
 //         res.redirect('/serverError');
 //     }
 // }
+
 const logout= async (req, res, next) => {
     try {
         if (req.session.user) {     
