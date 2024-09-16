@@ -47,7 +47,11 @@ router.post('/editprofile', userController.updateprofile);
 
 // address
 router.get('/address',addressController.loadAddress);
-
+router.get('/addAddress',addressController.addAddress);
+router.post('/addAddress',addressController.addAddressVerify);
+router.delete('/deleteAddress/:id',addressController.deleteAddress);
+router.get('/editAddress/:id',addressController.editAddress);
+router.post('/editAddress/:id',addressController.editAddressVerify);
 
 
 

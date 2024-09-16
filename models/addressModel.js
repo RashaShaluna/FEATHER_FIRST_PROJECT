@@ -4,6 +4,10 @@ const{Schema} = mongoose;
 
 
 const addressSchema = new Schema ({
+  userId:{ type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true 
+   },
    name:{
     type:String,
     required:true
@@ -12,7 +16,7 @@ const addressSchema = new Schema ({
     type:Number,
     required:true
    },
-   streetAdress:{
+   address:{
     type:String,
     required:true
    },
@@ -28,17 +32,30 @@ const addressSchema = new Schema ({
     type:String,
     required:true,
    },
-    State:{
+    state:{
         type:String,
         required:true,
     },
     landmark:{
         type:String,
     },
-    alnum:{
+    alternatePhone :{
         type:Number,
         required:true
-    }
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default:null
+
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
 })
 
 const Address = mongoose.model('Address',addressSchema);
