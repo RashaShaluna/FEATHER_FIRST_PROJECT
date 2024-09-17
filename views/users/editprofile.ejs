@@ -145,18 +145,15 @@
         const currentPasswordVal = currentPassword.value.trim();
         const newPasswordVal = newPassword.value.trim();
         const confirmPasswordVal = confirmPassword.value.trim();
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; // Requires at least 8 characters, 1 letter, and 1 number
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/; 
 
-        // If no password fields are filled, no need for validation
         if (!currentPasswordVal && !newPasswordVal && !confirmPasswordVal) {
-            // No validation required if all password fields are empty
             error3.style.display = 'none';
             error4.style.display = 'none';
             error5.style.display = 'none';
             return true;
         }
 
-        // Check if current password is filled
         if (!currentPasswordVal) {
             error3.style.display = 'block';
             error3.innerHTML = 'Please enter your current password if you wish to change it.';
@@ -165,7 +162,6 @@
             error3.style.display = 'none';
         }
 
-        // Check if new password and confirm password match
         if (newPasswordVal !== confirmPasswordVal) {
             error4.style.display = 'block';
             error4.innerHTML = 'New password and confirm password do not match.';
@@ -174,7 +170,6 @@
             error4.style.display = 'none';
         }
 
-        // Check if new password meets the strength criteria
         if (!passwordPattern.test(newPasswordVal)) {
             error4.style.display = 'block';
             error4.innerHTML = 'Password must be at least 6 characters long and contain both letters and numbers.';
@@ -189,7 +184,6 @@
             nameValidate();
             phoneValidate();
     
-            // Prevent form submission if there are errors
             if (error1.textContent || error2.textContent) {
                 e.preventDefault();
             }

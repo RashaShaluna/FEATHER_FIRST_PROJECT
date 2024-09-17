@@ -586,51 +586,49 @@ const successpass = async (req,res) => {
 
 // const shop = async (req, res) => {
 //   try {
-//     log('in shop')
-//     const user = req.session.user ;
-//     log('user',user);
+//     log('in shop');
+//     const user = req.session.user;
+//     log('user', user);
+
 //     const categories = await Category.aggregate([
 //       {
-//           $match: { isDeleted: false, islisted: true }
+//         $match: { isDeleted: false, islisted: true }
 //       },
 //       {
-//           $lookup: {
-//               from: 'products',
-//               localField: '_id',
-//               foreignField: 'category',
-//               as: 'products'
-//           }
-//       },
-//       {
-//         $addFields: {
-//             productCount: { $size: "$products" }
+//         $lookup: {
+//           from: 'products',
+//           localField: '_id',
+//           foreignField: 'category',
+//           as: 'products'
 //         }
 //       },
 //       {
-//           $project: {
-//               name: 1,
-//               slug: 1,
-//               productCount: 1
-//           }
+//         $addFields: {
+//           productCount: { $size: "$products" }
+//         }
+//       },
+//       {
+//         $project: {
+//           name: 1,
+//           slug: 1,
+//           productCount: 1
+//         }
 //       }
 //     ]);
-//        log('cat', categories)
+//     log('cat', categories);
 
-//    const page = parseInt(req.query.page) || 1;
-//    const limit = 6;  
-//     const categoryId = req.params.categoryId;
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 6;
 //     const skip = (page - 1) * limit;
-//     const sort = req.query.sort || 'relevant'; // Default sorting
-
-
-//     log('id',categoryId)
-
+//     const sort = req.query.sort || 'Featured'; 
+//     const categoryId = req.params.categoryId || '';
+  
 //     let products = [];
 //     let totalProducts = 0;
 //     let categoryName = '';
 //     let colors = [];
-   
 //     let sortOptions = {};
+
 //     switch (sort) {
 //       case 'a-z':
 //         sortOptions = { name: 1 };
@@ -645,25 +643,28 @@ const successpass = async (req,res) => {
 //         sortOptions = { price: -1 };
 //         break;
 //       case 'popularity':
-//         sortOptions = { popularity: -1 }; // Assuming you have a popularity field
+//         sortOptions = { popularity: -1 }; 
 //         break;
 //       case 'newest':
-//         sortOptions = { createdAt: -1 }; // Assuming you have a createdAt field
+//         sortOptions = { createdAt: -1 }; 
 //         break;
 //       default:
-//         sortOptions = {}; // Default sorting by relevance or any field you consider as default
+//         sortOptions = { featured: 1 }; 
 //         break;
 //     }
-    
+   
 
 //     if (categoryId) {
 //       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-//     log('categor',category);
+//       log('categor', category);
 //       if (category) {
 //         categoryName = category.name;
 //       }
-//       log('categoryName',categoryName)
+//       log('categoryName', categoryName);
 
+
+      
+      
 //       totalProducts = await Product.countDocuments({
 //         category: categoryId,
 //         isBlocked: false,
@@ -674,48 +675,193 @@ const successpass = async (req,res) => {
 //         category: categoryId,
 //         isBlocked: false,
 //         isDeleted: false
-//       }).limit(limit)
-//       .skip(skip)
+//       })
 //       .sort(sortOptions)
-
+//       .limit(limit)
+//       .skip(skip);
+      
+//       colors = await Product.distinct('color', {
+//         category: categoryId,
+//         isBlocked: false,
+//         isDeleted: false
+//       });
+//       log('c', colors);
 //     } else {
+      
+//       totalProducts = await Product.countDocuments({
+//         isBlocked: false,
+//         isDeleted: false
+//       });
+
 //       products = await Product.find({
 //         isBlocked: false,
 //         isDeleted: false
-//       }).limit(limit)
-//       .skip(skip)
+//       })
 //       .sort(sortOptions)
+//       .limit(limit)
+//       .skip(skip);
+
+//       colors = await Product.distinct('color', {
+//         isBlocked: false,
+//         isDeleted: false
+//       });
+//       log('c', colors);
 
 //     }
-    
-
-    
+  
 //     const totalPages = Math.ceil(totalProducts / limit);
 
 //     res.render('users/shop', {
-//       title: 'shop - feather',
+//       title: 'Shop - Feather',
 //       categories,
 //       products,
 //       currentPage: page,
 //       totalPages,
 //       categoryName,
+//       colors,
 //       user: user,
-//       categoryId ,
-//       sort 
-//       // category
+//       sort, // Pass sort parameter
+//       categoryId, // Pass categoryId parameter
+      
 //     });
+
 //   } catch (err) {
 //     console.error(err);
-//    return  res.redirect('/pageNotFound');
+//     return res.redirect('/pageNotFound');
+//   }
+// };
+
+// const shop = async (req, res) => {
+//   try {
+//     log('in shop');
+//     const user = req.session.user;
+//     log('user', user);
+
+//     const categories = await Category.aggregate([
+//       {
+//         $match: { isDeleted: false, islisted: true }
+//       },
+//       {
+//         $lookup: {
+//           from: 'products',
+//           localField: '_id',
+//           foreignField: 'category',
+//           as: 'products'
+//         }
+//       },
+//       {
+//         $addFields: {
+//           productCount: { $size: "$products" }
+//         }
+//       },
+//       {
+//         $project: {
+//           name: 1,
+//           slug: 1,
+//           productCount: 1
+//         }
+//       }
+//     ]);
+//     log('cat', categories);
+
+//     const colorFilter = req.query.color || ''; // color filter
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 6;
+//     const skip = (page - 1) * limit;
+//     const sort = req.query.sort || 'Featured'; 
+//     const categoryId = req.params.categoryId || '';
+  
+//     let products = [];
+//     let totalProducts = 0;
+//     let categoryName = '';
+//     let colors = [];
+//     let sortOptions = {};
+
+//     switch (sort) {
+//       case 'a-z':
+//         sortOptions = { name: 1 };
+//         break;
+//       case 'z-a':
+//         sortOptions = { name: -1 };
+//         break;
+//       case 'low-high':
+//         sortOptions = { price: 1 };
+//         break;
+//       case 'high-low':
+//         sortOptions = { price: -1 };
+//         break;
+//       case 'popularity':
+//         sortOptions = { popularity: -1 }; 
+//         break;
+//       case 'newest':
+//         sortOptions = { createdAt: -1 }; 
+//         break;
+//       default:
+//         sortOptions = { featured: 1 }; 
+//         break;
+//     }
+
+//     const query = {
+//       isBlocked: false,
+//       isDeleted: false,
+//       ...(categoryId && { category: categoryId }),
+//       ...(colorFilter && { color: colorFilter })
+//     };
+
+//     if (categoryId) {
+//       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
+//       log('categor', category);
+//       if (category) {
+//         categoryName = category.name;
+//       }
+//       log('categoryName', categoryName);
+
+//       totalProducts = await Product.countDocuments(query);
+
+//       products = await Product.find(query)
+//         .sort(sortOptions)
+//         .limit(limit)
+//         .skip(skip);
+      
+//       colors = await Product.distinct('color', query);
+//       log('c', colors);
+//     } else {
+//       totalProducts = await Product.countDocuments(query);
+
+//       products = await Product.find(query)
+//         .sort(sortOptions)
+//         .limit(limit)
+//         .skip(skip);
+
+//       colors = await Product.distinct('color', query);
+//       log('c', colors);
+//     }
+  
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.render('users/shop', {
+//       title: 'Shop - Feather',
+//       categories,
+//       products,
+//       currentPage: page,
+//       totalPages,
+//       categoryName,
+//       colors,
+//       user: user,
+//       sort, // Pass sort parameter
+//       categoryId, // Pass categoryId parameter
+//       colorFilter,
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     return res.redirect('/pageNotFound');
 //   }
 // };
 
 const shop = async (req, res) => {
   try {
-    log('in shop');
     const user = req.session.user;
-    log('user', user);
-
     const categories = await Category.aggregate([
       {
         $match: { isDeleted: false, islisted: true }
@@ -741,7 +887,6 @@ const shop = async (req, res) => {
         }
       }
     ]);
-    log('cat', categories);
 
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
@@ -749,9 +894,6 @@ const shop = async (req, res) => {
     const sort = req.query.sort || 'Featured'; 
     const categoryId = req.params.categoryId || '';
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
-    const minPrice = req.query.minPrice || 0;
-    const maxPrice = req.query.maxPrice || 10000;
-
 
     let products = [];
     let totalProducts = 0;
@@ -782,66 +924,44 @@ const shop = async (req, res) => {
         sortOptions = { featured: 1 }; 
         break;
     }
-   
+
+    let query = {
+      isBlocked: false,
+      isDeleted: false
+    };
 
     if (categoryId) {
+      query.category = categoryId;
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-      log('categor', category);
       if (category) {
         categoryName = category.name;
       }
-      log('categoryName', categoryName);
 
+      if (selectedColors.length > 0) {
+        query.color = { $in: selectedColors };
+      }
 
+      totalProducts = await Product.countDocuments(query);
+      products = await Product.find(query)
+        .sort(sortOptions)
+        .limit(limit)
+        .skip(skip);
       
-      
-      totalProducts = await Product.countDocuments({
-        category: categoryId,
-        isBlocked: false,
-        isDeleted: false
-      });
-
-      products = await Product.find({
-        category: categoryId,
-        isBlocked: false,
-        isDeleted: false
-      })
-      .sort(sortOptions)
-      .limit(limit)
-      .skip(skip);
-      
-      colors = await Product.distinct('color', {
-        category: categoryId,
-        isBlocked: false,
-        isDeleted: false
-      });
-      log('c', colors);
+      colors = await Product.distinct('color', query);
     } else {
+      if (selectedColors.length > 0) {
+        query.color = { $in: selectedColors };
+      }
+
+      totalProducts = await Product.countDocuments(query);
+      products = await Product.find(query)
+        .sort(sortOptions)
+        .limit(limit)
+        .skip(skip);
       
-      totalProducts = await Product.countDocuments({
-        isBlocked: false,
-        isDeleted: false
-      });
-
-      products = await Product.find({
-        isBlocked: false,
-        isDeleted: false
-      })
-      .sort(sortOptions)
-      .limit(limit)
-      .skip(skip);
-
-      colors = await Product.distinct('color', {
-        isBlocked: false,
-        isDeleted: false
-      });
-      log('c', colors);
-
+      colors = await Product.distinct('color', query);
     }
-    
-  
-    
- 
+
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('users/shop', {
@@ -853,9 +973,8 @@ const shop = async (req, res) => {
       categoryName,
       colors,
       user: user,
-      sort, // Pass sort parameter
-      categoryId, // Pass categoryId parameter
-      
+      sort, 
+      categoryId, 
     });
 
   } catch (err) {
@@ -986,15 +1105,18 @@ const updateprofile = async (req, res) => {
     if (!user) {
       return res.redirect('/serverError');
     }
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res.render('users/editprofile', {
-        title: 'Account - Feather',
-        message: 'Current password is incorrect',
-        activeTab: 'account-details' ,
-        categories: categories,
-        user: user,
-      });
+    let isMatch;
+    if (currentPassword) {
+      isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.render('users/editprofile', {
+          title: 'Account - Feather',
+          message: 'Current password is incorrect',
+          activeTab: 'account-details' ,
+          categories: categories,
+          user: user,
+        });
+      }
     }
     let hashedPassword = null;
     if (password && confirmPassword) {
