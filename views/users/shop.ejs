@@ -138,33 +138,31 @@
             Colors
         </a>
     </h3>
-    
-    <div class="collapse show" id="widget-1">
-        <div class="widget-body">
-          <div class="filter-items filter-items-count">
-            <% if (colors && colors.length > 0) { %>
-              <form id="colorFilterForm">
-                <% colors.forEach((color, index) => { %>
-                  <div class="filter-item">
-                    <div class="custom-control custom-checkbox">
-                      <input type="checkbox" class="custom-control-input" id="color-<%= index + 1 %>" value="<%= color %>">
-                      <label class="custom-control-label" for="color-<%= index + 1 %>">
-                        <%= color %>
-                      </label>
-                    </div>
-                    <span class="item-count"><%= products.filter(product => product.color === color).length %></span>
-                  </div>
-                <% }); %>
-              </form>
-            <% } else { %>
-              <p>No colors available</p>
-            <% } %>
-          </div>
-        </div>
-      </div>
-</div>
 
-                                <div class="widget widget-collapsible">
+                <div class="collapse show" id="widget-1">
+                    <div class="widget-body">
+                      <div class="filter-items filter-items-count">
+                        <% if (colors && colors.length > 0) { %>
+                          <form id="colorFilterForm">
+                            <% colors.forEach((color, index) => { %>
+                              <div class="filter-item">
+                                <div class="custom-control custom-checkbox">
+                                  <input type="checkbox" class="custom-control-input" id="color-<%= index + 1 %>" value="<%= color %>">
+                                  <label class="custom-control-label" for="color-<%= index + 1 %>">
+                                    <%= color %>
+                                  </label>
+                                </div>
+                              </div>
+                            <% }); %>
+                          </form>
+                        <% } else { %>
+                          <p>No colors available</p>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+                      <div class="widget widget-collapsible">
                                     <h3 class="widget-title">
                                       <a data-toggle="collapse" href="#widget-5" role="button" aria-expanded="true" aria-controls="widget-5">
                                         Price
@@ -193,23 +191,30 @@
         </main><!-- End .main -->
         </div>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-              const filterForm = document.getElementById('colorFilterForm');
-              const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
-          
-              checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                  const selectedColors = Array.from(checkboxes)
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('colorFilterForm');
+        const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const selectedColors = Array.from(checkboxes)
                     .filter(checkbox => checkbox.checked)
                     .map(checkbox => checkbox.value);
-          
-                  const queryParams = new URLSearchParams(window.location.search);
-                  queryParams.set('colors', selectedColors.join(','));
-                  window.location.search = queryParams.toString();
-                });
-              });
+
+                const queryParams = new URLSearchParams(window.location.search);
+                
+                if (selectedColors.length > 0) {
+                    queryParams.set('colors', selectedColors.join(','));
+                } else {
+                    queryParams.delete('colors'); // Remove the parameter if no colors selected
+                }
+
+                window.location.search = queryParams.toString(); // Update the URL and reload the page
             });
-          </script>
+        });
+    });
+</script>
+
     </body>
         <%- include('../layouts/homefooter') %>
 

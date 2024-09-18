@@ -862,6 +862,8 @@ const successpass = async (req,res) => {
 const shop = async (req, res) => {
   try {
     const user = req.session.user;
+    const cat = req.params.categoryId;
+
     const categories = await Category.aggregate([
       {
         $match: { isDeleted: false, islisted: true }
@@ -893,6 +895,7 @@ const shop = async (req, res) => {
     const skip = (page - 1) * limit;
     const sort = req.query.sort || 'Featured'; 
     const categoryId = req.params.categoryId || '';
+    log('category id', categoryId);
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
 
     let products = [];
@@ -900,7 +903,7 @@ const shop = async (req, res) => {
     let categoryName = '';
     let colors = [];
     let sortOptions = {};
-
+    // let colorCounts = {}; 
     switch (sort) {
       case 'a-z':
         sortOptions = { name: 1 };
@@ -932,6 +935,7 @@ const shop = async (req, res) => {
 
     if (categoryId) {
       query.category = categoryId;
+      log(categoryId)
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
       if (category) {
         categoryName = category.name;
@@ -947,7 +951,44 @@ const shop = async (req, res) => {
         .limit(limit)
         .skip(skip);
       
-      colors = await Product.distinct('color', query);
+        colors = await Product.distinct('color', {
+          category: categoryId,
+          isBlocked: { $ne: true },
+          isDeleted: { $ne: true }
+        });
+              colors.sort((a, b) => a.localeCompare(b));
+
+        log(colors)
+        // Get color counts
+        // colorCounts = await Product.aggregate([
+        //   {
+        //     $match: {
+        //       categoryId: categoryId,
+        //       isBlocked: { $ne: true },
+        //       isDeleted: { $ne: true }
+        //     }
+        //   },
+        //   {
+        //     $group: {
+        //       _id: '$color',
+        //       count: { $sum: 1 }
+        //     }
+        //   }
+        // ]);
+        // log(categoryId)
+        // log('Color Counts:');
+        // colorCounts.forEach((colorCount) => {
+        //   log(`Color: ${colorCount._id}, Count: ${colorCount.count}`);
+        // });
+        
+        // colorCounts = colorCounts.reduce((acc, curr) => {
+        //   acc[curr._id] = curr.count;
+        //   return acc;
+        // }, {});
+        
+        // log('Color Counts Object:', colorCounts);
+  
+
     } else {
       if (selectedColors.length > 0) {
         query.color = { $in: selectedColors };
@@ -959,9 +1000,37 @@ const shop = async (req, res) => {
         .limit(limit)
         .skip(skip);
       
-      colors = await Product.distinct('color', query);
-    }
+        colors = await Product.distinct('color', {
+          category: categoryId,
+          isBlocked: { $ne: true },
+          isDeleted: { $ne: true }
+        });
+        colors.sort((a, b) => a.localeCompare(b));
 
+
+        // // Get color counts
+        // colorCounts = await Product.aggregate([
+        //   {
+        //     $match: {
+        //       category: categoryId,
+        //       isBlocked: { $ne: true },
+        //       isDeleted: { $ne: true }
+        //     }
+        //   },
+        //   {
+        //     $group: {
+        //       _id: '$color',
+        //       count: { $sum: 1 }
+        //     }
+        //   }
+        // ]);
+        // // Convert color counts to an object
+        // colorCounts = colorCounts.reduce((acc, curr) => {
+        //   acc[curr._id] = curr.count;
+        //   return acc;
+        // }, {});
+  
+      }
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('users/shop', {
@@ -975,8 +1044,8 @@ const shop = async (req, res) => {
       user: user,
       sort, 
       categoryId, 
+      // colorCounts,
     });
-
   } catch (err) {
     console.error(err);
     return res.redirect('/pageNotFound');
