@@ -731,11 +731,12 @@ const successpass = async (req,res) => {
 //   }
 // };
 
+
+
 // const shop = async (req, res) => {
 //   try {
-//     log('in shop');
 //     const user = req.session.user;
-//     log('user', user);
+//     const cat = req.params.categoryId;
 
 //     const categories = await Category.aggregate([
 //       {
@@ -762,21 +763,21 @@ const successpass = async (req,res) => {
 //         }
 //       }
 //     ]);
-//     log('cat', categories);
 
-//     const colorFilter = req.query.color || ''; // color filter
 //     const page = parseInt(req.query.page) || 1;
 //     const limit = 6;
 //     const skip = (page - 1) * limit;
 //     const sort = req.query.sort || 'Featured'; 
 //     const categoryId = req.params.categoryId || '';
-  
+//     log('category id', categoryId);
+//     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
+
 //     let products = [];
 //     let totalProducts = 0;
 //     let categoryName = '';
 //     let colors = [];
 //     let sortOptions = {};
-
+//     // let colorCounts = {}; 
 //     switch (sort) {
 //       case 'a-z':
 //         sortOptions = { name: 1 };
@@ -801,42 +802,57 @@ const successpass = async (req,res) => {
 //         break;
 //     }
 
-//     const query = {
+//     let query = {
 //       isBlocked: false,
-//       isDeleted: false,
-//       ...(categoryId && { category: categoryId }),
-//       ...(colorFilter && { color: colorFilter })
+//       isDeleted: false
 //     };
 
 //     if (categoryId) {
+//       query.category = categoryId;
+//       log(categoryId)
 //       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-//       log('categor', category);
 //       if (category) {
 //         categoryName = category.name;
 //       }
-//       log('categoryName', categoryName);
+
+//       if (selectedColors.length > 0) {
+//         query.color = { $in: selectedColors };
+//       }
 
 //       totalProducts = await Product.countDocuments(query);
-
 //       products = await Product.find(query)
 //         .sort(sortOptions)
 //         .limit(limit)
 //         .skip(skip);
       
-//       colors = await Product.distinct('color', query);
-//       log('c', colors);
-//     } else {
-//       totalProducts = await Product.countDocuments(query);
+//         colors = await Product.distinct('color', {
+//           category: categoryId,
+//           isBlocked: { $ne: true },
+//           isDeleted: { $ne: true }
+//         });
+//               colors.sort((a, b) => a.localeCompare(b));
 
+//         log(colors)
+       
+
+//     } else {
+//       if (selectedColors.length > 0) {
+//         query.color = { $in: selectedColors };
+//       }
+
+//       totalProducts = await Product.countDocuments(query);
 //       products = await Product.find(query)
 //         .sort(sortOptions)
 //         .limit(limit)
 //         .skip(skip);
-
-//       colors = await Product.distinct('color', query);
-//       log('c', colors);
-//     }
-  
+      
+//         colors = await Product.distinct('color', {
+//           category: categoryId,
+//           isBlocked: { $ne: true },
+//           isDeleted: { $ne: true }
+//         });
+//         colors.sort((a, b) => a.localeCompare(b));
+//       }
 //     const totalPages = Math.ceil(totalProducts / limit);
 
 //     res.render('users/shop', {
@@ -848,11 +864,11 @@ const successpass = async (req,res) => {
 //       categoryName,
 //       colors,
 //       user: user,
-//       sort, // Pass sort parameter
-//       categoryId, // Pass categoryId parameter
-//       colorFilter,
+//       sort, 
+//       categoryId, 
+//       // colorCounts,
+//       selectedColors
 //     });
-
 //   } catch (err) {
 //     console.error(err);
 //     return res.redirect('/pageNotFound');
@@ -893,17 +909,19 @@ const shop = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
-    const sort = req.query.sort || 'Featured'; 
+    const sort = req.query.sort || 'Featured';
     const categoryId = req.params.categoryId || '';
-    log('category id', categoryId);
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
-
+    const minPrice = parseFloat(req.query.minPrice) || 0;
+    const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
+log(maxPrice)
+  
     let products = [];
     let totalProducts = 0;
     let categoryName = '';
     let colors = [];
     let sortOptions = {};
-    // let colorCounts = {}; 
+
     switch (sort) {
       case 'a-z':
         sortOptions = { name: 1 };
@@ -912,30 +930,30 @@ const shop = async (req, res) => {
         sortOptions = { name: -1 };
         break;
       case 'low-high':
-        sortOptions = { price: 1 };
+        sortOptions = { offerprice: 1 };
         break;
       case 'high-low':
-        sortOptions = { price: -1 };
+        sortOptions = { offerprice: -1 };
         break;
       case 'popularity':
-        sortOptions = { popularity: -1 }; 
+        sortOptions = { popularity: -1 };
         break;
       case 'newest':
-        sortOptions = { createdAt: -1 }; 
+        sortOptions = { createdAt: -1 };
         break;
       default:
-        sortOptions = { featured: 1 }; 
+        sortOptions = { featured: 1 };
         break;
     }
 
     let query = {
       isBlocked: false,
-      isDeleted: false
+      isDeleted: false,
+      offerprice: { $gte: minPrice, $lte: maxPrice }
     };
 
     if (categoryId) {
       query.category = categoryId;
-      log(categoryId)
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
       if (category) {
         categoryName = category.name;
@@ -950,16 +968,13 @@ const shop = async (req, res) => {
         .sort(sortOptions)
         .limit(limit)
         .skip(skip);
-      
-        colors = await Product.distinct('color', {
-          category: categoryId,
-          isBlocked: { $ne: true },
-          isDeleted: { $ne: true }
-        });
-              colors.sort((a, b) => a.localeCompare(b));
 
-        log(colors)
-       
+      colors = await Product.distinct('color', {
+        category: categoryId,
+        isBlocked: { $ne: true },
+        isDeleted: { $ne: true }
+      });
+      colors.sort((a, b) => a.localeCompare(b));
 
     } else {
       if (selectedColors.length > 0) {
@@ -971,14 +986,14 @@ const shop = async (req, res) => {
         .sort(sortOptions)
         .limit(limit)
         .skip(skip);
-      
-        colors = await Product.distinct('color', {
-          category: categoryId,
-          isBlocked: { $ne: true },
-          isDeleted: { $ne: true }
-        });
-        colors.sort((a, b) => a.localeCompare(b));
-      }
+
+      colors = await Product.distinct('color', {
+        isBlocked: { $ne: true },
+        isDeleted: { $ne: true }
+      });
+      colors.sort((a, b) => a.localeCompare(b));
+    }
+
     const totalPages = Math.ceil(totalProducts / limit);
 
     res.render('users/shop', {
@@ -990,10 +1005,11 @@ const shop = async (req, res) => {
       categoryName,
       colors,
       user: user,
-      sort, 
-      categoryId, 
-      // colorCounts,
-      selectedColors
+      sort,
+      categoryId,
+      selectedColors,
+      minPrice,
+      maxPrice
     });
   } catch (err) {
     console.error(err);

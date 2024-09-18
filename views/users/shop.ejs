@@ -19,7 +19,14 @@
 .filter-price-buttons {
   margin-bottom: 10px;
 }
-
+@media screen and (max-width: 768px) {
+  .filter-price-inputs {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin-bottom: 10px;
+  }
+}
 </style>
 <body>
 	<div class="page-wrapper">
@@ -191,16 +198,16 @@
                             Price Range:
                           </div>
                           <div class="filter-price-inputs">
-                            <input type="number" id="minPrice" placeholder="Min Price" min="0" step="1">
-                            <input type="number" id="maxPrice" placeholder="Max Price" min="0" step="1">
+                            <input type="number" id="minPrice" placeholder="Min Price" min="0" step="1" 
+                            value="<%= minPrice ? minPrice : '' %>">
+                     <input type="number" id="maxPrice" placeholder="Max Price" min="0" step="1" 
+                            value="<%= maxPrice ? maxPrice : '' %>">
+                     
+                        </div>
+                          <div class='mt-2'style="text-align: center;" >
+                            <button type="button" id="applyPriceFilter" class="btn btn-outline-primary-2    " >Apply</button>
+
                           </div>
-                          <div class="filter-price-buttons">
-                            <button type="button" id="decrementMin">-</button>
-                            <button type="button" id="incrementMin">+</button>
-                            <button type="button" id="decrementMax">-</button>
-                            <button type="button" id="incrementMax">+</button>
-                          </div>
-                          <button type="button" id="applyPriceFilter">Apply</button>
                         </div>
                       </div>
                     </div>
@@ -242,21 +249,7 @@
     });
 });
 
-// clear filters
-document.addEventListener('DOMContentLoaded', function() {
-  const clearFiltersButton = document.getElementById('clearFilters');
 
-  clearFiltersButton.addEventListener('click', function() {
-    const url = new URL(window.location);
-    const params = new URLSearchParams(url.search);
-
-    params.delete('colors');
-    params.delete('page');
-    params.delete('sort');
-
-    window.location.search = params.toString() ? `?${params.toString()}` : ''; 
-  });
-});
 
 // price filtering
 document.addEventListener('DOMContentLoaded', function() {
@@ -287,24 +280,29 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event listener for the apply button
   applyButton.addEventListener('click', updateFilters);
 
-  // Increment and Decrement functionality
-  document.getElementById('incrementMin').addEventListener('click', function() {
-    minPriceInput.value = parseInt(minPriceInput.value || 0) + 1;
-  });
-
-  document.getElementById('decrementMin').addEventListener('click', function() {
-    minPriceInput.value = Math.max(0, parseInt(minPriceInput.value || 0) - 1);
-  });
-
-  document.getElementById('incrementMax').addEventListener('click', function() {
-    maxPriceInput.value = parseInt(maxPriceInput.value || 0) + 1;
-  });
-
-  document.getElementById('decrementMax').addEventListener('click', function() {
-    maxPriceInput.value = Math.max(0, parseInt(maxPriceInput.value || 0) - 1);
-  });
+ 
 });
 
+// clear filters
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the "Clean All" button by its ID
+    const clearFiltersButton = document.getElementById('clearFilters');
+
+    clearFiltersButton.addEventListener('click', function() {
+        // Create a new URLSearchParams object to manipulate the query parameters
+        const queryParams = new URLSearchParams(window.location.search);
+
+        // Remove all filter-related query parameters
+        queryParams.delete('colors');  // Clear color filters
+        queryParams.delete('minPrice');  // Clear minimum price
+        queryParams.delete('maxPrice');  // Clear maximum price
+        queryParams.delete('sort');  // Clear sorting option
+        queryParams.delete('page');  // Reset pagination
+
+        // Reload the page with the updated query parameters (cleared filters)
+        window.location.search = queryParams.toString();
+    });
+});
 
 </script>
 
