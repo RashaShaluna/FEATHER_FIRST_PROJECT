@@ -959,35 +959,7 @@ const shop = async (req, res) => {
               colors.sort((a, b) => a.localeCompare(b));
 
         log(colors)
-        // Get color counts
-        // colorCounts = await Product.aggregate([
-        //   {
-        //     $match: {
-        //       categoryId: categoryId,
-        //       isBlocked: { $ne: true },
-        //       isDeleted: { $ne: true }
-        //     }
-        //   },
-        //   {
-        //     $group: {
-        //       _id: '$color',
-        //       count: { $sum: 1 }
-        //     }
-        //   }
-        // ]);
-        // log(categoryId)
-        // log('Color Counts:');
-        // colorCounts.forEach((colorCount) => {
-        //   log(`Color: ${colorCount._id}, Count: ${colorCount.count}`);
-        // });
-        
-        // colorCounts = colorCounts.reduce((acc, curr) => {
-        //   acc[curr._id] = curr.count;
-        //   return acc;
-        // }, {});
-        
-        // log('Color Counts Object:', colorCounts);
-  
+       
 
     } else {
       if (selectedColors.length > 0) {
@@ -1006,30 +978,6 @@ const shop = async (req, res) => {
           isDeleted: { $ne: true }
         });
         colors.sort((a, b) => a.localeCompare(b));
-
-
-        // // Get color counts
-        // colorCounts = await Product.aggregate([
-        //   {
-        //     $match: {
-        //       category: categoryId,
-        //       isBlocked: { $ne: true },
-        //       isDeleted: { $ne: true }
-        //     }
-        //   },
-        //   {
-        //     $group: {
-        //       _id: '$color',
-        //       count: { $sum: 1 }
-        //     }
-        //   }
-        // ]);
-        // // Convert color counts to an object
-        // colorCounts = colorCounts.reduce((acc, curr) => {
-        //   acc[curr._id] = curr.count;
-        //   return acc;
-        // }, {});
-  
       }
     const totalPages = Math.ceil(totalProducts / limit);
 
@@ -1045,6 +993,7 @@ const shop = async (req, res) => {
       sort, 
       categoryId, 
       // colorCounts,
+      selectedColors
     });
   } catch (err) {
     console.error(err);
