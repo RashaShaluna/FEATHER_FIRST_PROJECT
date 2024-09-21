@@ -881,10 +881,10 @@ const shop = async (req, res) => {
     log('in shop')
     const user = req.session.user;
     log(user)
-    
     // const userId = user ? user._id : null; 
     // log('userId',userId)
 
+   
     const categories = await Category.aggregate([
       {
         $match: { isDeleted: false, islisted: true }
@@ -919,21 +919,7 @@ const shop = async (req, res) => {
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
     const minPrice = parseFloat(req.query.minPrice) || 0;
     const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
-
-    // // wishlist
-    // const wishlist = user ? await getWishlist(user) : { products: [] }; // Handle missing userId
-    // const isInWishlist = wishlist.products.some(p => p.productsId.toString() === productId);
- 
-     // Get cart items if user is logged in
-    //  const cart = await Cart.findOne({ user: userId });
-    //  const cartProductIds = cartItems.map(item => item.productId.toString());
- 
-    // const cart = await Cart.findOne({ user: userI }).populate('items.productId');
-    // const isInCart = cart ? cart.items.map(item => item.productId.toString()) : [];
-
-    // console.log('Product:', product);
-    // console.log('Cart:', cart);
-    
+  
 
     let products = [];
     let totalProducts = 0;
@@ -995,6 +981,7 @@ const shop = async (req, res) => {
       });
       colors.sort((a, b) => a.localeCompare(b));
 
+      
     } else {
       if (selectedColors.length > 0) {
         query.color = { $in: selectedColors };
@@ -1029,10 +1016,7 @@ const shop = async (req, res) => {
       selectedColors,
       minPrice,
       maxPrice,
-      // product,
-      // cartProductIds
-      // isInCart
-      // isInWishlist
+       
     });
   } catch (err) {
     console.error(err);
@@ -1181,12 +1165,15 @@ const shop = async (req, res) => {
 //     return res.redirect('/pageNotFound');
 //   }
 // };  this is form git 
+
 // ========================================================================= Product single view ==================================================================
+
 const productView = async (req, res) => {
   try {
       log('in product');
       const productId = req.params.id; 
       log('product id', productId);
+      const user = req.session.user;
 
       const product = await Product.findOne({
           _id: productId,
@@ -1212,11 +1199,23 @@ const productView = async (req, res) => {
       isDeleted: false
     }).limit(4); 
 
+    // cart
+    isInCart = false;
+     if(user){
+      const cart = await Cart.findOne({ userId: user });
+      if (cart) {
+        const item = cart.items.find((item) => item.productId.toString() === productId);
+        if (item) {
+          isInCart = true;
+        }
+      }
+     }
       res.render('users/productDetails', {
         title: `${product.name} - Feather`,
         product,
         categories,
         relatedProducts,
+        isInCart
       });
     } catch (error) {
       log(error);

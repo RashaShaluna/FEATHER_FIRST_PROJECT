@@ -137,13 +137,11 @@
                                                 
                                                
                                               
-                <!-- cart -->
-                
+                                           
+                                              
                        
                                               
-
-
-
+    
                                             </figure><!-- End .product-media -->
 
                                             <div class="product-body">
@@ -340,31 +338,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.search = queryParams.toString();
     });
 });
-
-
-
-// cart
-function addToCart(productId) {
-  fetch('/addToCart', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productId, quantity: 1 })
-  })
-  .then(response => response.json())
-  .then(cart => {
-    const cartButton = document.querySelector(`[onclick="addToCart('${productId}')"]`);
-    cartButton.innerHTML = '<span>Go to Cart</span>';
-    cartButton.href = '/cart';
-    cartButton.removeAttribute('onclick');
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-}
-
-
-
-
 
 
 

@@ -66,7 +66,14 @@
                         </div><!-- End .details-row-size -->
 
                         <div class="product-details-action">
-                            <a href="/cart/add/<%= product._id %>" class="btn-product btn-cart"><span>add to cart</span></a>
+
+                            <% if (isInCart) { %>
+                                <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
+                            <% } else { %>
+                                <a href="/cart/add/<%= product._id %>" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                            <% } %>
+                            
+
                             <a href="/wishlist/add/<%= product._id %>" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
                         </div><!-- End .product-details-action -->
 
