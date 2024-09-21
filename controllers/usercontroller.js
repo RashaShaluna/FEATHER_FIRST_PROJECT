@@ -1215,7 +1215,8 @@ const productView = async (req, res) => {
         product,
         categories,
         relatedProducts,
-        isInCart
+        isInCart,
+        user, 
       });
     } catch (error) {
       log(error);
