@@ -9,6 +9,7 @@ const Otp = require('../models/otp');
 const jwt = require('jsonwebtoken');
 const {log} = require('console');
 const flash = require('connect-flash');
+const Cart = require('../models/cartModel');
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
   try {
@@ -877,8 +878,12 @@ const successpass = async (req,res) => {
 
 const shop = async (req, res) => {
   try {
+    log('in shop')
     const user = req.session.user;
-    const cat = req.params.categoryId;
+    log(user)
+    
+    // const userId = user ? user._id : null; 
+    // log('userId',userId)
 
     const categories = await Category.aggregate([
       {
@@ -905,7 +910,7 @@ const shop = async (req, res) => {
         }
       }
     ]);
-
+ 
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
@@ -914,8 +919,22 @@ const shop = async (req, res) => {
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
     const minPrice = parseFloat(req.query.minPrice) || 0;
     const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
-log(maxPrice)
-  
+
+    // // wishlist
+    // const wishlist = user ? await getWishlist(user) : { products: [] }; // Handle missing userId
+    // const isInWishlist = wishlist.products.some(p => p.productsId.toString() === productId);
+ 
+     // Get cart items if user is logged in
+    //  const cart = await Cart.findOne({ user: userId });
+    //  const cartProductIds = cartItems.map(item => item.productId.toString());
+ 
+    // const cart = await Cart.findOne({ user: userI }).populate('items.productId');
+    // const isInCart = cart ? cart.items.map(item => item.productId.toString()) : [];
+
+    // console.log('Product:', product);
+    // console.log('Cart:', cart);
+    
+
     let products = [];
     let totalProducts = 0;
     let categoryName = '';
@@ -1009,14 +1028,159 @@ log(maxPrice)
       categoryId,
       selectedColors,
       minPrice,
-      maxPrice
+      maxPrice,
+      // product,
+      // cartProductIds
+      // isInCart
+      // isInWishlist
     });
   } catch (err) {
     console.error(err);
     return res.redirect('/pageNotFound');
   }
 };
+// const shop = async (req, res) => {
+//   try {
+//     //     log('in shop')
+//     const user = req.session.user;
+//      log('user',user);
 
+//     const categories = await Category.aggregate([
+//       {
+//         $match: { isDeleted: false, islisted: true }
+//       },
+//       {
+//         $lookup: {
+//           from: 'products',
+//           localField: '_id',
+//           foreignField: 'category',
+//           as: 'products'
+//         }
+//       },
+//       {
+//         $addFields: {
+//           productCount: { $size: "$products" }
+//         }
+//       },
+//       {
+//         $project: {
+//           name: 1,
+//           slug: 1,
+//           productCount: 1
+//         }
+//       }
+//     ]);
+
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 6;
+//     const skip = (page - 1) * limit;
+//     const sort = req.query.sort || 'Featured';
+//     const categoryId = req.params.categoryId || '';
+//     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
+//     const minPrice = parseFloat(req.query.minPrice) || 0;
+//     const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
+//     log(maxPrice)
+  
+//     let products = [];
+//     let totalProducts = 0;
+//     let categoryName = '';
+//     let colors = [];
+//     let sortOptions = {};
+
+//     switch (sort) {
+//       case 'a-z':
+//         sortOptions = { name: 1 };
+//         break;
+//       case 'z-a':
+//         sortOptions = { name: -1 };
+//         break;
+//       case 'low-high':
+//         sortOptions = { offerprice: 1 };
+//         break;
+//       case 'high-low':
+//         sortOptions = { offerprice: -1 };
+//         break;
+//       case 'popularity':
+//         sortOptions = { popularity: -1 };
+//         break;
+//       case 'newest':
+//         sortOptions = { createdAt: -1 };
+//         break;
+//       default:
+//         sortOptions = { featured: 1 };
+//         break;
+//     }
+
+//     let query = {
+//       isBlocked: false,
+//       isDeleted: false,
+//       offerprice: { $gte: minPrice, $lte: maxPrice }
+//     };
+
+//     if (categoryId) {
+//       query.category = categoryId;
+//       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
+//       if (category) {
+//         categoryName = category.name;
+//       }
+
+//       if (selectedColors.length > 0) {
+//         query.color = { $in: selectedColors };
+//       }
+
+//       totalProducts = await Product.countDocuments(query);
+//       products = await Product.find(query)
+//         .sort(sortOptions)
+//         .limit(limit)
+//         .skip(skip);
+
+//       colors = await Product.distinct('color', {
+//         category: categoryId,
+//         isBlocked: { $ne: true },
+//         isDeleted: { $ne: true }
+//       });
+//       colors.sort((a, b) => a.localeCompare(b));
+
+//     } else {
+//       if (selectedColors.length > 0) {
+//         query.color = { $in: selectedColors };
+//       }
+
+//       totalProducts = await Product.countDocuments(query);
+//       products = await Product.find(query)
+//         .sort(sortOptions)
+//         .limit(limit)
+//         .skip(skip);
+
+//       colors = await Product.distinct('color', {
+//         isBlocked: { $ne: true },
+//         isDeleted: { $ne: true }
+//       });
+//       colors.sort((a, b) => a.localeCompare(b));
+//     }
+
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.render('users/shop', {
+//       title: 'Shop - Feather',
+//       categories,
+//       products,
+//       currentPage: page,
+//       totalPages,
+//       categoryName,
+//       colors,
+//       user: user,
+//       sort,
+//       categoryId,
+//       selectedColors,
+//       minPrice,
+//       maxPrice
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     return res.redirect('/pageNotFound');
+//   }
+// };  this is form git 
 // ========================================================================= Product single view ==================================================================
 const productView = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ const isLogin =(req, res, next) => {
       return next(); // Proceed to the next middleware/controller
   } else {
       // If the user is not logged in, redirect to the login page
-      return res.redirect('/login');
+      return res.redirect('/');
   }
 };
 //  async (req, res, next) => {

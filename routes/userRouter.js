@@ -6,6 +6,8 @@ const userAuth = require('../middleware/userAuth');
 const path = require('path');
 
 const addressController = require('../controllers/addressescontroller');
+const wishlistController = require('../controllers/wishlistController');
+const cartController = require('../controllers/cartController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -38,7 +40,7 @@ router.get('/changedpass',userController.successpass);
 
 // product
 router.get('/shop/:categoryId',userController.shop);
-router.get('/product/:id',userController. productView);
+router.get('/product/:id', userController. productView);
 
 // profile
 router.get('/profile',userController.userProfile);
@@ -53,9 +55,15 @@ router.delete('/deleteAddress/:id',userAuth.isLogin,addressController.deleteAddr
 router.get('/editAddress/:id',userAuth.isLogin,addressController.editAddress);
 router.post('/editAddress/:id',userAuth.isLogin,addressController.editAddressVerify);
 
+// whislist
+// router.get('/whislist',userAuth.isLogin, wishlistController.whislist);
+// router.post('/addWishlist',userAuth.isLogin, wishlistController.addtoWishlist);
+// router.post('/removeWishlist',userAuth.isLogin, wishlistController. removeFromWishlist);
 
-
-
+// cart 
+router.post('/addToCart',userAuth.isLogin, cartController.addToCart );
+router.post('/removeFromCart',userAuth.isLogin, cartController.removeFromCart);
+   
 
 
 

@@ -19,6 +19,43 @@
 .filter-price-buttons {
   margin-bottom: 10px;
 }
+/* styles.css */
+/* General button styles */
+.btn-wishlist {
+    color: #000; /* Default color */
+}
+
+.btn-wishlist.in-wishlist {
+    color: red; /* Red color for added to wishlist */
+}
+
+/* Toast styles */
+.toast {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+/* Optional: Style "Go to Cart" differently */
+.btn-product.btn-cart.go-to-cart {
+  background-color: #28a745;
+  color: white;
+}
+
+
 @media screen and (max-width: 768px) {
   .filter-price-inputs {
     display: flex;
@@ -95,13 +132,18 @@
                                                     <% } %>
                                                 </a>
 
-                                                <div class="product-action-vertical">
-                                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
-                                                </div><!-- End .product-action-vertical -->
+                                              
+                                                  
+                                                
+                                               
+                                              
+                <!-- cart -->
+                
+                       
+                                              
 
-                                                <div class="product-action">
-                                                    <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
-                                                </div><!-- End .product-action -->
+
+
                                             </figure><!-- End .product-media -->
 
                                             <div class="product-body">
@@ -205,27 +247,28 @@
                      
                         </div>
                           <div class='mt-2'style="text-align: center;" >
-                            <button type="button" id="applyPriceFilter" class="btn btn-outline-primary-2    " >Apply</button>
-
+                            <button type="button" id="applyPriceFilter" class="btn btn-outline-primary-2 " >Apply</button>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                                    
-                                  
+                    </div><!-- End .collapse -->
+                    </div><!-- End .widget -->
+                </div><!-- End .sidebar sidebar-shop -->
+            </aside><!-- End .col-lg-3 -->
+        </div><!-- End .row -->
+    </div><!-- End .container -->
+  </div><!-- End .page-content -->
+  <div id="toastContainer" class="toast-container"></div>
 
-									</div><!-- End .collapse -->
-        						</div><!-- End .widget -->
-                			</div><!-- End .sidebar sidebar-shop -->
-                		</aside><!-- End .col-lg-3 -->
-                	</div><!-- End .row -->
-                </div><!-- End .container -->
-            </div><!-- End .page-content -->
-        </main><!-- End .main -->
-        </div>
-        <script>
-            // color filtering
+</main><!-- End .main -->
+</div>
+<script src="/path/to/your/javascript.js"></script>
+
+<script>
+
+     // color filtering
   document.addEventListener('DOMContentLoaded', function() {
     const filterForm = document.getElementById('colorFilterForm');
     const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
@@ -257,7 +300,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const maxPriceInput = document.getElementById('maxPrice');
   const applyButton = document.getElementById('applyPriceFilter');
 
-  // Function to update the URL parameters and reload the page
   function updateFilters() {
     const minPrice = minPriceInput.value;
     const maxPrice = maxPriceInput.value;
@@ -277,7 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.search = queryParams.toString();
   }
 
-  // Event listener for the apply button
   applyButton.addEventListener('click', updateFilters);
 
  
@@ -285,28 +326,160 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // clear filters
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the "Clean All" button by its ID
     const clearFiltersButton = document.getElementById('clearFilters');
 
     clearFiltersButton.addEventListener('click', function() {
-        // Create a new URLSearchParams object to manipulate the query parameters
         const queryParams = new URLSearchParams(window.location.search);
 
-        // Remove all filter-related query parameters
-        queryParams.delete('colors');  // Clear color filters
-        queryParams.delete('minPrice');  // Clear minimum price
-        queryParams.delete('maxPrice');  // Clear maximum price
-        queryParams.delete('sort');  // Clear sorting option
-        queryParams.delete('page');  // Reset pagination
+        queryParams.delete('colors');  
+        queryParams.delete('minPrice');
+        queryParams.delete('maxPrice');
+        queryParams.delete('sort');  
+        queryParams.delete('page');       
 
-        // Reload the page with the updated query parameters (cleared filters)
         window.location.search = queryParams.toString();
     });
 });
 
+
+
+// cart
+function addToCart(productId) {
+  fetch('/addToCart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId, quantity: 1 })
+  })
+  .then(response => response.json())
+  .then(cart => {
+    const cartButton = document.querySelector(`[onclick="addToCart('${productId}')"]`);
+    cartButton.innerHTML = '<span>Go to Cart</span>';
+    cartButton.href = '/cart';
+    cartButton.removeAttribute('onclick');
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add product to wishlist
+function addProductToWishlist(productId, event) {
+  event.preventDefault(); // Prevent the default action of <a> tag
+  const btn = event.target.closest('a'); // Get the closest anchor element (button)
+
+  btn.classList.add('disabled'); // Disable the button during the request
+
+  fetch('/addWishlist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ productId })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Product added to wishlist', 'success');
+      // Update the UI to reflect the change, like switching the button to 'Remove'
+      btn.innerHTML = '<span>Remove from Wishlist</span>';
+      btn.setAttribute('onclick', `removeProductFromWishlist('${productId}', event);`);
+    } else {
+      showToast(data.message, 'error');
+      console.error(data.message);
+    }
+  })
+  .catch(error => {
+    showToast('Failed to add product to wishlist. Please try again later.', 'error');
+    console.error('Error:', error);
+  })
+  .finally(() => {
+    btn.classList.remove('disabled'); // Re-enable the button
+  });
+}
+
+// Remove product from wishlist
+function removeProductFromWishlist(productId, event) {
+  event.preventDefault(); // Prevent the default action of <a> tag
+  const btn = event.target.closest('a'); // Get the closest anchor element (button)
+
+  btn.classList.add('disabled'); // Disable the button during the request
+
+  fetch('/removeWishlist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ productId })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('Product removed from wishlist', 'success');
+      // Update the UI to reflect the change, like switching the button to 'Add'
+      btn.innerHTML = '<span>Add to Wishlist</span>';
+      btn.setAttribute('onclick', `addProductToWishlist('${productId}', event);`);
+    } else {
+      showToast(data.message, 'error');
+      console.error(data.message);
+    }
+  })
+  .catch(error => {
+    showToast('Failed to remove product from wishlist. Please try again later.', 'error');
+    console.error('Error:', error);
+  })
+  .finally(() => {
+    btn.classList.remove('disabled'); // Re-enable the button
+  });
+}
+
+// Toast notification function
+function showToast(message, type) {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Automatically remove the toast after 3 seconds
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
+
+
+
+
 </script>
 
     </body>
+    <% if (user) { %>
+        <%- include('../layouts/footer') %>
+    <% } else { %>
         <%- include('../layouts/homefooter') %>
-
+    <% } %>
+    
      
