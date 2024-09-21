@@ -107,19 +107,21 @@ const cart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
+    log('adding to cart')
     const { productId, quantity = 1 } = req.body; // Default quantity to 1 if not provided
+    log(req.body);
     const user = req.session.user;
      log('user',user);
     if (!user) {
       return res.status(401).json({ message: 'User not logged in' });
     }
-
+ log('1')
     // Find or create a cart for the user
-    let cart = await Cart.findOne({ userId: user._id });
+    let cart = await Cart.findOne({ userId: user});
     if (!cart) {
-      cart = new Cart({ userId: user._id, items: [] });
+      cart = new Cart({ userId: user, items: [] });
     }
-
+log('2')
     // Check if product is already in the cart
     const existingProductIndex = cart.items.findIndex(item => item.productId.toString() === productId);
     if (existingProductIndex >= 0) {
@@ -127,13 +129,13 @@ const addToCart = async (req, res) => {
     } else {
       cart.items.push({ productId, quantity: parseInt(quantity) });
     }
-
+ log('3')
     // Save the updated cart
     await cart.save();
-
+    log ('saved',cart)
     return res.json({ success: true, message: 'Product added to cart' });
   } catch (error) {
-    console.error('Error adding product to cart:', error);
+    console.log('Error adding product to cart:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -3,6 +3,8 @@
 <% } else { %>
     <%- include('../layouts/homeheader', { categories: categories }) %>
 <% } %>
+<body>
+    
 <div class="page-content pt-5" >
     <div class="container">
         <div class="product-details-top">
@@ -49,7 +51,7 @@
                         </div><!-- End .product-price -->
 
                         <div class="product-nav product-nav-thumbs">
-                            <% if(product.quantity < 0 || product.status == 'In stock') {%>
+                            <% if(product.quantity > 0 && product.status == 'In stock') {%>
                             <p>( <%= product.quantity %> left in stock)</p>
                             <% }else{ %>
                                 <p>(Out of stock)</p>
@@ -62,7 +64,7 @@
 
                          
                         <div class="details-filter-row details-row-size">
-                            <% if(product.quantity < 0 || product.status == 'In stock') {%>
+                            <% if(product.quantity > 0 && product.status == 'In stock') {%>
                             <label for="qty">Qty:</label>
                             <div class="product-details-quantity">
                                 <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
@@ -72,12 +74,17 @@
 
                         <div class="product-details-action">
 
-                            <% if (product.quantity < 0 || product.status == 'In stock') { %>
+                            <% if (product.quantity > 0 && product.status == 'In stock') { %>
                                 <% if (isInCart) { %>
                                     <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
                                 <% } else { %>
                                     <% if (user) { %>
-                                        <a href="/cart/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a>
+
+                                        
+                                            <a href="javascript:void(0)" class="btn-product btn-cart" id="addToCartBtn" data-product-id="<%= product._id %>">
+                                                <span>Add to Cart</span>
+                                            </a>
+                                        <!-- <a href="/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a> -->
                                     <% } else { %>
                                         <a href="/login" class="btn-product btn-cart"><span>Add to Cart</span></a>
                                     <% } %>
@@ -233,12 +240,12 @@
                         </div><!-- End .product-action-vertical -->
     
                         <div class="product-action">
-                            <% if (product.quantity < 0 || product.status == 'In stock') { %>
+                            <% if (product.quantity > 0 && product.status == 'In stock') { %>
                                 <% if (isInCart) { %>
                                     <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
                                 <% } else { %>
                                     <% if (user) { %>
-                                        <a href="/cart/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                                        <a href="/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a>
                                     <% } else { %>
                                         <a href="/login" class="btn-product btn-cart"><span>Add to Cart</span></a>
                                     <% } %>
@@ -272,4 +279,37 @@
     </div><!-- End .container -->
 </div><!-- End .page-content -->
 
+<script>
+    document.getElementById('addToCartBtn').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    const productId = e.target.getAttribute('data-product-id'); // Get product ID from data attribute
+    const quantity = 1; // You can allow the user to select quantity dynamically if needed
+
+    try {
+        const response = await fetch('/addToCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, quantity }), // Send productId and quantity in the request body
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            // Change the button text and link to "Go to Cart"
+            document.getElementById('cartBtnText').innerText = 'Go to Cart';
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            addToCartBtn.setAttribute('href', '/cart');
+            addToCartBtn.classList.add('btn-go-to-cart'); // Optionally, you can change the styling
+        } else {
+            console.error('Error adding product to cart: ' + data.message);
+        }
+
+    } catch (error) {
+        console.log('Error:', error);
+    }
+});
+</script>
+</body>
 <%- include('../layouts/homefooter') %>
