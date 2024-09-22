@@ -63,14 +63,7 @@
                         </div><!-- End .product-nav -->
 
                          
-                        <div class="details-filter-row details-row-size">
-                            <% if(product.quantity > 0 && product.status == 'In stock') {%>
-                            <label for="qty">Qty:</label>
-                            <div class="product-details-quantity">
-                                <input type="number" id="qty" class="form-control" value="1" min="1" max="10" step="1" data-decimals="0" required>
-                                <% } %>                                   
-                            </div>
-                        </div><!-- End .details-row-size -->
+                      
 
                         <div class="product-details-action">
 
@@ -79,9 +72,13 @@
                                     <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
                                 <% } else { %>
                                     <% if (user) { %>
-                                        <a href="javascript:void(0)" class="btn-product btn-cart" data-product-id="<%= product._id %>">
-                                            <span id="cartBtnText_<%= product._id %>">Add to Cart</span>
-                                        </a>                                        
+                                        <div>
+                                            <input type="hidden" name="productId" value="<%= product._id %>">
+                                            <a href="#" class="btn-product btn-cart btn-add">
+                                                <span id="cartBtnText_<%= product._id %>">Add to Cart</span>
+                                            </a>
+                                        </div>
+                                                                  
                                         <!-- <a href="/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a> -->
                                     <% } else { %>
                                         <a href="/login" class="btn-product btn-cart"><span>Add to Cart</span></a>
@@ -237,22 +234,7 @@
                             <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
                         </div><!-- End .product-action-vertical -->
     
-                        <div class="product-action">
-                            <% if (product.quantity > 0 && product.status == 'In stock') { %>
-                                <% if (isInCart) { %>
-                                    <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
-                                <% } else { %>
-                                    <% if (user) { %>
-                                        <a href="/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a>
-                                    <% } else { %>
-                                        <a href="/login" class="btn-product btn-cart"><span>Add to Cart</span></a>
-                                    <% } %>
-                                 <% } %>
-                            <% } else { %>
-                                <a href="#" class="btn-product" style="pointer-events: none;cursor: not-allowed;width: fit-content;background-color: #e5e5e5;border-color: #ffffff;"><span style="color: #000000;">Out of stock</span></a>
-                            <% } %>
-                            
-                        </div><!-- End .product-action -->
+                       
                     </figure><!-- End .product-media -->
                     <div class="product-body">
                         <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
@@ -278,32 +260,33 @@
 </div><!-- End .page-content -->
 
 <script>
-document.querySelectorAll('.btn-cart').forEach(button => {
+  document.querySelectorAll('.btn-add').forEach(button => {
     button.addEventListener('click', async function(e) {
         e.preventDefault();
+
+        // Find the hidden input in the closest parent element
+        const productId = e.currentTarget.closest('div').querySelector('input[name="productId"]').value;
+        console.log('Product ID:', productId); // Check product ID
         
-        const productId = e.target.getAttribute('data-product-id');
-        const quantity = 1;
+        if (!productId) {
+            console.error('Product ID is missing');
+            return;
+        }
 
         try {
-            const response = await fetch('/addToCart', {
+            const response = await fetch(`/addToCart`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ productId, quantity }),
+                body: JSON.stringify({ productId, quantity: 1 }),
             });
 
             const data = await response.json();
+            console.log('Response data:', data); // Log the response
 
             if (data.success) {
-                // Update button text for the specific product
-                const cartBtnText = document.getElementById(`cartBtnText_${productId}`);
-                cartBtnText.innerText = 'Go to Cart';
-
-                // Update href for the specific product
-                button.setAttribute('href', '/cart');
-                button.classList.add('btn-go-to-cart');
+              window.location.reload();
             } else {
                 console.error('Error adding product to cart: ' + data.message);
             }
@@ -314,10 +297,10 @@ document.querySelectorAll('.btn-cart').forEach(button => {
 });
 
 
+ 
 
 
 </script>
 
-</script>
 </body>
 <%- include('../layouts/homefooter') %>

@@ -24,6 +24,7 @@ const cart = async (req, res) => {
         model: Product
       });
       
+      
    // If the user has no cart, initialize an empty cartData
    if (!cartData) {
     return res.render('users/cart', {
@@ -33,12 +34,16 @@ const cart = async (req, res) => {
       categories
     });
   }
+  const filteredProducts = cartData.items.filter(item => {
+    const product = item.productId;
+    return product && !product.isBlocked && !product.isDeleted;
+  });
 
   log(cartData)
       res.render('users/cart', {
         title: 'Cart - Feather',
         user,
-        products: cartData.items,
+      products: filteredProducts,
         categories
       });
     } catch (error) {
@@ -107,32 +112,34 @@ const cart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
-    log('adding to cart')
-    const { productId, quantity = 1 } = req.body; // Default quantity to 1 if not provided
-    log(req.body);
+    log('Adding to cart');
+    const { productId, quantity = 1 } = req.body; 
+    log('Request body:', req.body);
+    log('Received productId:', productId);
+
     const user = req.session.user;
-     log('user',user);
+    log('User:', user);
     if (!user) {
       return res.status(401).json({ message: 'User not logged in' });
     }
- log('1')
-    // Find or create a cart for the user
-    let cart = await Cart.findOne({ userId: user});
+
+    let cart = await Cart.findOne({ userId: user });
     if (!cart) {
       cart = new Cart({ userId: user, items: [] });
     }
-log('2')
-    // Check if product is already in the cart
+
     const existingProductIndex = cart.items.findIndex(item => item.productId.toString() === productId);
     if (existingProductIndex >= 0) {
       cart.items[existingProductIndex].quantity += parseInt(quantity);
     } else {
+      if (!productId) {
+        return res.status(400).json({ message: 'Product ID is required' });
+      }
       cart.items.push({ productId, quantity: parseInt(quantity) });
     }
- log('3')
-    // Save the updated cart
+
     await cart.save();
-    log ('saved',cart)
+    log('Saved cart:', cart);
     return res.json({ success: true, message: 'Product added to cart' });
   } catch (error) {
     console.log('Error adding product to cart:', error);

@@ -38,7 +38,7 @@
 												<div class="product">
 													<figure class="product-media">
 														<a href="/product/<%= item.productId._id %>">
-                                                            <img src="/uploads/<%= item.productId.images[0] %>" alt="Product image">
+                                            <img src="/uploads/<%= item.productId.images[0] %>" alt="Product image">
 														</a>
 													</figure>
 
@@ -47,13 +47,20 @@
 													</h3><!-- End .product-title -->
 												</div><!-- End .product -->
 											</td>
-											<td class="price-col">$<%= item.productId.price %></td>
+                                            <% if(item.productId.quantity <= 0 || item.productId.status == 'Out of stock') { %>
+												<td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
+                                                <td></td>
+                                                <td></td>
+                                                <% }else{ %>
+											<td class="price-col">$<%= item.productId.offerprice %></td>
 											<td class="quantity-col">
                                                 <div class="cart-product-quantity">
                                                     <input type="number" class="form-control" value="<%= item.quantity %>" min="1" max="10" step="1" data-decimals="0" required>
                                                 </div><!-- End .cart-product-quantity -->
                                             </td>
-											<td class="total-col">$<%= item.price %></td>
+                                            <td class="total-col">$<%= item.productId.offerprice * item.quantity %></td>
+									            
+											<% } %>
 											<td class="remove-col"><button class="btn-remove" onclick="removeFromCart('<%= item.productId._id %>')"><i class="icon-close"></i></button></td>
 										</tr>
 										<% }); %>
