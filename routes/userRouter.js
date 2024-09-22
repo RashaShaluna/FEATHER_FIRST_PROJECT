@@ -64,7 +64,7 @@ router.post('/editAddress/:id',userAuth.isLogin,addressController.editAddressVer
 router.get('/cart',userAuth.isLogin, cartController.cart);
 router.post('/addToCart',userAuth.isLogin, cartController.addToCart );
 router.post('/removeFromCart',userAuth.isLogin, cartController.removeFromCart);
-   
+router.post('/cart/update-quantity/:productId',userAuth.isLogin, cartController.updateQuantity);
 
 
 
