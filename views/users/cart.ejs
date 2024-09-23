@@ -88,13 +88,10 @@
                                                                 data-product-id="<%= item.productId._id %>"
                                                                 data-offerprice="<%= item.productId.offerprice %>"
                                                                 data-available-stock="<%= item.productId.quantity %>"
+                                                                onChange="updateQuantity(this, '<%= item.productId._id %>')"
                                                             />
                                                         </div>
-                                                    </td>
-                                                    
-                                                    
-                                                    
-                                                    
+                                                    </td>                                                   
                                                     <td class="total-col" id="total-<%= item.productId._id %>">$<%= (item.productId.offerprice * item.quantity).toFixed(2) %></td>
 											<% } %>
 											<td class="remove-col"><button class="btn-remove" onclick="removeFromCart('<%= item.productId._id %>')"><i class="icon-close"></i></button></td>
@@ -289,66 +286,59 @@ function updateTotalPrice(quantityInput, offerprice) {
 }
 
 
-function updateQuantity(quantityInput, productId, offerprice, availableStock) {
-    const quantity = parseInt(quantityInput.value);
+function updateQuantity(quantityInput, productId, offerPrice, availableStock) {
+  const quantity = parseInt(quantityInput.value);
 
-    // Ensure valid input
-    if (isNaN(quantity) || quantity < 1) {
-        alert('Quantity must be at least 1.');
-        quantityInput.value = 1; // Reset to 1
-        return;
-    }
+  // Ensure valid input
+  if (isNaN(quantity) || quantity < 1) {
+    alert('Quantity must be at least 1.');
+    quantityInput.value = 1; // Reset to 1
+    return;
+  }
 
-    // Check if the quantity exceeds available stock
-    if (quantity > availableStock) {
-        alert(`You cannot select more than ${availableStock} items.`);
-        quantityInput.value = availableStock; // Set to max available
-        return;
-    }
+  // Check if the quantity exceeds available stock
+  if (quantity > availableStock) {
+    alert(`You cannot select more than ${availableStock} items.`);
+    quantityInput.value = availableStock; // Set to max available
+    return;
+  }
 
-    // Calculate and update total price for the product
-    const totalPriceElement = document.querySelector(`#offerprice-${productId}`);
-    const newTotalPrice = quantity * offerprice;
+  // Calculate and update total price for the product
+  const totalPriceElement = document.querySelector(`#offerprice-${productId}`);
+  const newTotalPrice = quantity * offerPrice;
 
-    if (totalPriceElement) {
-        totalPriceElement.innerText = newTotalPrice.toFixed(2); // Update UI
-    } else {
-        console.error(`Element with ID #offerprice-${productId} not found`);
-    }
+  if (totalPriceElement) {
+    totalPriceElement.innerText = newTotalPrice.toFixed(2); // Update UI
+  } else {
+    console.error(`Element with ID #offerprice-${productId} not found`);
+  }
 
-    // Send AJAX request to update quantity in the backend
-    fetch(`/cart/update-quantity/${productId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quantity }),
-    })
+  // Send AJAX request to update quantity in the backend
+  fetch(`/cart/update-quantity/${productId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ quantity }),
+  })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            console.log('Quantity updated successfully:', data);
-        } else {
-            alert('Failed to update quantity');
-            console.error(data.message);
-        }
+      if (data.success) {
+      
+        console.log('Quantity updated successfully:', data);
+        updateQuantity();
+        showToast('Quantity updated successfully');
+        
+      } else {
+        alert('Failed to update quantity');
+        console.error(data.message);
+      }
     })
     .catch(error => {
-        console.error('Error updating quantity:', error);
+      console.error('Error updating quantity:', error);
     });
 }
 
-function showToast(message) {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-    toastMessage.textContent = message; // Set the toast message
-    toast.style.display = 'flex'; // Show the toast
-
-    // Hide the toast after 3 seconds
-    setTimeout(() => {
-        toast.style.display = 'none';
-    }, 3000);
-}
 
 </script>
 <!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->

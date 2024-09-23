@@ -96,40 +96,108 @@ const addToCart = async (req, res) => {
 
 // =============================== update quantity ==============================
 
+// const updateQuantity = async (req, res) => {
+//   try {
+//     log('in ')
+//       const { productId } = req.params;  // Get productId from URL parameters
+//       let quantity = parseInt(req.body.quantity);// Get updated quantity from request body
+
+//      log(productId, 'product id in updateQuantity');
+//      log('quantity in updateQuantity', quantity);   
+//      console.log('User ID:', req.session.user);
+
+//       log('in ')
+//     log('in ')
+
+//       // Find the cart for the current user and update the quantity of the specified product
+//       const cart = await Cart.findOneAndUpdate(
+//           { userId: req.session.user, 'item.productId': productId },
+//           { $set: { 'item.$.quantity': quantity } }, // Update the quantity
+//           { new: true } // Return the updated document
+//       );
+//        log(cart)
+//       if (!cart) {
+//           return res.status(404).json({ success: false, message: 'Cart not found' });
+//       }
+
+//      log(cart, 'updated cart');
+//       res.json({ success: true, cart, message: 'Cart updated successfully' });
+//   } catch (error) {
+//      log(error);
+//       res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// }
+
 const updateQuantity = async (req, res) => {
   try {
-    log('in ')
-      const { productId } = req.params; // Get productId from URL parameters
-      let quantity = parseInt(req.body.quantity);// Get updated quantity from request body
+    const { productId } = req.params; // Get productId from URL parameters
+    const quantity = parseInt(req.body.quantity); // Get updated quantity from request body
+    const userId = req.session.user; // Get user ID from session
 
-     log(productId, 'product id in updateQuantity');
-     log('quantity in updateQuantity', quantity);   
-     console.log('User ID:', req.session.user);
+    console.log(productId, 'Product ID in updateQuantity');
+    console.log('Quantity in updateQuantity', quantity);
+    console.log('User ID:', userId);
 
-      log('in ')
-    log('in ')
+    // Find the cart for the current user and update the quantity of the specified product
+    const cart = await Cart.findOneAndUpdate(
+      { userId: userId, 'items.productId': productId }, // Make sure the path is 'items.productId'
+      { $set: { 'items.$.quantity': quantity } }, // Update the quantity of the specific product
+      { new: true } // Return the updated cart document
+    );
 
-      // Find the cart for the current user and update the quantity of the specified product
-      const cart = await Cart.findOneAndUpdate(
-          { userId: req.session.user, 'products.productId': productId },
-          { $set: { 'products.$.quantity': quantity } }, // Update the quantity
-          { new: true } // Return the updated document
-      );
+    if (!cart) {
+      return res.status(404).json({ success: false, message: 'Cart not found' });
+    }
+    let totalPrice = 0;
+    cart.items.forEach(item => {
+      totalPrice += item.quantity * item.productPrice; // Assuming each item has productPrice
+    });
 
-      if (!cart) {
-          return res.status(404).json({ success: false, message: 'Cart not found' });
-      }
+    cart.totalPrice = totalPrice;
+    await cart.save();
 
-     log(cart, 'updated cart');
-      res.json({ success: true, cart, message: 'Cart updated successfully' });
+
+
+    console.log(cart, 'Updated cart');
+    res.json({ success: true, cart, message: 'Cart updated successfully',cart, totalPrice });
   } catch (error) {
-     log(error);
-      res.status(500).json({ success: false, message: 'Server error' });
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
-}
+};
 
 
+// In your routes file
+// const updateQuantity = async (req, res) => {
+//   try {
+//     const { productId, quantity } = req.body;
 
+//     // Assuming you're storing the cart in the session
+//     const cart = req.session.cart || [];
+
+//     log('Cart before update:', cart);
+
+//     // Find the product in the cart and update its quantity
+//     const product = cart.find(item => item.productId == productId);
+//     if (product) {
+//       product.quantity = quantity;
+//     }
+
+//     log('Cart after update:', cart);
+
+//     // Recalculate the total price (if needed)
+//     const totalPrice = cart.reduce((total, item) => total + (item.productId.offerprice * item.quantity), 0);
+
+//     log('Total price after update:', totalPrice);
+
+//     // Save the cart back into the session
+//     req.session.cart = cart;
+//     res.json({ success: true, totalPrice });
+//   } catch (error) {
+//     log(error);
+//     res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
 
 
 
@@ -154,16 +222,16 @@ const removeFromCart = async (req, res) => {
       const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
           log(itemIndex)
 
-          if (itemIndex > -1) {
-            cart.items.splice(itemIndex, 1); // Remove the product from the cart
-      
-            // Save the updated cart
-            await cart.save();
-      
-            return res.status(200).json({ message: "Product removed from cart successfully" });
-          } else {
-            return res.status(404).json({ message: 'Product not found in cart' });
-          }
+if (itemIndex > -1) {
+      cart.items.splice(itemIndex, 1); // Remove the product from the cart
+
+      // Save the updated cart
+      await cart.save();
+
+      return res.status(200).json({ message: "Product removed from cart successfully" });
+    } else {
+      return res.status(404).json({ message: 'Product not found in cart' });
+    }
         // Save the updated cart
           await cart.save();
           log('cart');
