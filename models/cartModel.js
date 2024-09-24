@@ -23,7 +23,11 @@ const cartSchema = new Schema({
     required: true,
     default: 0
   },
-  // You can later add fields for cancellation reason and status here
+  grandTotal:{
+    type: Number,
+    required: true,
+    default: 0
+  }
 });
 
 const Cart = mongoose.model('Cart', cartSchema);
