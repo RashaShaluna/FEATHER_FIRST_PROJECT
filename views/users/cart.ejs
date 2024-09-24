@@ -1,23 +1,37 @@
 <%- include('../layouts/header') %>
 <style>
-    .toast {
+ /* Toast container */
+.toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px; /* Bottom center */
     left: 50%;
-    transform: translateX(-50%);
-    background-color: black;
-    color: white;
+    transform: translateX(-50%); /* Center it horizontally */
+    background-color: black; /* Black background */
+    color: white; /* White text */
     padding: 10px 20px;
     border-radius: 5px;
+    font-size: 16px;
     display: flex;
     align-items: center;
-    z-index: 1000;
-    opacity: 0.9;
+    gap: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add some shadow */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.5s ease-in-out; /* Smooth fade in/out */
+    z-index: 1000; /* Ensure it appears above other elements */
 }
 
+/* Toast icon */
 .toast-icon {
-    margin-right: 10px; /* Spacing for the icon */
+    color: white; /* Tick mark color */
+    font-size: 18px;
+    display: inline-block;
 }
+
+/* When the toast is visible */
+.toast.show {
+    opacity: 1; /* Show the toast */
+}
+
 
 </style>
 <body>
@@ -88,8 +102,8 @@
                                                                 data-product-id="<%= item.productId._id %>"
                                                                 data-offerprice="<%= item.productId.offerprice %>"
                                                                 data-available-stock="<%= item.productId.quantity %>"
-                                                                onChange="updateQuantity(this, '<%= item.productId._id %>')"
-                                                            />
+                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.offerprice %>',' <%= item.productId.quantity %>')"
+                                                                />
                                                         </div>
                                                     </td>                                                   
                                                     <td class="total-col" id="total-<%= item.productId._id %>">$<%= (item.productId.offerprice * item.quantity).toFixed(2) %></td>
@@ -181,16 +195,16 @@
 	                		</aside><!-- End .col-lg-3 -->
 	                	</div><!-- End .row -->
 	                </div><!-- End .container -->
-                    <div id="toast" class="toast" style="display: none;">
-                        <span class="toast-icon">&#10004;</span> <!-- Success Tick -->
-                        <span id="toast-message">Quantity updated successfully!</span>
-                    </div>
+                        <div id="toast" class="toast" style="display: none;">
+                            <span class="toast-icon">&#10004;</span> <!-- Success Tick -->
+                            <span id="toast-message">Quantity updated successfully!</span>
+                        </div>
                     
                 </div><!-- End .cart -->
             </div><!-- End .page-content -->
         </main><!-- End .main -->
 
-        <%- ('../layouts/footer') %>
+        <%- include('../layouts/footer') %>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -270,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quantityInputs.forEach(input => {
         input.addEventListener('change', function() {
             const productId = this.dataset.productId;
-            const price = parseFloat(this.dataset.price);
+            const offerprice = parseFloat(this.dataset.offerprice);
             const availableStock = parseInt(this.dataset.availableStock);
 
             updateQuantity(this, productId, price, availableStock);
@@ -278,16 +292,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function updateTotalPrice(quantityInput, offerprice) {
+function updateTotalPrice(quantityInput, offerPrice) {
     const quantity = parseInt(quantityInput.value);
-    const total = quantity * offerprice;
-    const totalCell = document.getElementById(`total-${quantityInput.closest('tr').dataset.productId}`);
-    totalCell.innerHTML = `$${total.toFixed(2)}`; // Format to two decimal places
+    const productId = quantityInput.dataset.productId;
+    const total = quantity * offerPrice;
+    const totalCell = document.getElementById(`total-${productId}`);
+
+    if (totalCell) {
+        totalCell.innerHTML = `₹${total.toFixed(2)}`; // Format to two decimal places
+    } else {
+        console.error(`Total price cell for product ID ${productId} not found`);
+    }
 }
 
 
 function updateQuantity(quantityInput, productId, offerPrice, availableStock) {
   const quantity = parseInt(quantityInput.value);
+  offerPrice = parseFloat(offerPrice);
 
   // Ensure valid input
   if (isNaN(quantity) || quantity < 1) {
@@ -312,6 +333,7 @@ function updateQuantity(quantityInput, productId, offerPrice, availableStock) {
   } else {
     console.error(`Element with ID #offerprice-${productId} not found`);
   }
+  updateTotalPrice(quantityInput, offerPrice);
 
   // Send AJAX request to update quantity in the backend
   fetch(`/cart/update-quantity/${productId}`, {
@@ -326,7 +348,7 @@ function updateQuantity(quantityInput, productId, offerPrice, availableStock) {
       if (data.success) {
       
         console.log('Quantity updated successfully:', data);
-        updateQuantity();
+        // updateQuantity();
         showToast('Quantity updated successfully');
         
       } else {
@@ -337,6 +359,25 @@ function updateQuantity(quantityInput, productId, offerPrice, availableStock) {
     .catch(error => {
       console.error('Error updating quantity:', error);
     });
+}
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    // Set the message
+    toastMessage.innerText = message;
+
+    // Show the toast
+    toast.style.display = 'flex';
+    toast.classList.add('show');
+
+    // Automatically hide the toast after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 500); // Delay hiding after opacity transition
+    }, 3000); // Visible for 3 seconds
 }
 
 

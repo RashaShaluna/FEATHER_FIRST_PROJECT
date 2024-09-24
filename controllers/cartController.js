@@ -148,12 +148,33 @@ const updateQuantity = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
-    let totalPrice = 0;
-    cart.items.forEach(item => {
-      totalPrice += item.quantity * item.productPrice; // Assuming each item has productPrice
-    });
 
-    cart.totalPrice = totalPrice;
+//     let totalPrice = 0;
+//     cart.items.forEach(item => {
+//       totalPrice += item.quantity * item.offerprice; // Assuming each item has productPrice
+//     });
+// log(totalPrice);
+//     cart.totalPrice = totalPrice;
+let totalPrice = 0;
+
+cart.items.forEach(item => {
+  // Ensure item has valid quantity and offer price
+  const quantity = Number(item.quantity);
+  const offerPrice = Number(item.offerPrice); // Assuming you're using offerPrice
+
+  if (isNaN(quantity) || isNaN(offerPrice)) {
+    console.error(`Invalid data for item in cart: quantity=${quantity}, offerPrice=${offerPrice}`);
+    return; // Skip this item to avoid adding NaN to totalPrice
+  }
+
+  // Calculate the total price for each item
+  totalPrice += quantity * offerPrice;
+});
+
+// Assign totalPrice to the cart
+cart.totalPrice = totalPrice;
+// await cart.save();
+
     await cart.save();
 
 
@@ -161,7 +182,7 @@ const updateQuantity = async (req, res) => {
     console.log(cart, 'Updated cart');
     res.json({ success: true, cart, message: 'Cart updated successfully',cart, totalPrice });
   } catch (error) {
-    console.error(error);
+    console.log(error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
