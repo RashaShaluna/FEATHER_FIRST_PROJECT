@@ -8,6 +8,7 @@ const path = require('path');
 const addressController = require('../controllers/addressescontroller');
 const wishlistController = require('../controllers/wishlistController');
 const cartController = require('../controllers/cartController');
+const orderController = require('../controllers/orderController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -66,7 +67,8 @@ router.post('/addToCart',userAuth.isLogin, cartController.addToCart );
 router.post('/removeFromCart',userAuth.isLogin, cartController.removeFromCart);
 router.post('/cart/update-quantity/:productId',userAuth.isLogin, cartController.updateQuantity);
 
-
+// checkOut
+router.get('/checkout',userAuth.isLogin,orderController.checkout);
 
 
 

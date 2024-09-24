@@ -80,7 +80,7 @@ const orderSchema = new mongoose.Schema({
         required:true
     },
   address:{
-    type:Schema.Types.ObjectId,
+    type:mongoose.Schema.Types.ObjectId,
     ref:'User',
     require:true
   },

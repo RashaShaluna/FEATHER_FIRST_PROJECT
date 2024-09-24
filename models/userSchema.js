@@ -79,7 +79,11 @@ const userSchema = new Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    addresses:  [{
+    type: Schema.Types.ObjectId, 
+      ref: 'Address'
+     }],
 });
 
 const User = mongoose.model('User', userSchema);
