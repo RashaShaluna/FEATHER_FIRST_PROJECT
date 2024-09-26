@@ -9,15 +9,11 @@ const checkout = async (req, res) => {
     try {
         log('in checkout')
         const userId = await User.findById(req.session.user);
-        log('user',userId)
         const products = await Product.find({ isBlocked: false, isDeleted: false });
         const categories = await Category.find({ islisted: true, isDeleted: false });
         const order = await Order.find({userId : userId }).populate('items-productId').exec();
         const addresses = await Address.find({ userId:userId , isDeleted: false});
-        log('1',addresses)
         
-
-
         res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories, order ,addresses});
     } catch (error) {
        log(error);
@@ -28,19 +24,31 @@ const checkout = async (req, res) => {
  
 const editAddress = async (req, res) => {
     try {
-        const { id } = req.params;  // Get the address ID from URL
-        const updatedData = req.body;
+        log('edit address')
+        console.log(req.body); // Add this line to see what data is being sent
 
-        // Find the address by ID and update it
-        const updatedAddress = await Address.findByIdAndUpdate(id, {
-            updatedData
+        const { addressId, name, phone, locality, district, address, state, pincode, alternatePhone, landmark } = req.body;
+
+        const updatedAddress = await Address.findByIdAndUpdate(addressId, {
+            name,
+            phone,
+            locality,
+            district,
+            address,
+            state,
+            pincode,
+            alternatePhone,
+            landmark
         }, { new: true });
 
-        // Redirect or send response
-        res.redirect('/checkout'); // Or use res.json() if handling with AJAX
+        if (!updatedAddress) {
+            return res.status(404).send({ message: 'Address not found' });
+        }
+
+        res.redirect('/checkout');
     } catch (error) {
-        console.error('Error updating address:', error);
-        res.redirect('back');
+        console.error(error);
+        res.status(500).send({ message: 'Server error occurred while updating address' });
     }
 };
 

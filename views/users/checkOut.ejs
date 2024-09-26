@@ -95,8 +95,15 @@ input[type="radio"]:checked {
     width: 90%; /* Adjust input width */
      /* Center the input fields */
 }
+.modal {
+    z-index: 1050; /* Bootstrap's default for modals */
+}
 
-</style>
+
+.modal.show {
+    display: block; /* Show modal */
+}
+    </style>
 <body>
 
         <main class="main">
@@ -122,154 +129,162 @@ input[type="radio"]:checked {
             <p style="margin-left: 10px; ">Choose Delivery Address</p>
             <% if (addresses && addresses.length > 0) { %>
                 <% addresses.forEach((address, index) => { %>
-                <div class="card card-dashboard mt-2">
-                    <div class="card-body d-flex justify-content-between align-items-start p-4">
-                        <!-- Radio Button -->
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="selectedAddress" id="addressRadio<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
-                            <label class="form-check-label" for="addressRadio<%= index %>">
-                                <div class="address-details ml-4">
-                                    <div class="address-name">
-                                        <%= address.name %> - <%= address.phone %>
+                    <div class="card card-dashboard mt-2">
+                        <div class="card-body d-flex justify-content-between align-items-start p-4">
+                            <!-- Radio Button -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selectedAddress" id="addressRadio<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+                                <label class="form-check-label" for="addressRadio<%= index %>">
+                                    <div class="address-details ml-4">
+                                        <div class="address-name">
+                                            <%= address.name %> - <%= address.phone %>
+                                        </div>
+                                        <div>
+                                            <%= address.locality %>, <%= address.district %>, <%= address.address %>, <%= address.state %>, <%= address.pincode %>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <%= address.locality %>, <%= address.district %>, <%= address.address %>, <%= address.state %>, <%= address.pincode %>
-                                    </div>
-                                </div>
-                            </label>
-                        </div>
-                        <!-- Edit Link -->
-                        <div class="dropdown">
-                            <a style="color: #1cc0a0;" href="#"  data-toggle="modal" data-target="#form"
-                            data-name="<%= address.name %>" 
-                            data-phone="<%= address.phone %>" 
-                            data-locality="<%= address.locality %>" 
-                            data-district="<%= address.district %>" 
-                            data-address="<%= address.address %>" 
-                            data-state="<%= address.state %>" 
-                            data-pincode="<%= address.pincode %>" 
-                            data-alternate-phone="<%= address.alternatePhone %>" 
-                            data-landmark="<%= address.landmark %>">Edit</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- modal -->
-                <div class="modal fade" id="form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header border-bottom-0">
-                                <h5 class="modal-title" id="exampleModalLabel">Edit Address</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
+                                </label>
                             </div>
-                            <form id="editAddressForm" action="/checkout/editAddress/<%= address._id %>" method="POST">
-                                <input type="hidden" name="addressId" value="<%= address._id %>">
-                                <div class="modal-body p-4"> <!-- Added padding to modal body -->
-                                    <div class="row "> <!-- Added margin bottom to row -->
-                                        <div class="col-sm-6">
-                                            <label for="name">Name*</label>
-                                            <input type="text" name="name" id="name" class="form-control" style="width: 90%;"> <!-- Decreased width -->
-                                            <div id="error1" class="error-message"></div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="phone">Phone Number*</label>
-                                            <input type="text" name="phone" id="phone" class="form-control" style="width: 90%;"> <!-- Decreased width -->
-                                            <div id="error2" class="error-message"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row ">
-                                        <div class="col-sm-6">
-                                            <label for="locality">Locality*</label>
-                                            <input type="text" name="locality" id="locality" class="form-control" style="width: 90%;">
-                                            <div id="error3" class="error-message"></div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="district">District*</label>
-                                            <input type="text" name="district" id="district" class="form-control" style="width: 90%;">
-                                            <div id="error4" class="error-message"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row ">
-                                        <div class="col-sm-12">
-                                            <label for="address">Address*</label>
-                                            <input type="text" name="address" id="address" class="form-control" style="width: 90%;">
-                                            <div id="error5" class="error-message"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row ">
-                                        <div class="col-sm-6">
-                                            <label for="state">State*</label>
-                                            <select name="state" id="state" class="form-control" style="width: 90%;">
-                                                <option value="">Select State</option>
-                                                <option value="Andhra Pradesh" <%= address.state === 'Andhra Pradesh' ? 'selected' : '' %>>Andhra Pradesh</option>
-                                                <option value="Arunachal Pradesh" <%= address.state === 'Arunachal Pradesh' ? 'selected' : '' %>>Arunachal Pradesh</option>
-                                                <option value="Assam" <%= address.state === 'Assam' ? 'selected' : '' %>>Assam</option>
-                                                <option value="Bihar" <%= address.state === 'Bihar' ? 'selected' : '' %>>Bihar</option>
-                                                <option value="Chhattisgarh" <%= address.state === 'Chhattisgarh' ? 'selected' : '' %>>Chhattisgarh</option>
-                                                <option value="Goa" <%= address.state === 'Goa' ? 'selected' : '' %>>Goa</option>
-                                                <option value="Gujarat" <%= address.state === 'Gujarat' ? 'selected' : '' %>>Gujarat</option>
-                                                <option value="Haryana" <%= address.state === 'Haryana' ? 'selected' : '' %>>Haryana</option>
-                                                <option value="Himachal Pradesh" <%= address.state === 'Himachal Pradesh' ? 'selected' : '' %>>Himachal Pradesh</option>
-                                                <option value="Jammu and Kashmir" <%= address.state === 'Jammu and Kashmir' ? 'selected' : '' %>>Jammu and Kashmir</option>
-                                                <option value="Jharkhand" <%= address.state === 'Jharkhand' ? 'selected' : '' %>>Jharkhand</option>
-                                                <option value="Karnataka" <%= address.state === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
-                                                <option value="Kerala" <%= address.state === 'Kerala' ? 'selected' : '' %>>Kerala</option>
-                                                <option value="Madhya Pradesh" <%= address.state === 'Madhya Pradesh' ? 'selected' : '' %>>Madhya Pradesh</option>
-                                                <option value="Maharashtra" <%= address.state === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
-                                                <option value="Manipur" <%= address.state === 'Manipur' ? 'selected' : '' %>>Manipur</option>
-                                                <option value="Meghalaya" <%= address.state === 'Meghalaya' ? 'selected' : '' %>>Meghalaya</option>
-                                                <option value="Mizoram" <%= address.state === 'Mizoram' ? 'selected' : '' %>>Mizoram</option>
-                                                <option value="Nagaland" <%= address.state === 'Nagaland' ? 'selected' : '' %>>Nagaland</option>
-                                                <option value="Odisha" <%= address.state === 'Odisha' ? 'selected' : '' %>>Odisha</option>
-                                                <option value="Punjab" <%= address.state === 'Punjab' ? 'selected' : '' %>>Punjab</option>
-                                                <option value="Rajasthan" <%= address.state === 'Rajasthan' ? 'selected' : '' %>>Rajasthan</option>
-                                                <option value="Sikkim" <%= address.state === 'Sikkim' ? 'selected' : '' %>>Sikkim</option>
-                                                <option value="Tamil Nadu" <%= address.state === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
-                                                <option value="Telangana" <%= address.state === 'Telangana' ? 'selected' : '' %>>Telangana</option>
-                                                <option value="Tripura" <%= address.state === 'Tripura' ? 'selected' : '' %>>Tripura</option>
-                                                <option value="Uttar Pradesh" <%= address.state === 'Uttar Pradesh' ? 'selected' : '' %>>Uttar Pradesh</option>
-                                                <option value="Uttarakhand" <%= address.state === 'Uttarakhand' ? 'selected' : '' %>>Uttarakhand</option>
-                                                <option value="West Bengal" <%= address.state === 'West Bengal' ? 'selected' : '' %>>West Bengal</option>
-                                            </select>
-                                            <div id="error6" class="error-message"></div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="pincode">Pincode*</label>
-                                            <input type="text" name="pincode" id="pincode" class="form-control" style="width: 90%;">
-                                            <div id="error7" class="error-message"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row ">
-                                        <div class="col-sm-6">
-                                            <label for="alternate_phone">Alternate Phone Number*</label>
-                                            <input type="text" name="alternatePhone" id="alternate_phone" class="form-control" style="width: 90%;">
-                                            <div id="error8" class="error-message"></div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label for="landmark">Landmark*</label>
-                                            <input type="text" name="landmark" id="landmark" class="form-control" style="width: 90%;">
-                                            <div id="error9" class="error-message"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-sm-12">
-                                            <button type="submit" class="btn btn-outline-primary-2">
-                                                <span>EDIT ADDRESS</span>
-                                                <i class="icon-long-arrow-right"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                            <!-- Edit Link -->
+                            <div class="dropdown"> 
+                                <a id="editLink" type="button" style="color: #1cc0a0;" data-toggle="modal" data-target="#form<%= index %>">Edit</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <!-- modal -->
+                    <div class="modal fade" id="form<%= index %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header border-bottom-0">
+                                    <h5 class="modal-title" id="exampleModalLabel">Edit Address</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeModal">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form id="editAddressForm<%= index %>" action="/checkout/editAddress/<%= address._id %>" method="POST">
+                                    <input type="hidden" name="addressId" value="<%= address._id %>">
+                                
+                                    <div class="modal-body p-4"> <!-- Added padding to modal body -->
+                                        <div class="row "> <!-- Added margin bottom to row -->
+                                            <div class="col-sm-6">
+                                                <label for="name">Name*</label>
+                                                <input type="text" name="name" id="name<%= index %>" class="form-control" style="width: 90%;" value="<%= address.name  %>">
+                                                <div id="error1" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="phone">Phone Number*</label>
+                                                <input type="text" name="phone" id="phone<%= index %>" class="form-control" style="width: 90%;" value="<%= address.phone%>">
+                                                <div id="error2" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="locality">Locality*</label>
+                                                <input type="text" name="locality" id="locality<%= index %>" class="form-control" style="width: 90%;" value="<%= address.locality  %>">
+                                                <div id="error3" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="district">District*</label>
+                                                <input type="text" name="district" id="district<%= index %>" class="form-control" style="width: 90%;" value="<%= address.district  %>">
+                                                <div id="error4" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-12">
+                                                <label for="address">Address*</label>
+                                                <input type="text" name="address" id="address<%= index %>" class="form-control" style="width: 90%;" value="<%= address.address  %>">
+                                                <div id="error5" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="state">State*</label>
+                                                <select name="state" id="state<%= index %>" class="form-control" style="width: 90%;">
+                                                    <option value="">Select State</option>
+                                                    <!-- State options here, using selected attribute appropriately -->
+                                                    <option value="Andaman and Nicobar Islands" <%= address.state === 'Andaman and Nicobar Islands' ? 'selected' : '' %>>Andaman and Nicobar Islands</option>
+                                                    <option value="Andhra Pradesh" <%= address.state === 'Andhra Pradesh' ? 'selected' : '' %>>Andhra Pradesh</option>
+                                                    <option value="Arunachal Pradesh" <%= address.state === 'Arunachal Pradesh' ? 'selected' : '' %>>Arunachal Pradesh</option>
+                                                    <option value="Assam" <%= address.state === 'Assam' ? 'selected' : '' %>>Assam</option>
+                                                    <option value="Bihar" <%= address.state === 'Bihar' ? 'selected' : '' %>>Bihar</option>
+                                                    <option value="Chandigarh" <%= address.state === 'Chandigarh' ? 'selected' : '' %>>Chandigarh</option>
+                                                    <option value="Chhattisgarh" <%= address.state === 'Chhattisgarh' ? 'selected' : '' %>>Chhattisgarh</option>
+                                                    <option value="Dadra and Nagar Haveli" <%= address.state === 'Dadra and Nagar Haveli' ? 'selected' : '' %>>Dadra and Nagar Haveli</option>
+                                                    <option value="Daman and Diu" <%= address.state === 'Daman and Diu' ? 'selected' : '' %>>Daman and Diu</option>
+                                                    <option value="Delhi" <%= address.state === 'Delhi' ? 'selected' : '' %>>Delhi</option>
+                                                    <option value="Goa" <%= address.state === 'Goa' ? 'selected' : '' %>>Goa</option>
+                                                    <option value="Gujarat" <%= address.state === 'Gujarat' ? 'selected' : '' %>>Gujarat</option>
+                                                    <option value="Haryana" <%= address.state === 'Haryana' ? 'selected' : '' %>>Haryana</option>
+                                                    <option value="Himachal Pradesh" <%= address.state === 'Himachal Pradesh' ? 'selected' : '' %>>Himachal Pradesh</option>
+                                                    <option value="Jammu and Kashmir" <%= address.state === 'Jammu and Kashmir' ? 'selected' : '' %>>Jammu and Kashmir</option>
+                                                    <option value="Jharkhand" <%= address.state === 'Jharkhand' ? 'selected' : '' %>>Jharkhand</option>
+                                                    <option value="Karnataka" <%= address.state === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
+                                                    <option value="Kerala" <%= address.state === 'Kerala' ? 'selected' : '' %>>Kerala</option>
+                                                    <option value="Ladakh" <%= address.state === 'Ladakh' ? 'selected' : '' %>>Ladakh</option>
+                                                    <option value="Lakshadweep" <%= address.state === 'Lakshadweep' ? 'selected' : '' %>>Lakshadweep</option>
+                                                    <option value="Madhya Pradesh" <%= address.state === 'Madhya Pradesh' ? 'selected' : '' %>>Madhya Pradesh</option>
+                                                    <option value="Maharashtra" <%= address.state === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
+                                                    <option value="Manipur" <%= address.state === 'Manipur' ? 'selected' : '' %>>Manipur</option>
+                                                    <option value="Meghalaya" <%= address.state === 'Meghalaya' ? 'selected' : '' %>>Meghalaya</option>
+                                                    <option value="Mizoram" <%= address.state === 'Mizoram' ? 'selected' : '' %>>Mizoram</option>
+                                                    <option value="Nagaland" <%= address.state === 'Nagaland' ? 'selected' : '' %>>Nagaland</option>
+                                                    <option value="Odisha" <%= address.state === 'Odisha' ? 'selected' : '' %>>Odisha</option>
+                                                    <option value="Puducherry" <%= address.state === 'Puducherry' ? 'selected' : '' %>>Puducherry</option>
+                                                    <option value="Punjab" <%= address.state === 'Punjab' ? 'selected' : '' %>>Punjab</option>
+                                                    <option value="Rajasthan" <%= address.state === 'Rajasthan' ? 'selected' : '' %>>Rajasthan</option>
+                                                    <option value="Sikkim" <%= address.state === 'Sikkim' ? 'selected' : '' %>>Sikkim</option>
+                                                    <option value="Tamil Nadu" <%= address.state === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
+                                                    <option value="Telangana" <%= address.state === 'Telangana' ? 'selected' : '' %>>Telangana</option>
+                                                    <option value="Tripura" <%= address.state === 'Tripura' ? 'selected' : '' %>>Tripura</option>
+                                                    <option value="Uttar Pradesh" <%= address.state === 'Uttar Pradesh' ? 'selected' : '' %>>Uttar Pradesh</option>
+                                                    <option value="Uttarakhand" <%= address.state === 'Uttarakhand' ? 'selected' : '' %>>Uttarakhand</option>
+                                                    <option value="West Bengal" <%= address.state === 'West Bengal' ? 'selected' : '' %>>West Bengal</option>
+                                                    <!-- Add other states similarly -->
+                                                </select>
+                                                <div id="error6" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="pincode">Pincode*</label>
+                                                <input type="text" name="pincode" id="pincode<%= index %>" class="form-control" style="width: 90%;" value="<%= address.pincode  %>">
+                                                <div id="error7" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="alternate_phone">Alternate Phone Number*</label>
+                                                <input type="text" name="alternatePhone" id="alternate_phone<%= index %>" class="form-control" style="width: 90%;" value="<%= address.alternatePhone  %>">
+                                                <div id="error8" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="landmark">Landmark*</label>
+                                                <input type="text" name="landmark" id="landmark<%= index %>" class="form-control" style="width: 90%;" value="<%= address.landmark  %>">
+                                                <div id="error9" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-sm-12">
 
+                                                <button type="submit" class="btn btn-outline-primary-2">
+                                                    <span>EDIT ADDRESS</span>
+                                                    <i class="icon-long-arrow-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.getElementById('editAddressForm<%= index %>').addEventListener('submit', function(e) {
+                            console.log('Form is being submitted');
+                        });
+                    </script> 
                 <% }); %>
             <% } else { %>
                 <p>No addresses available.</p>
             <% } %>
+            
         </div><!-- End .col-lg-9 -->
         
         <aside class="col-lg-3">
@@ -311,126 +326,58 @@ input[type="radio"]:checked {
             </div><!-- End .page-content -->
         </main><!-- End .main -->
        
-        
         <script>
-    $('#form').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
+            // Get modal elements
+            document.addEventListener('DOMContentLoaded', () => {
+    // Select all edit links and modals
+    const editLinks = document.querySelectorAll('[id^="editLink"]');
+    const modals = document.querySelectorAll('[id^="form"]');
+    const closeModalButtons = document.querySelectorAll('[id^="closeModal"]');
 
-        // Extract info from data-* attributes
-        var name = button.data('name');
-        var phone = button.data('phone');
-        var locality = button.data('locality');
-        var district = button.data('district');
-        var address = button.data('address');
-        var state = button.data('state');
-        var pincode = button.data('pincode');
-        var alternatePhone = button.data('alternate-phone');
-        var landmark = button.data('landmark');
+    // Function to open the modal
+    function openModal(modal) {
+        modal.style.display = 'block'; // Show the modal
+        modal.classList.add('show'); // Add Bootstrap class for visibility
+    }
 
-        // Update the modal's form fields
-        var modal = $(this);
-        modal.find('#name').val(name);
-        modal.find('#phone').val(phone);
-        modal.find('#locality').val(locality);
-        modal.find('#district').val(district);
-        modal.find('#address').val(address);
-        modal.find('#state').val(state);
-        modal.find('#pincode').val(pincode);
-        modal.find('#alternate_phone').val(alternatePhone);
-        modal.find('#landmark').val(landmark);
+    // Function to close the modal
+    function closeModal(modal) {
+        modal.style.display = 'none'; // Hide the modal
+        modal.classList.remove('show'); // Remove Bootstrap class for visibility
+    }
+
+    // Attach click event listeners to all edit links
+    editLinks.forEach((editLink, index) => {
+        editLink.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+            openModal(modals[index]); // Open the corresponding modal
+        });
     });
-</script>
 
-        </script>
-        
-        <script>
- document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('editAddressForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('name');
-            const phone = document.getElementById('phone');
-            const locality = document.getElementById('locality');
-            const district = document.getElementById('district');
-            const address = document.getElementById('address');
-            const state = document.getElementById('state');
-            const pincode = document.getElementById('pincode');
-            const alternatePhone = document.getElementById('alternate_phone');
-            const landmark = document.getElementById('landmark');
+    // Attach click event listeners to all close buttons
+    closeModalButtons.forEach((button, index) => {
+        button.addEventListener('click', function() {
+            closeModal(modals[index]); // Close the corresponding modal
+        });
+    });
 
-            const error1 = document.getElementById('error1');
-            const error2 = document.getElementById('error2');
-            const error3 = document.getElementById('error3');
-            const error4 = document.getElementById('error4');
-            const error5 = document.getElementById('error5');
-            const error6 = document.getElementById('error6');
-            const error7 = document.getElementById('error7');
-            const error8 = document.getElementById('error8');
-            const error9 = document.getElementById('error9');
-
-            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
-
-            let isValid = true;
-
-            if (name.value.trim() === '') {
-                error1.textContent = 'Name is required.';
-                error1.style.display = 'block';
-                isValid = false;
-            }
-
-            if (phone.value.trim() === '') {
-                error2.textContent = 'Phone number is required.';
-                error2.style.display = 'block';
-                isValid = false;
-            }
-
-            if (locality.value.trim() === '') {
-                error3.textContent = 'Locality is required.';
-                error3.style.display = 'block';
-                isValid = false;
-            }
-
-            if (district.value.trim() === '') {
-                error4.textContent = 'District is required.';
-                error4.style.display = 'block';
-                isValid = false;
-            }
-
-            if (address.value.trim() === '') {
-                error5.textContent = 'Address is required.';
-                error5.style.display = 'block';
-                isValid = false;
-            }
-
-            if (state.value === '') {
-                error6.textContent = 'State is required.';
-                error6.style.display = 'block';
-                isValid = false;
-            }
-
-            if (pincode.value.trim() === '') {
-                error7.textContent = 'Pincode is required.';
-                error7.style.display = 'block';
-                isValid = false;
-            }
-
-            if (alternatePhone.value.trim() === '') {
-                error8.textContent = 'Alternate phone number is required.';
-                error8.style.display = 'block';
-                isValid = false;
-            }
-            if (phone.value.trim() === alternatePhone.value.trim()) {
-                error8.textContent = 'Alternate phone number cannot be the same as the primary phone number.';
-                error8.style.display = 'block';
-                isValid = false;
-            }
-
-            if (isValid) {
-                event.target.submit(); 
+    // Close the modal when clicking outside the modal content
+    window.addEventListener('click', function(event) {
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                closeModal(modal); // Close the modal if clicked outside
             }
         });
     });
+});
+
+
+
         </script>
+     
+
+        
+      
         <%- include('../layouts/footer')  %>
 
 </html>

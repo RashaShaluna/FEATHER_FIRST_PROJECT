@@ -69,7 +69,7 @@ router.post('/cart/update-quantity/:productId',userAuth.isLogin, cartController.
 
 // checkOut
 router.get('/checkout',userAuth.isLogin,orderController.checkout);
-router.post('/checkout/editAddress/:id',userAuth.isLogin ,orderController.editAddress);
+router.post('/checkout/editAddress/:id', userAuth.isLogin, orderController.editAddress);
 
 
 
