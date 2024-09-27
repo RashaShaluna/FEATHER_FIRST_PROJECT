@@ -16,13 +16,12 @@ const cartSchema = new Schema({
     quantity: {
       type: Number,
       default: 1
-    }
+    },
+    totalPrice: {
+      type: Number,
+      default: 0  },
   }],
-  totalPrice: {
-    type: Number,
-    required: true,
-    default: 0
-  },
+ 
   grandTotal:{
     type: Number,
     required: true,

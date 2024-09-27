@@ -31,7 +31,6 @@ const productPage = async(req,res)=>{
       }).populate('category').sort({ name: -1 });
 
         if(category){
-          console.log('product',product);
           res.render('admin/product',
           {title:'Product - Feather',
           searchQuery:search,
@@ -86,18 +85,20 @@ const productAdding = async (req, res) => {
     console.log('name price offerprice images:',name, price, offerprice, images);
     // Create new product
     const newProduct = new Product({
-      name,
+      name: capitalizeFirstLetter(name),
       price,
-      description,
-      brand,
-      category,
+      description: capitalizeFirstLetter(description),
+      category: capitalizeFirstLetter(category),
       quantity,
       price,
       offerprice,
-      color,
+      color: capitalizeFirstLetter(color),
       images, 
     });
 
+    function capitalizeFirstLetter(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
 
     const productData = await newProduct.save();
     log('in saved')
@@ -205,7 +206,6 @@ const softDeleteProduct = async (req, res) => {
       log('in page edit')
       console.log('Product ID:', req.params.id);
       const productId = req.params.id;
-      log('productid',productId);
       
       const isValidObjectId = mongoose.Types.ObjectId.isValid(productId);
       if (!isValidObjectId) {
@@ -316,22 +316,20 @@ const softDeleteProduct = async (req, res) => {
             category: categoryId
         };
 
-        if (files && files.length >= 3) { 
-            console.log('Images provided, updating images...');
-            const imgPath = files.map(file => file.filename);
-            updatedData.images = imgPath;  
-            console.log('Updated image paths:', updatedData.images);
-        } else {
-            console.log('No images provided or less than 3 images, skipping image update.');
-        }
+        if (files && files.length > 0) {
+          files.forEach((file, index) => {
+              if (index < product.images.length) {
+                  product.images[index] = file.filename;  // Replace existing image
+              } else {
+                  product.images.push(file.filename);  // Add new image if needed
+              }
+          });
+      }
 
-        const updatedProduct = await Product.findByIdAndUpdate(
-            productId, 
-            { $set: updatedData }, 
-            { new: true } 
-        );
+      
+      await product.save();
 
-        console.log('Product updated successfully:', updatedProduct);
+
         res.redirect('/admin/product');
 
     } catch (error) {
@@ -339,8 +337,6 @@ const softDeleteProduct = async (req, res) => {
         res.status(500).json({ message: 'Error updating product', error });
     }
 };
-
-
 
 
 

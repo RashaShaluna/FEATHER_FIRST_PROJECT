@@ -199,7 +199,7 @@ const editAddressVerify = async (req, res) => {
         return res.redirect('/serverError');
       }
       log(updateAddress);
-      res.redirect('/checkout');
+      res.redirect('/address');
     } catch (error) {
       console.log('error:', error);
       res.redirect('/serverError');

@@ -138,9 +138,19 @@ const updateQuantity = async (req, res) => {
     console.log('Quantity in updateQuantity', quantity);
     console.log('User ID:', userId);
 
+    const product = await Product.findById(productId);
+    const offerPrice = product.offerprice; 
+
+    const totalPrice = quantity * offerPrice; // Calculate total price for this item
+
     const cart = await Cart.findOneAndUpdate(
-      { userId: userId, 'items.productId': productId }, // Make sure the path is 'items.productId'
-      { $set: { 'items.$.quantity': quantity } }, // Update the quantity of the specific product
+      { userId: userId, 'items.productId': productId },
+      { 
+        $set: { 
+          'items.$.quantity': quantity,
+          'items.$.totalPrice': totalPrice // Update total price in cart
+        } 
+      },
       { new: true } // Return the updated cart document
     );
 
@@ -148,39 +158,26 @@ const updateQuantity = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
+    let grandTotalPrice = 0; // Initialize grand total price
 
-let totalPrice = 0;
+    // Calculate grand total price for all items in the cart
+    cart.items.forEach(item => {
+      const itemTotalPrice = Number(item.totalPrice); // Get the total price of each item
+      if (!isNaN(itemTotalPrice)) {
+        grandTotalPrice += itemTotalPrice; // Accumulate total price
+      }
+    });
 
-cart.items.forEach(item => {
-  const quantity = Number(item.quantity);
-  const offerPrice = Number(item.offerPrice); // Assuming you're using offerPrice
+    console.log('Grand Total Price:', grandTotalPrice); // Log or save grand total as needed
 
-  if (isNaN(quantity) || isNaN(offerPrice)) {
-    console.error(`Invalid data for item in cart: quantity=${quantity}, offerPrice=${offerPrice}`);
-    return; // Skip this item to avoid adding NaN to totalPrice
-  }
+    return res.status(200).json({ success: true, cart, grandTotalPrice }); // Respond with cart and grand total
 
-  // Calculate the total price for each item
-  totalPrice += quantity * offerPrice;
-});
-
-
-// Assign totalPrice to the cart
-cart.totalPrice = totalPrice;
-
-// await cart.save();
-
-    await cart.save();
-
-
-
-    console.log(cart, 'Updated cart');
-    res.json({ success: true, cart, message: 'Cart updated successfully',cart, totalPrice, });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+  
 
 
 const removeFromCart = async (req, res) => {
