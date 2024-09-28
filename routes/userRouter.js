@@ -17,8 +17,7 @@ router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/asse
 router.get('/pageNotFound',userController.pageNotFound);
 router.get('/serverError',userController.serverError);
 router.get('/',userController.loadlandingpage);
-router.get('/home',userAuth.isLogin,userController.loadHome);
-
+router.get('/home',userAuth.isLogin,userAuth.isBlocked,userController.loadHome);
 // register
 router.get('/register', userController.loadregister);
 router.post('/register',userController.registerVerify);
@@ -49,12 +48,12 @@ router.get('/editProfile',userController.editProfile);
 router.post('/editprofile', userController.updateprofile);
 
 // address
-router.get('/address',userAuth.isLogin,addressController.loadAddress);
-router.get('/addAddress',userAuth.isLogin,addressController.addAddress);
-router.post('/addAddress',userAuth.isLogin,addressController.addAddressVerify);
-router.delete('/deleteAddress/:id',userAuth.isLogin,addressController.deleteAddress);
-router.get('/editAddress/:id',userAuth.isLogin,addressController.editAddress);
-router.post('/editAddress/:id',userAuth.isLogin,addressController.editAddressVerify);
+router.get('/address',userAuth.isLogin,userAuth.isBlocked,addressController.loadAddress);
+router.get('/addAddress',userAuth.isLogin,userAuth.isBlocked,addressController.addAddress);
+router.post('/addAddress',userAuth.isLogin,userAuth.isBlocked,addressController.addAddressVerify);
+router.delete('/deleteAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressController.deleteAddress);
+router.get('/editAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressController.editAddress);
+router.post('/editAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressController.editAddressVerify);
 
 // whislist
 // router.get('/whislist',userAuth.isLogin, wishlistController.whislist);
@@ -62,10 +61,10 @@ router.post('/editAddress/:id',userAuth.isLogin,addressController.editAddressVer
 // router.post('/removeWishlist',userAuth.isLogin, wishlistController. removeFromWishlist);
 
 // cart 
-router.get('/cart',userAuth.isLogin, cartController.cart);
-router.post('/addToCart',userAuth.isLogin, cartController.addToCart );
-router.post('/removeFromCart',userAuth.isLogin, cartController.removeFromCart);
-router.post('/cart/update-quantity/:productId',userAuth.isLogin, cartController.updateQuantity);
+router.get('/cart',userAuth.isLogin,userAuth.isBlocked, cartController.cart);
+router.post('/addToCart',userAuth.isLogin,userAuth.isBlocked, cartController.addToCart );
+router.post('/removeFromCart',userAuth.isLogin,userAuth.isBlocked, cartController.removeFromCart);
+router.post('/cart/update-quantity/:productId',userAuth.isLogin,userAuth.isBlocked, cartController.updateQuantity);
 
 // checkOut
 router.get('/checkout',userAuth.isLogin,orderController.checkout);

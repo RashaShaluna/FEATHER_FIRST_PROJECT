@@ -67,7 +67,6 @@ adminRouter.delete('/product/delete/:productId', adminAuth.isAdmin, productContr
 adminRouter.get('/editproduct/:id',  productController.editProduct);
 adminRouter.post('/editproduct/:id',  uploads.array('images',3) , productController.editingProduct);
 adminRouter.delete('/delete-image',productController.deleteSingleImage)
-
-
+ 
 
 module.exports = adminRouter;

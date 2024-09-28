@@ -306,15 +306,15 @@ const softDeleteProduct = async (req, res) => {
             }
         }
 
-        let updatedData = {
-            name: req.body.name,
-            price: req.body.price,
-            offerprice: req.body.offerprice,
-            description: req.body.description,
-            quantity: req.body.quantity,
-            color: req.body.color,
-            category: categoryId
-        };
+       
+        product.name = req.body.name;
+        product.price = req.body.price;
+        product.offerprice = req.body.offerprice;
+        product.description = req.body.description;
+        product.quantity = req.body.quantity;
+        product.color = req.body.color;
+        product.category = categoryId;
+      
 
         if (files && files.length > 0) {
           files.forEach((file, index) => {
@@ -328,6 +328,7 @@ const softDeleteProduct = async (req, res) => {
 
       
       await product.save();
+
 
 
         res.redirect('/admin/product');
