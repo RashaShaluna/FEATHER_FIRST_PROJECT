@@ -1,8 +1,8 @@
-const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const User = require('../models/userSchema');
 const Category = require('../models/category');
 const Address = require('../models/addressModel');
+const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
 const {log} = require('console');
 
@@ -16,19 +16,19 @@ const checkout = async (req, res) => {
     try {
         log('in checkout')
         const user = req.session.user
-        log(user);
         const userId = await User.findById(req.session.user);
-        log(userId)
         const products = await Product.find({ isBlocked: false, isDeleted: false });
         const categories = await Category.find({ islisted: true, isDeleted: false });
-        const order = await Order.find({userId : userId }).populate('items-productId').exec();
+        log('1')
+       
+        log('2')
         const addresses = await Address.find({ userId:userId , isDeleted: false});
         const cart= await Cart.findOne({ userId: user}).populate({
             path: 'items.productId',
             model: Product
           });        
 
-        res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories, order ,addresses,cart});
+        res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories,addresses,cart});
     } catch (error) {
        log(error);
        res.redirect('pageNotFound');
@@ -134,52 +134,58 @@ console.log(capitalizeFirstLetter('hello')); // "Hello"
 // =================== order placing ====================
 const placeOrder = async (req, res) => {
     try {
+        log('placing order')
         const userId = req.session.user;
         const { selectedAddress, paymentMethod } = req.body;
+        log('req',req.body);
+        log('selected address',selectedAddress)
 
-        // Validate selected address ID
         const address = await Address.findById(selectedAddress);
         if (!address) {
             return res.status(400).send("Invalid address selected.");
         }
-
-        // Validate cart items
+      log(address)
         const cart = await Cart.findOne({ userId }).populate({
             path: 'items.productId',
             model: Product
-          });
+        });
         if (!cart || cart.items.length === 0) {
             return res.status(400).send("Your cart is empty.");
         }
 
-        // Validate payment method
-        if (paymentMethod !== 'cod') {
+        if (paymentMethod !== 'Cash on Delivery') {
             return res.status(400).send("Invalid payment method selected.");
         }
 
-        // Calculate order total
         const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || item.productId.price * item.quantity), 0);
 
-        // Create order object
+        const discountAmount = cart.discountamount || 0; 
+        const additionalCharges = 0; 
+        const finalAmount = totalAmount - discountAmount + additionalCharges;
+
         const orderItems = cart.items.map(item => ({
-            product: item.productId._id,
+            productId: item.productId._id,
             quantity: item.quantity,
-            price: item.totalPrice || item.productId.price * item.quantity
+            originalQuantity: item.quantity,
+            status: 'Pending',
+            orderPrice: item.totalPrice || item.productId.price * item.quantity
         }));
 
         const newOrder = new Order({
-            userId,
-            address: selectedAddress,  // Use the selected address ID
-            items: orderItems,
+            userId, 
+            orderUserDetails: userId, 
+            orderitems: orderItems,
             totalAmount,
-            paymentMethod: 'Cash on Delivery',
+            finalAmount,
+            paymentMethod,
             status: 'Pending',
             placedAt: new Date(),
+            address: selectedAddress, 
         });
 
         // Save the order
         await newOrder.save();
-
+       log('newOrder',newOrder)
         // Clear the cart
         await Cart.findOneAndDelete({ userId });
 
@@ -188,7 +194,7 @@ const placeOrder = async (req, res) => {
         console.error("Error placing order:", error);
         res.status(500).send("An error occurred while placing the order.");
     }
-};
+}; 
 
 module.exports ={
     checkout,

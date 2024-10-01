@@ -352,7 +352,7 @@ input[type="radio"]:checked {
                     <div class="card  mb-1">
                         <div class="card-header" id="heading-3">
                             <h2 class="card-title">
-                    <input type="radio" name="paymentMethod" value="cod" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " checked>
+                    <input type="radio" name="paymentMethod" value="Cash on Delivery" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " checked>
                                     Cash on delivery
                                 </a>
                             </h2>
@@ -368,7 +368,7 @@ input[type="radio"]:checked {
                     <tbody>
                         <% 
                         // Assuming you have variables for discounts or additional charges
-                        const discountAmount = order.discountamount || 0; // Example discount
+                        const discountAmount = 0; // Example discount
                         const additionalCharges = 0; // Any additional charges (e.g., shipping)
                         const finalAmount = subtotal - discountAmount + additionalCharges; // Calculate final amount
                         %>

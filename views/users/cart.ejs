@@ -89,7 +89,7 @@
                                                 <td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
                                                 <td></td>
                                                 <% }else{ %>
-                                                    <td class="price-col">₹<%= item.productId.offerprice %></td>
+                                                    <td class="price-col">₹<%= item.productId.salesPrice %></td>
                                                     <td class="quantity-col">
                                                         <div class="cart-product-quantity">
                                                             <input 
@@ -100,12 +100,12 @@
                                                                 max="<%= Math.min(item.productId.quantity, 10) %>" 
                                                                 step="1" 
                                                                 data-product-id="<%= item.productId._id %>"
-                                                                data-offerprice="<%= item.productId.offerprice %>"
+                                                                data-salesPrice="<%= item.productId.salesPrice %>"
                                                                 data-available-stock="<%= item.productId.quantity %>"
-                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.offerprice %>',' <%= item.productId.quantity %>','<%=item.productId.name %>') "  />
+                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>',' <%= item.productId.quantity %>','<%=item.productId.name %>') "  />
                                                         </div>
                                                     </td>                                                   
-                                                    <td class="total-col" id="total-<%= item.productId._id %>">₹<%= (item.productId.offerprice * item.quantity).toFixed(2) %></td>
+                                                    <td class="total-col" id="total-<%= item.productId._id %>">₹<%= (item.productId.salesPrice * item.quantity).toFixed(2) %></td>
 											<% } %>
 											<td class="remove-col"><button class="btn-remove" onclick="removeFromCart('<%= item.productId._id %>')"><i class="icon-close"></i></button></td>
 										</tr>
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quantityInputs.forEach(input => {
         input.addEventListener('change', function() {
             const productId = this.dataset.productId;
-            const offerprice = parseFloat(this.dataset.offerprice);
+            const salesPrice = parseFloat(this.dataset.salesPrice);
             const availableStock = parseInt(this.dataset.availableStock);
 
             updateQuantity(this, productId, price, availableStock);
@@ -217,10 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function updateTotalPrice(quantityInput, offerPrice) {
+function updateTotalPrice(quantityInput, salesPrice) {
     const quantity = parseInt(quantityInput.value);
     const productId = quantityInput.dataset.productId;
-    const total = quantity * offerPrice;
+    const total = quantity * salesPrice;
     const totalCell = document.getElementById(`total-${productId}`);
 
     if (totalCell) {
@@ -263,9 +263,9 @@ window.onload = function() {
 
 
 
-function updateQuantity(quantityInput, productId, offerPrice, availableStock,productName) {
+function updateQuantity(quantityInput, productId, salesPrice, availableStock,productName) {
   const quantity = parseInt(quantityInput.value);
-  offerPrice = parseFloat(offerPrice);
+  salesPrice = parseFloat(salesPrice);
   availableStock = parseInt(availableStock);
   const maxLimit = Math.min(availableStock, 10);
 
@@ -283,15 +283,15 @@ function updateQuantity(quantityInput, productId, offerPrice, availableStock,pro
     return;
   }
   // Calculate and update total price for the product
-  const totalPriceElement = document.querySelector(`#offerprice-${productId}`);
-  const newTotalPrice = quantity * offerPrice;
+  const totalPriceElement = document.querySelector(`#salesPrice-${productId}`);
+  const newTotalPrice = quantity * salesPrice;
 
   if (totalPriceElement) {
     totalPriceElement.innerText = newTotalPrice.toFixed(2); // Update UI
   } else {
-    console.error(`Element with ID #offerprice-${productId} not found`);
+    console.error(`Element with ID #salesPrice-${productId} not found`);
   }
-  updateTotalPrice(quantityInput, offerPrice);
+  updateTotalPrice(quantityInput, salesPrice);
   updateGrandTotal(totalPriceElement);  // Send AJAX request to update quantity in the backend
   fetch(`/cart/update-quantity/${productId}`, {
     method: 'POST',

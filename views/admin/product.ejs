@@ -53,6 +53,7 @@
                             <th>Category</th>
                             <th>Color</th>
                             <th>Price</th>
+                            <th style="white-space: nowrap;">Sales Price</th>
                             <th style="white-space: nowrap;">Offer Price</th>
                             <th>Quantity</th>
                             <th>Status</th>
@@ -67,7 +68,8 @@
                             <td  style="white-space: nowrap;"><%= data.category ? data.category.name : 'N/A' %></td> 
                             <td><%= data.color %></td>
                             <td><%= data.price %></td>
-                            <td ><%= data.offerprice %></td>
+                            <td><%= data.salesPrice %></td>
+                            <td><%= data.offerprice %></td>
                             <td><%= data.quantity %></td>
                             <td class="text-start">
                               <div>

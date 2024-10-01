@@ -21,10 +21,11 @@ const orderSchema = new mongoose.Schema({
         quantity: {
             type: Number,
             required: true,
-            originalQuantity: {
-                type: Number, // New field to store original quantity
-                required: true
-            },
+           
+        },
+        originalQuantity: {
+            type: Number, // New field to store original quantity
+            required: true
         },
         status: {
             type: String,
@@ -98,4 +99,5 @@ const orderSchema = new mongoose.Schema({
 }
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
+module.exports = Order

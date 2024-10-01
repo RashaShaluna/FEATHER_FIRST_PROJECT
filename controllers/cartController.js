@@ -138,9 +138,9 @@ const updateQuantity = async (req, res) => {
     console.log('User ID:', userId);
 
     const product = await Product.findById(productId);
-    const offerPrice = product.offerprice; 
+    const salesPrice = product.salesPrice; 
 
-    const totalPrice = quantity * offerPrice; 
+    const totalPrice = quantity * salesPrice; 
     const cart = await Cart.findOneAndUpdate(
       { userId: userId, 'items.productId': productId },
       { 

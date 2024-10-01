@@ -70,7 +70,7 @@ const productAdding = async (req, res) => {
    log('Request Body:', req.body);
    log('Uploaded Files:', req.files);
    
-    const { name, price, description, brand, category, quantity, offerprice, color } = req.body;
+    const { name, price, description,salesPrice, category, quantity, offerprice, color } = req.body;
     // const images = req.files.map(file => `uploads/${file.filename}`); 
     const images = req.files.map(file => `${file.filename}`); 
 
@@ -91,6 +91,7 @@ const productAdding = async (req, res) => {
       category: capitalizeFirstLetter(category),
       quantity,
       price,
+      salesPrice,
       offerprice,
       color: capitalizeFirstLetter(color),
       images, 
@@ -309,6 +310,7 @@ const softDeleteProduct = async (req, res) => {
        
         product.name = req.body.name;
         product.price = req.body.price;
+        product.salesPrice= req.body.salesPrice;
         product.offerprice = req.body.offerprice;
         product.description = req.body.description;
         product.quantity = req.body.quantity;

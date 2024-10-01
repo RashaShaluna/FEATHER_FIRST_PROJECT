@@ -47,7 +47,7 @@
                         </div><!-- End .ratings-container -->
 
                         <div class="product-price">
-                            ₹<%= product.offerprice %>
+                            ₹<%= product.salesPrice %>
                         </div><!-- End .product-price -->
 
                         <div class="product-nav product-nav-thumbs">
@@ -239,7 +239,7 @@
                     <div class="product-body">
                         <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
                         <div class="product-price">
-                            ₹<%= related.offerprice %>
+                            ₹<%= related.salesPrice%>
                         </div><!-- End .product-price -->
                         <div class="product-nav product-nav-thumbs" >
                             <% if(related.quantity==0 || related.status == 'Out of stock') {%>

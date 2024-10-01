@@ -37,7 +37,12 @@ const productSchema = new Schema ({
     color:{
         type:String,
         required:true
-    },offerprice: {
+    },
+    salesPrice:{
+        type:Number,
+        required:true
+    },
+    offerprice: {
         type: Number,
         required: true
     },
