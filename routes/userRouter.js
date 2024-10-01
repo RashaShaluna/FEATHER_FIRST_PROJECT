@@ -8,7 +8,7 @@ const path = require('path');
 const addressController = require('../controllers/addressescontroller');
 const wishlistController = require('../controllers/wishlistController');
 const cartController = require('../controllers/cartController');
-const orderController = require('../controllers/orderController');
+const checkoutController = require('../controllers/checkoutController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -67,14 +67,10 @@ router.post('/removeFromCart',userAuth.isLogin,userAuth.isBlocked, cartControlle
 router.post('/cart/update-quantity/:productId',userAuth.isLogin,userAuth.isBlocked, cartController.updateQuantity);
 
 // checkOut
-router.get('/checkout',userAuth.isLogin,orderController.checkout);
-router.post('/checkout/editAddress/:id', userAuth.isLogin, orderController.editAddress);
-router.post('/checkout/addAddress', userAuth.isLogin, (req, res) => {
-    console.log('Add address request received:', req.body);
-    // Continue with your addAddress logic
-    orderController.addAddress(req, res);
-});
-
+router.get('/checkout',userAuth.isLogin,userAuth.isBlocked,checkoutController.checkout);
+router.post('/checkout/editAddress/:id', userAuth.isLogin,userAuth.isBlocked, checkoutController.editAddress);
+router.post('/checkout/addAddress', userAuth.isLogin,userAuth.isBlocked,checkoutController.addAddress);
+router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkoutController.placeOrder);
 
 
 

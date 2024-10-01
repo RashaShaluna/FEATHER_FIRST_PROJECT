@@ -130,10 +130,9 @@ const addToCart = async (req, res) => {
 
 const updateQuantity = async (req, res) => {
   try {
-    const { productId } = req.params; // Get productId from URL parameters
-    const quantity = parseInt(req.body.quantity); // Get updated quantity from request body
-    const userId = req.session.user; // Get user ID from session
-
+    const { productId } = req.params;
+    const quantity = parseInt(req.body.quantity); 
+    const userId = req.session.user; 
     console.log(productId, 'Product ID in updateQuantity');
     console.log('Quantity in updateQuantity', quantity);
     console.log('User ID:', userId);
@@ -141,36 +140,35 @@ const updateQuantity = async (req, res) => {
     const product = await Product.findById(productId);
     const offerPrice = product.offerprice; 
 
-    const totalPrice = quantity * offerPrice; // Calculate total price for this item
-
+    const totalPrice = quantity * offerPrice; 
     const cart = await Cart.findOneAndUpdate(
       { userId: userId, 'items.productId': productId },
       { 
         $set: { 
           'items.$.quantity': quantity,
-          'items.$.totalPrice': totalPrice // Update total price in cart
+          'items.$.totalPrice': totalPrice 
         } 
       },
-      { new: true } // Return the updated cart document
+      { new: true } 
     );
 
     if (!cart) {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
-    let grandTotalPrice = 0; // Initialize grand total price
+    let  grandTotal= 0;
 
-    // Calculate grand total price for all items in the cart
     cart.items.forEach(item => {
-      const itemTotalPrice = Number(item.totalPrice); // Get the total price of each item
+      const itemTotalPrice = Number(item.totalPrice); 
       if (!isNaN(itemTotalPrice)) {
-        grandTotalPrice += itemTotalPrice; // Accumulate total price
+         grandTotal+= itemTotalPrice; 
       }
     });
 
-    console.log('Grand Total Price:', grandTotalPrice); // Log or save grand total as needed
-
-    return res.status(200).json({ success: true, cart, grandTotalPrice }); // Respond with cart and grand total
+    console.log('Grand Total Price:',  grandTotal);
+    cart. grandTotal=  grandTotal;
+    await cart.save();
+    return res.status(200).json({ success: true, cart,  grandTotal}); 
 
   } catch (error) {
     console.error(error);
@@ -179,7 +177,7 @@ const updateQuantity = async (req, res) => {
 };
   
 
-
+// ================ Remove product from the cart ==================
 const removeFromCart = async (req, res) => {
   const { productId } = req.body; // Use req.body to get the productId
   log(productId)

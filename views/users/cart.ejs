@@ -338,26 +338,6 @@ function showToast(message) {
 
 
 
-function showToast(message) {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-
-    // Set the message
-    toastMessage.innerText = message;
-
-    // Show the toast
-    toast.style.display = 'flex';
-    toast.classList.add('show');
-
-    // Automatically hide the toast after 3 seconds
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 500); // Delay hiding after opacity transition
-    }, 3000); // Visible for 3 seconds
-}
-
 
 
 </script>

@@ -325,7 +325,10 @@ const softDeleteProduct = async (req, res) => {
               }
           });
       }
-
+      // if (files && files.length > 0) {
+      //   const images = files.map(file => file.filename);
+      //   product.images = images;
+      // }
       
       await product.save();
 

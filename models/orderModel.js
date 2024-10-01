@@ -20,9 +20,11 @@ const orderSchema = new mongoose.Schema({
         },
         quantity: {
             type: Number,
-             originalQuantity: Number // New field to store original quantity
-            
-            
+            required: true,
+            originalQuantity: {
+                type: Number, // New field to store original quantity
+                required: true
+            },
         },
         status: {
             type: String,
@@ -37,7 +39,7 @@ const orderSchema = new mongoose.Schema({
     }],
     orderUserDetails: {
         type:Object,
-        
+        required: true
     },
     totalAmount: {
         type: Number,
@@ -47,7 +49,8 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         enum: ['wallet', 'Cash on Delivery', 'online'],
-        
+        required: true
+
     },
     orderDate: {
         type: Date,
@@ -75,13 +78,13 @@ const orderSchema = new mongoose.Schema({
         type:Number,
         defualt:0
     },
-    finalAmout:{
+    finalAmount:{
         type:Number,
         required:true
     },
   address:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'User',
+    ref:'Address',
     require:true
   },
   status:{
@@ -89,10 +92,10 @@ const orderSchema = new mongoose.Schema({
     required:true,
     enum:['Pending','Processing','Shipped','Delivered','Canclled','Return Request','Returned']
   },
-  createdOn:{
-  type:Boolean,
-  defualt:false
-  }
+  createdOn: {
+    type: Date,
+    default: Date.now // Store the created date
+}
 });
 
 module.exports = mongoose.model('Order', orderSchema);

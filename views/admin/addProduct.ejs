@@ -228,17 +228,17 @@ input[type="file"]::-webkit-file-upload-text {
                 <input placeholder="₹" name="price" type="text" class="form-control border">
                 <div id="regularPrice-error" class="error-message"></div>
               </div>
+
+              <div class="col-lg-4 mb-4">
+                <label class="form-label"> Sales Price</label>
+                <input placeholder="₹" name="salePrice" type="text" class="form-control border">
+                <div id="SalesPrice-error"  class="error-message"></div>
+              </div>
               
               <div class="col-lg-4 mb-4">
                 <label class="form-label">Offer Price</label>
                 <input placeholder="₹" name="offerprice" type="text" class="form-control border">
                 <div id="salePrice-error" class="error-message"></div>
-              </div>
-              
-              <div class="col-lg-4 mb-4">
-                <label class="form-label">Quantity</label>
-                <input placeholder="Product name" name="quantity" type="number" class="form-control border " id="quantity">
-                <div id="quantity-error" class="error-message"></div>
               </div>
             </div>
 
@@ -249,11 +249,16 @@ input[type="file"]::-webkit-file-upload-text {
               <div id="description-error" class="error-message" style="display:none; color:red;"></div>
             </div>
           
-              
+            <div class="row form-section">
               <div class="col-lg-6 mb-4">
                 <label class="form-label">Color</label>
-                <input name="color" type="text" class="form-control border w-50" id="color">
+                <input placeholder="Product Color" name="color" type="text" class="form-control border w-50" id="color">
                 <div id="color-error" class="error-message"></div>
+              </div>
+              <div class="col-lg-4 mb-4">
+                <label class="form-label">Quantity</label>
+                <input placeholder="Product Quantity" name="quantity" type="number" class="form-control border " id="quantity">
+                <div id="quantity-error" class="error-message"></div>
               </div>
             </div>
 

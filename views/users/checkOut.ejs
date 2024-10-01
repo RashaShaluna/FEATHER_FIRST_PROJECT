@@ -103,6 +103,12 @@ input[type="radio"]:checked {
 .modal.show {
     display: block; /* Show modal */
 }
+.error-message {
+    color: red; /* Change to red for visibility */
+    font-size: 12px; /* Adjust font size if needed */
+    display: none; /* Keep hidden by default */
+}
+
     </style>
 <body>
 
@@ -123,7 +129,7 @@ input[type="radio"]:checked {
             					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
             				</form>
             			</div><!-- End .checkout-discount -->
-<form action="#" method="get"> <!-- Set action to your checkout route -->
+<form action="/checkout/placeOrder" method="post"> <!-- Set action to your checkout route -->
     <div class="row">
         <div class="col-lg-9">
             <p style="margin-left: 10px; ">Choose Delivery Address</p>
@@ -135,127 +141,9 @@ input[type="radio"]:checked {
                         </a>                                         
                     </div>
                 </div>
-            </div>
-            <!-- modal for address -->
-            <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header border-bottom-0">
-                            <h5 class="modal-title" id="addAddressLabel">Add Address</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeModal">
-                                <span aria-hidden="true">&times;</span>
-                            </button>  
-                        </div>
-                            <div class="modal-body p-4">
-                                <form id="addAddressForm" action="/checkout/addAddress" method="POST">
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <label for="name">Name*</label>
-                                        <input type="text" name="name" id="name" class="form-control" style="width: 90%;" required>
-                                        <div id="error1" class="error-message"></div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label for="phone">Phone Number*</label>
-                                        <input type="text" name="phone" id="phone" class="form-control" style="width: 90%;" required>
-                                        <div id="error2" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <label for="locality">Locality*</label>
-                                        <input type="text" name="locality" id="locality" class="form-control" style="width: 90%;" required>
-                                        <div id="error3" class="error-message"></div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label for="district">District*</label>
-                                        <input type="text" name="district" id="district" class="form-control" style="width: 90%;" required>
-                                        <div id="error4" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <label for="address">Address*</label>
-                                        <input type="text" name="address" id="address" class="form-control" style="width: 90%;" required>
-                                        <div id="error5" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <label for="state">State*</label>
-                                        <select name="state" id="state" class="form-control" style="width: 90%;" required>
-                                            <option value="">Select State</option>
-                                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
-                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                            <option value="Assam">Assam</option>
-                                            <option value="Bihar">Bihar</option>
-                                            <option value="Chandigarh">Chandigarh</option>
-                                            <option value="Chhattisgarh">Chhattisgarh</option>
-                                            <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
-                                            <option value="Daman and Diu">Daman and Diu</option>
-                                            <option value="Delhi">Delhi</option>
-                                            <option value="Goa">Goa</option>
-                                            <option value="Gujarat">Gujarat</option>
-                                            <option value="Haryana">Haryana</option>
-                                            <option value="Himachal Pradesh">Himachal Pradesh</option>
-                                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                                            <option value="Jharkhand">Jharkhand</option>
-                                            <option value="Karnataka">Karnataka</option>
-                                            <option value="Kerala">Kerala</option>
-                                            <option value="Ladakh">Ladakh</option>
-                                            <option value="Lakshadweep">Lakshadweep</option>
-                                            <option value="Madhya Pradesh">Madhya Pradesh</option>
-                                            <option value="Maharashtra">Maharashtra</option>
-                                            <option value="Manipur">Manipur</option>
-                                            <option value="Meghalaya">Meghalaya</option>
-                                            <option value="Mizoram">Mizoram</option>
-                                            <option value="Nagaland">Nagaland</option>
-                                            <option value="Odisha">Odisha</option>
-                                            <option value="Puducherry">Puducherry</option>
-                                            <option value="Punjab">Punjab</option>
-                                            <option value="Rajasthan">Rajasthan</option>
-                                            <option value="Sikkim">Sikkim</option>
-                                            <option value="Tamil Nadu">Tamil Nadu</option>
-                                            <option value="Telangana">Telangana</option>
-                                            <option value="Tripura">Tripura</option>
-                                            <option value="Uttar Pradesh">Uttar Pradesh</option>
-                                            <option value="Uttarakhand">Uttarakhand</option>
-                                            <option value="West Bengal">West Bengal</option>
-                                        </select>
-                                        <div id="error6" class="error-message"></div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label for="pincode">Pincode*</label>
-                                        <input type="text" name="pincode" id="pincode" class="form-control" style="width: 90%;" required>
-                                        <div id="error7" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <label for="alternate_phone">Alternate Phone Number*</label>
-                                        <input type="text" name="alternatePhone" id="alternate_phone" class="form-control" style="width: 90%;" required>
-                                        <div id="error8" class="error-message"></div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <label for="landmark">Landmark*</label>
-                                        <input type="text" name="landmark" id="landmark" class="form-control" style="width: 90%;" required>
-                                        <div id="error9" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div class="row mt-2">
-                                    <div class="col-sm-12">
-                                        <button type="submit" class="btn btn-outline-primary-2" >
-                                            <span>ADD ADDRESS</span>
-                                            <i class="icon-long-arrow-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                  
-                </div>
-            </div>
+            </div><!-- modal for address -->
+           
+            
             <!-- modal -->
             <% if (addresses && addresses.length > 0) { %>
                 <% addresses.forEach((address, index) => { %>
@@ -291,7 +179,7 @@ input[type="radio"]:checked {
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
-                                <form id="editAddressForm<%= index %>" action="/checkout/editAddress/<%= address._id %>" method="POST">
+                                <form id="editAddressForm<%= index %>" action="/checkout/editAddress/<%= address._id %>" method="POST" class="form-class">
                                     <input type="hidden" name="addressId" value="<%= address._id %>">
                                 
                                     <div class="modal-body p-4"> <!-- Added padding to modal body -->
@@ -401,10 +289,9 @@ input[type="radio"]:checked {
                                             </div>
                                         </div>
                                     </div>
-                                </form>
-                               
+                                </form>                             
                             </div>
-                     </div>
+                        </div>
                     </div>
                     <script>
                         document.getElementById('editAddressForm<%= index %>').addEventListener('submit', function(e) {
@@ -434,50 +321,75 @@ input[type="radio"]:checked {
                     <tbody>
                         <% let subtotal = 0; %> <!-- Initialize subtotal variable -->
                         <% if (cart && cart.items.length > 0) { %>
-                            <% cart.items.forEach(item => { %>
+                            <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => { %>
                                 <tr>
                                     <td><a href="#"><%= item.productId.name %></a></td>
-                                    <td>$<%= item.totalprice ? item.totalprice.toFixed(2) : '0.00' %></td> <!-- Check if totalprice exists -->
+                                    <td>₹<%= item.totalPrice ? item.totalPrice.toFixed(2) : '0.00' %></td> <!-- Check if totalPrice exists -->
                                 </tr>
-                                <% subtotal += item.totalprice || 0; %> <!-- Ensure subtotal addition is safe -->
-                            <% }); %>
-                
+                                <% subtotal += item.totalPrice || 0; %> <!-- Ensure subtotal addition is safe -->
+                            <% }); %>                
                             <tr class="summary-subtotal">
                                 <td>Subtotal:</td>
-                                <td>$<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
-
+                                <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
                             </tr><!-- End .summary-subtotal -->
-                           
-                            <tr class="summary-total">
-                                <td>Total:</td>
-                                <td>$<%= subtotal.toFixed(2) %></td> <!-- Total is the same as subtotal for now -->
-                            </tr><!-- End .summary-total -->
-                        <% } else { %>
-                            <tr>
-                                <td colspan="2">No products in the cart</td>
-                            </tr>
-                        <% } %>
+                      
                     </tbody>
                 </table><!-- End .table table-summary -->
 
                 <div class="accordion-summary" id="accordion-payment">
-                    <div class="card">
+                    <p>Payment method</p>
+                    <div class="card mt-1 mb-1">
+                        <div class="card-header" id="heading-5">
+                            <h2 class="card-title">
+                                <input type="radio" name="paymentMethod" value="razorpay" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed">
+                                Razorpay
+                                </a>
+                            </h2>
+                        </div>
+                        <div id="collapse-5" class="collapse show" aria-labelledby="heading-5" data-parent="#accordion-payment">
+                        </div>
+                    </div>
+                    <div class="card  mb-1">
                         <div class="card-header" id="heading-3">
                             <h2 class="card-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                    <input type="radio" name="paymentMethod" value="cod" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " checked>
                                     Cash on delivery
                                 </a>
                             </h2>
                         </div><!-- End .card-header -->
                         <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
+                            <div class="card-body">Free Delivery
+                            </div><!-- End .card-body -->
                         </div><!-- End .collapse -->
                     </div><!-- End .card -->
                 </div><!-- End .accordion -->
 
+                <table class="table table-summary">
+                    <tbody>
+                        <% 
+                        // Assuming you have variables for discounts or additional charges
+                        const discountAmount = order.discountamount || 0; // Example discount
+                        const additionalCharges = 0; // Any additional charges (e.g., shipping)
+                        const finalAmount = subtotal - discountAmount + additionalCharges; // Calculate final amount
+                        %>
+                    
+                        <tr class="summary-total">
+                            <td>Amount Payable:</td>
+                            <td>₹<%= finalAmount.toFixed(2) %></td> <!-- Display final amount -->
+                        </tr><!-- End .summary-total -->
+                    </tbody>               
+                 </table><!-- End .table table-summary -->
+
+
                 <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
                     <span class="btn-text">Place Order</span>
-                    <span class="btn-hover-text">Proceed to Checkout</span>
+                    <span class="btn-hover-text">Proceed</span>
                 </button>
+                <% } else { %>
+                    <tr>
+                        <td colspan="2">No products in the cart</td>
+                    </tr>
+                <% } %>
             </div><!-- End .summary -->
         </aside><!-- End .col-lg-3 -->
     </div><!-- End .row -->
@@ -486,80 +398,228 @@ input[type="radio"]:checked {
     </div><!-- End .checkout -->
         </div><!-- End .page-content -->
               </main><!-- End .main -->
+            <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<!-- Include Popper.js (Bootstrap dependency) -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 
+<!-- Include Bootstrap's JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const editLinks = document.querySelectorAll("[id^='editLink']"); // Select all edit links with IDs starting with editLink
-                editLinks.forEach(link => {
-                    link.addEventListener("click", function() {
-                        const index = this.id.replace('editLink', ''); // Extract index from ID
-                        console.log("Edit link clicked for address index: " + index);
-                        // Additional logic to populate the modal can go here if needed
-                    });
-                });
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title" id="addAddressLabel">Add Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeModal">
+                    <span aria-hidden="true">&times;</span>
+                </button>  
+            </div>
+                <div class="modal-body p-4">
+                    <form id="addform" action="/checkout/addAddress" method="POST" class="form-class">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="name">Name*</label>
+                            <input type="text" name="name" id="name" class="form-control">
+                            <div id="error1" class="error-message" style="display:none;"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="phone">Phone Number*</label>
+                            <input type="text" name="phone" id="phone" class="form-control">
+                            <div id="error2" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="locality">Locality*</label>
+                            <input type="text" name="locality" id="locality" class="form-control">
+                            <div id="error3" class="error-message" style="display:none;"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="district">District*</label>
+                            <input type="text" name="district" id="district" class="form-control">
+                            <div id="error4" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="address">Address*</label>
+                            <input type="text" name="address" id="address" class="form-control">
+                            <div id="error5" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="state">State*</label>
+                            <select name="state" id="state" class="form-control">
+                                <option value="">Select State</option>
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                                <option value="Daman and Diu">Daman and Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Puducherry">Puducherry</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                            </select>
+                            <div id="error6" class="error-message" style="display:none;"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="pincode">Pincode*</label>
+                            <input type="text" name="pincode" id="pincode" class="form-control">
+                            <div id="error7" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="alternate_phone">Alternate Phone Number*</label>
+                            <input type="text" name="alternatePhone" id="alternate_phone" class="form-control">
+                            <div id="error8" class="error-message" style="display:none;"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="landmark">Landmark*</label>
+                            <input type="text" name="landmark" id="landmark" class="form-control">
+                            <div id="error9" class="error-message" style="display:none;"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-outline-primary-2" >
+                                <span>ADD ADDRESS</span>
+                                <i class="icon-long-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+            </form>
+       </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const editLinks = document.querySelectorAll("[id^='editLink']"); // Select all edit links with IDs starting with editLink
+        editLinks.forEach(link => {
+            link.addEventListener("click", function() {
+                const index = this.id.replace('editLink', ''); // Extract index from ID
+                console.log("Edit link clicked for address index: " + index);
+                // Additional logic to populate the modal can go here if needed
             });
-            
-            </script>
-           
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-    const addAddressForm = document.getElementById('addAddressForm');
-    if (!addAddressForm) {
-        console.error('Add Address form not found');
-        return;  // Prevent further execution if form is not found
-    }
-
-    // Add event listener to the form
-    addAddressForm.addEventListener('submit', function(event) {
-        event.preventDefault();  // Prevent default form submission
-        const formData = new FormData(this);
-
-        // Log the form data for debugging
-        console.log('Form data:', formData);
-
-        // Perform the form submission using fetch or AJAX
-        fetch('/checkout/addAddress', {
-            method: 'POST',
-            body: formData
-        }).then(response => {
-            if (response.ok) {
-                console.log('Address added successfully');
-                // Handle success, e.g., close modal, show success message
-            } else {
-                console.error('Failed to add address');
-                // Handle error, e.g., show error message
-            }
-        }).catch(error => {
-            console.error('Error submitting form:', error);
         });
+    });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById("addform").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent immediate form submission
+
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(el => {
+            el.style.display = 'none'; // Hide all error messages
+        });
+
+        let isValid = true;
+
+        // Grab input values
+        const name = document.getElementById('name');
+        const phone = document.getElementById('phone');
+        const locality = document.getElementById('locality');
+        const district = document.getElementById('district');
+        const address = document.getElementById('address');
+        const state = document.getElementById('state');
+        const pincode = document.getElementById('pincode');
+        const alternatePhone = document.getElementById('alternate_phone');
+
+        // Validation checks
+        if (name.value.trim() === '') {
+            document.getElementById('error1').textContent = 'Name is required.';
+            document.getElementById('error1').style.display = 'block';
+            isValid = false;
+        }
+
+        if (phone.value.trim() === '') {
+            document.getElementById('error2').textContent = 'Phone number is required.';
+            document.getElementById('error2').style.display = 'block';
+            isValid = false;
+        }
+
+        if (locality.value.trim() === '') {
+            document.getElementById('error3').textContent = 'Locality is required.';
+            document.getElementById('error3').style.display = 'block';
+            isValid = false;
+        }
+
+        if (district.value.trim() === '') {
+            document.getElementById('error4').textContent = 'District is required.';
+            document.getElementById('error4').style.display = 'block';
+            isValid = false;
+        }
+
+        if (address.value.trim() === '') {
+            document.getElementById('error5').textContent = 'Address is required.';
+            document.getElementById('error5').style.display = 'block';
+            isValid = false;
+        }
+
+        if (state.value.trim() === '') {
+            document.getElementById('error6').textContent = 'State is required.';
+            document.getElementById('error6').style.display = 'block';
+            isValid = false;
+        }
+
+        if (pincode.value.trim() === '') {
+            document.getElementById('error7').textContent = 'Pincode is required.';
+            document.getElementById('error7').style.display = 'block';
+            isValid = false;
+        }
+
+        if (alternatePhone.value.trim() === '') {
+            document.getElementById('error8').textContent = 'Alternate phone number is required.';
+            document.getElementById('error8').style.display = 'block';
+            isValid = false;
+        }
+
+        // Submit the form if all validations pass
+        if (isValid) {
+            console.log("Form is valid, submitting...");
+            event.target.submit(); 
+        } else {
+            console.log("Form is invalid, not submitting.");
+        }
     });
 });
 
 
 </script>
 
-        <%- include('../layouts/footer')  %>
-
-</html>
+<%- include('../layouts/footer')  %>
 </body>
