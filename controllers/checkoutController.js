@@ -26,14 +26,15 @@ const checkout = async (req, res) => {
         const cart= await Cart.findOne({ userId: user}).populate({
             path: 'items.productId',
             model: Product
-          });        
-
-        res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories,addresses,cart});
+          });
+        const totalPrice=cart.items.reduce((total,item)=>total+item.totalPrice,0);
+        res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories,addresses,cart,totalPrice});
     } catch (error) {
        log(error);
-       res.redirect('pageNotFound');
+       res.redirect('/pageNotFound');
 
     }
+
 }
  
 // ============================== edit address ==============================
@@ -65,8 +66,8 @@ const editAddress = async (req, res) => {
 
         res.redirect('/checkout');
     } catch (error) {
+        res.redirect('/serverError');
         console.error(error);
-        res.status(500).send({ message: 'Server error occurred while updating address' });
     }
 };
 
@@ -137,7 +138,6 @@ const placeOrder = async (req, res) => {
         log('placing order')
         const userId = req.session.user;
         const { selectedAddress, paymentMethod } = req.body;
-        log('req',req.body);
         log('selected address',selectedAddress)
 
         const address = await Address.findById(selectedAddress);
@@ -150,14 +150,16 @@ const placeOrder = async (req, res) => {
             model: Product
         });
         if (!cart || cart.items.length === 0) {
-            return res.status(400).send("Your cart is empty.");
+            log('cart is empty')
+            return res.redirect('/serverError');
         }
 
         if (paymentMethod !== 'Cash on Delivery') {
-            return res.status(400).send("Invalid payment method selected.");
+            log('cod is availabel')
+            return res.redirect('/serverError');
         }
 
-        const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || item.productId.price * item.quantity), 0);
+        const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || item.productId.salesPrice * item.quantity), 0);
 
         const discountAmount = cart.discountamount || 0; 
         const additionalCharges = 0; 
@@ -168,7 +170,7 @@ const placeOrder = async (req, res) => {
             quantity: item.quantity,
             originalQuantity: item.quantity,
             status: 'Pending',
-            orderPrice: item.totalPrice || item.productId.price * item.quantity
+            orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity
         }));
 
         const newOrder = new Order({
@@ -184,17 +186,19 @@ const placeOrder = async (req, res) => {
         });
 
         // Save the order
-        await newOrder.save();
+       await newOrder.save();
        log('newOrder',newOrder)
         // Clear the cart
         await Cart.findOneAndDelete({ userId });
 
-        res.status(200).send({ message: 'Order placed successfully!', orderId: newOrder._id });
+        res.redirect(`/orderConfirmation/${newOrder._id}`); 
     } catch (error) {
         console.error("Error placing order:", error);
-        res.status(500).send("An error occurred while placing the order.");
+        res.redirect('/serverError');
     }
 }; 
+
+
 
 module.exports ={
     checkout,

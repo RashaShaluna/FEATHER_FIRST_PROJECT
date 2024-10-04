@@ -324,15 +324,15 @@ input[type="radio"]:checked {
                             <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => { %>
                                 <tr>
                                     <td><a href="#"><%= item.productId.name %></a></td>
-                                    <td>₹<%= item.totalPrice ? item.totalPrice.toFixed(2) : '0.00' %></td> <!-- Check if totalPrice exists -->
+                                    <td>₹<%= item.quantity * item.productId.salesPrice ? (item.quantity * item.productId.salesPrice).toFixed(2) : '0.00' %></td> <!-- Retrieve salesPrice from cart database -->
                                 </tr>
-                                <% subtotal += item.totalPrice || 0; %> <!-- Ensure subtotal addition is safe -->
-                            <% }); %>                
+                                <% subtotal += item.quantity * item.productId.salesPrice || 0; %> <!-- Ensure subtotal addition is safe -->
                             <tr class="summary-subtotal">
                                 <td>Subtotal:</td>
                                 <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
                             </tr><!-- End .summary-subtotal -->
-                      
+                            <% }); %>                
+
                     </tbody>
                 </table><!-- End .table table-summary -->
 

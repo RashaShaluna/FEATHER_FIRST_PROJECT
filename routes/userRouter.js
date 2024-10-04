@@ -9,6 +9,7 @@ const addressController = require('../controllers/addressescontroller');
 const wishlistController = require('../controllers/wishlistController');
 const cartController = require('../controllers/cartController');
 const checkoutController = require('../controllers/checkoutController');
+const orderController = require('../controllers/orderController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -72,9 +73,10 @@ router.post('/checkout/editAddress/:id', userAuth.isLogin,userAuth.isBlocked, ch
 router.post('/checkout/addAddress', userAuth.isLogin,userAuth.isBlocked,checkoutController.addAddress);
 router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkoutController.placeOrder);
 
+// order
+router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
 
-
-
+``
 
 
 
