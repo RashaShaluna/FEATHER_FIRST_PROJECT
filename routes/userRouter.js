@@ -75,8 +75,16 @@ router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkout
 
 // order
 router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
+router.get('/cancelOrder/:orderId',orderController.cancelPage);
+router.post('/cancelOrder/:orderId',orderController.cancelOrder);
+router.get('/orderDetail/:orderId',orderController.orderDetail);
 
-``
+
+
+
+
+
+
 
 
 

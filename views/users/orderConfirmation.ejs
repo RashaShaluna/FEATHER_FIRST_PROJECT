@@ -1,9 +1,8 @@
 <%- include('../layouts/header', { categories: categories}) %>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
     .address {
-        font-size: 15px;
+        font-size: 13px;
     }
     .page {
         max-width: 1000px;
@@ -87,64 +86,51 @@
         margin-bottom: 5px;
         margin-top: 80px;
     }
-    .offer {
-        color: #28a745;
-        font-size: 14px;
-    }
     .actions {
         display: flex;
         align-items: center;
     }
     .cancel-btn {
-        background-color: #1cc0a0;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        cursor: pointer;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-    }
-    .cancel-btn i {
-        margin-right: 5px;
-    }
-    .chat-link {
-        color: #1cc0a0;
-        text-decoration: none;
-        margin-left: 15px;
-        display: flex;
-        align-items: center;
-    }
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #1cc0a0;
+        }
+        .cancel-btn .icon-wrapper {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #1cc0a0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 4px;
+        }
+        .cancel-btn i {
+            color: white;
+            font-size: 12px;
+        }
     .fa-truck {
         color: #565656;
     }
-    .chat-link i {
-        margin-right: 5px;
-    }
-    .total-price {
-        text-align: right;
-        margin-top: 10px;
-    }
-    .total-price p {
-        font-size: 18px;
-        font-weight: 600;
-    }
-    .order-details {
+
+    .order-card {
         margin: 20px;
     }
-    .card-body {
+    .address-body {
         display: flex;
         align-items: flex-start;
     }
     .address {
         flex: 1;
+        font-size: 13px;
         margin-right: 20px;
     }
-    .image-container {
+    .confirmed-image {
         flex: 0 0 180px;
         margin-left: -15px;
     }
-    .image-container img {
+    .confirmed-image img {
         width: 100%;
         height: auto;
     }
@@ -157,37 +143,40 @@
             <p>Your ordered products will be delivered by <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
         </div>
 
-        <div class="order-details card">
-            <div class="card-body d-flex align-items-start">
+        <div class="order-details card order-card">
+            <div class="card-body d-flex align-items-start address-body">
                 <div class="address mr-4" style="flex: 1;">
-                    <h2>Delivery Address:</h2>
+                    <h2 style="font-size: 16px; margin-bottom: 10px;">Delivery Address:</h2>
                     <div class="d-flex flex-column">
-                        <div class="mb-2"><%= order.address.name %></div>
+                        <div class="mb-1"><%= order.address.name %></div>
                         <div><%= order.address.address %>, <%= order.address.landmark %></div>
                         <div><%= order.address.locality %>, <%= order.address.district %>, <%= order.address.state %></div>
-                        <div class="mb-2"><%= order.address.pincode %>, <%= order.address.country %></div>
-                        <div>Phone Numbers:</div>
-                        <div><%= order.address.phone %>, <%= order.address.alternatePhone %></div>
+                        <div class="mb-1"><%= order.address.pincode %>, <%= order.address.country %></div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <div style="margin-bottom: -4px; margin-top: -10px;">Phone Numbers: <%= order.address.phone %>, <%= order.address.alternatePhone%></div>
+                        </div>
                     </div>
                 </div>
-                <div class="image-container">
-                    <img src="/assets/images/confirmed.jpg" alt="Order Confirmed" />
+                <div class="image-container confirmed-image">
+                    <img src="/assets/images/confirmed.jpg" alt="Order Confirmed" style="width: 100%; height: auto;" />
                 </div>
             </div>
         </div>
         
 
-     
+        <h2 style="font-size: 20px;">Order Details</h2>
+
+            <div class="cart-item card order-items">
 
         <% order.orderitems.forEach(orderitem => { %>
         <% for (let i = 0; i < orderitem.quantity; i++) { %>
-            <div class="cart-item card order-items">
-                <div class="cart-body items-body">
+          
+                <div class="cart-body items-body mb-5 order-products">
                     <div class="product-details">
                     <img src="/uploads/<%= orderitem.productId.images[0]%>" alt="Product Image">
                     <div class="details">
-                        <h3><%= orderitem.productId.name %></h3>
-                        <p>Color: <%= orderitem.productId.color %></p>
+                        <div style="font-size: 17px; font-weight: 450; color: #000000;"><%= orderitem.productId.name %></div>
+                        <p class="para">Color: <%= orderitem.productId.color %></p>
                         <div class="delivery-info">
                             <i class="fa fa-truck"></i> Delivery expected by <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
                         </div>
@@ -197,24 +186,55 @@
                 </div>
                 <div class="price-details">
                     <div class="actions">
-                        <button class="cancel-btn">
-                            <i class="fa fa-close"></i> Cancel
-                        </button>
+                        <a href="/cancelOrder/<%= order._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderitem.productId.name%>">
+                            <div class="icon-wrapper">
+                                <i class="fa fa-close"></i>
+                            </div>
+                            Cancel
+                        </a>
                     </div>
-                    <p class="price ">₹<%= orderitem.orderPrice %></p>
+                    <p class="price para">₹<%= orderitem.productId.salesPrice %></p>
                 </div>
+                
+
             </div>
             
-        </div>
         <% } %>
-        <% }) %>
-        
-
+        <% }) %>        
+    </div>
     </div>
 
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // Select the cancel button
+        document.getElementById('cancelBtn').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default action
+    
+            // Get the URL from the href attribute of the clicked link
+            const cancelUrl = this.href;
+    
+            // Get the product name from the data attribute
+            const name = this.getAttribute('data-product-name');
+    
+            // Show the SweetAlert2 confirmation dialog with the product name
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to cancel the order for "${name}"?`,
+                showCancelButton: true,
+                confirmButtonColor: '#1cc0a0',
+                cancelButtonColor: '',
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If the user confirmed, redirect to the cancel order URL
+                    window.location.href = cancelUrl;
+                }
+            });
+        });
+    </script>
+    
+    
     <%- include('../layouts/footer') %>
 
 </body>

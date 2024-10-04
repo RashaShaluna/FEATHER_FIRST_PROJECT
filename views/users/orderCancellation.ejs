@@ -1,0 +1,163 @@
+<%- include('../layouts/header') %>
+
+    <style>
+        .cancel-order-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            padding : 0px 70px 0px 0px ;
+            border-radius: 4px;
+            box-shadow: 0px 2px 4px rgba(12, 11, 11, 0.1);
+            width: 70%;
+            margin: 20px auto;
+            height: 55rem;
+        }
+
+        .product-card {
+            width: 40%;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .product-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .product-card h4 {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+            text-align: center;
+        }
+
+        .product-card p {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .cancel-form {
+            width: 60%;
+            padding-left: 10px;
+        }
+
+        .cancel-form label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .cancel-form select,
+        .cancel-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .cancel-form textarea {
+            height: 50px;
+        }
+
+        .payment-methods {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .payment-methods label {
+            margin-right: 5px;
+        }
+
+        .submit-btn {
+            margin-top: 10px;
+                padding: 5px 10px;
+            background-color:#1cc0a0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: white;
+            color: #1cc0a0;
+            border: 1px solid #1cc0a0;
+        }
+      #comments{
+        height: 140px;
+      }
+     
+    </style>
+</head>
+<body class="mb-5" >
+
+    <div class="cancel-order-container">
+        <% if (order && order.orderitems.length > 0) { %>
+            <% order.orderitems.forEach(orderitem => { %>
+                <div class="product-card">
+                    <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image">
+                    <h4><%= orderitem.productId.name %></h4>
+                    <p>Price: ₹<%= orderitem.productId.salesPrice %></p>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p>No order items found.</p>
+        <% } %>
+    
+        <div class="cancel-form">
+            <form action="/cancelOrder/<%= order._id %>" method="POST">
+                <label for="reason">Reason for Cancellation:</label>
+                <select name="reason" id="reason" required>
+                    <option value="">--Select a reason--</option>
+                    <option value="changed_mind">Changed my mind</option>
+                    <option value="delay">Delivery took too long</option>
+                    <option value="other">Other</option>
+                </select>
+    
+                <label for="comments">Comments (Optional):</label>
+                <textarea name="comments" id="comments" placeholder="Explain why you want to cancel"></textarea>
+                <div class="payment-methods ">
+                    <label>Refund Modes:</label>
+                    
+                    <label>
+                        <input type="radio" id="cod" name="payment" value=" Cash On Delivery" required checked aria-label="Cash on Delivery" />
+                        No valid refund
+                    </label>
+                    <div id="refundInfo" style="color: rgb(126, 126, 126); font-size: 11px;" class="mb-1">
+                        There will be no refunds for Cash on Delivery orders.
+                    </div>
+                </div>
+                <div class="">
+                    <label>
+                        <input type="radio" id="online" name="payment" value="online" aria-label="Online Payment" />
+                        Online Payment
+                    </label>
+                    <div>
+                     <button type="submit" class="submit-btn">Submit Cancellation</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+   
+    
+<%- include('../layouts/footer') %>
+
+</body>
+</html>
+
