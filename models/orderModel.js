@@ -61,9 +61,28 @@ const orderSchema = new mongoose.Schema({
     cancelReason: {
         type: String
     },
+    cancellationComments: {
+     type: String 
+    },
+    shippedDate: {
+        type: Date
+      },
+      deliveryDate: {
+        type: Date
+      },
+      cancelDate: {
+        type: Date
+      },
+      returnDate: {
+        type: Date
+      },
     returnReason: {
         type: String
     },
+    refundMode: {
+      type: String
+     }, 
+    
     couponApplied: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Coupon'

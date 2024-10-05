@@ -1,0 +1,255 @@
+<%- include('../layouts/header') %>
+<style>
+    .main-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        margin-left: 10rem;
+    }
+    
+    .order-card {
+        margin-bottom: 1rem;
+    }
+    
+    .product-card {
+        display: flex;
+        position: relative;
+        padding: 1rem;
+        border: 0.1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        min-height: 150px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        width: 95%;
+        max-width: 90%;
+    }
+    
+    .product-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    
+    .product-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .cancel-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #1cc0a0;
+        margin-right: 3rem;
+        margin-top: 2rem;
+    }
+    
+    .cancel-btn .icon-wrapper {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #1cc0a0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 4px;
+    }
+    
+    .cancel-btn i {
+        color: white;
+        font-size: 12px;
+    }
+    
+    .address {
+        flex: 1;
+        font-size: 13px;
+        margin-right: 20px;
+    }
+    
+    h1 { font-size: 0.9rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 2rem; }
+    h4 { font-size: 1.875rem; }
+    h5 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    
+    .product-status {
+        display: flex;
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+    
+    .estimated-delivery,
+    .order-cancelled {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 12px;
+        margin: 10px;
+        text-align: right;
+    }
+    
+    @media (max-width: 767.98px) {
+        .main-container {
+            margin-left: 0;
+            padding: 0.5rem;
+        }
+        
+        .product-card {
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .product-image {
+            width: 300px;
+            height:300px;
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .cancel-btn {
+            position: static;
+            margin: 1rem 0 0 0;
+        }
+        
+        .estimated-delivery,
+        .order-cancelled {
+            position: static;
+            text-align: left;
+            margin: 1rem 0 0 0;
+        }
+        
+        .product-status {
+            margin-left: -100px;
+        }
+    }
+</style>
+
+<body>
+    <main>
+        <div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
+            <div class="container">
+                <h1 class="page-title">Order Details</h1>
+            </div>
+        </div>
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+                </ol>
+            </div>
+        </nav>
+        <div class="container mt-4 main-container mr-5">
+            <div class="row mb-4">
+                <div class="col-12 col-md-5">
+                    <div class="order-card">
+                        <div class="product-card">
+                            <div class="address mr-4" style="flex: 1;">
+                                <h2 style="font-size: 16px; margin-bottom: 10px;">Delivery Address:</h2>
+                                <div class="d-flex flex-column">
+                                    <div class="mb-1"><%= order.address.name %></div>
+                                    <div><%= order.address.address %>, <%= order.address.landmark %></div>
+                                    <div><%= order.address.locality %>, <%= order.address.district %>, <%= order.address.state %></div>
+                                    <div class="mb-1"><%= order.address.pincode %>, <%= order.address.country %></div>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                        <div style="margin-bottom: -4px; margin-top: -10px;">Phone Numbers: <%= order.address.phone %>, <%= order.address.alternatePhone%></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="order-card">
+                <h4>Product Details</h4>
+             
+                  
+                <% order.orderitems.forEach(orderitem => { %>
+                    <div class="product-card">
+                        <div class="product-info d-flex flex-column flex-md-row">
+                            <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image" class="product-image">
+                            <div class="product-details ml-md-3">
+                                <p style="font-size: 12px; margin-bottom: 10px;">Order Id : #<%= order._id %></p>
+                                <h5><%= orderitem.productId.name %></h5>
+                                <p>Color: <%= orderitem.productId.color %></p>
+                                <p style="font-size: 15px;">Price: ₹<%= orderitem.productId.salesPrice %></p>
+                            </div>
+                        </div>
+                        <div class="product-status" style="font-size: 12px; margin-left: 70px;">
+                            <ul style="list-style: none; padding: 0;">
+                                <li>Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                <% if (orderitem.status == 'Shipping' || orderitem.status == 'Delivered' || orderitem.status == 'Out of Delivery') { %>
+                                    <li>Shipped Date: <%= new Date(order.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <% } %>
+                                <% if (orderitem.status == 'Delivered') { %>
+                                    <li>Delivery Date: <%= new Date(order.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <% } %>
+                                <% if (orderitem.status == 'Cancelled') { %>
+                                    <li>Cancelled At: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <% } %>
+                                <% if (orderitem.status == 'Returned') { %>
+                                    <li>Cancelled At: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <li>Returned At: <%= new Date(order.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <% } %>
+                            </ul>
+                        </div>
+                        <div class="actions d-flex justify-content-center">
+                            <% if (orderitem.status == 'Pending' || orderitem.status == 'Processing') { %>
+                                <a href="/cancelOrder/<%= order._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderitem.productId.name%>">
+                                    <div class="icon-wrapper">
+                                        <i class="fa fa-close"></i>
+                                    </div>
+                                    <span class="d-none d-sm-block">Cancel</span>
+                                </a>
+                            <% } %>
+                        </div>
+                        <div class="estimated-delivery">
+                            <% if (orderitem.status == 'Pending' || orderitem.status == 'Processing') { %>
+                                <p>Estimated Delivery Date: <%= orderitem.estimatedDeliveryDate %></p>
+                            <% } %>
+                        </div>
+                        <div class="order-cancelled">
+                            <% if (orderitem.status == 'Cancelled') { %>
+                                <p>Order Cancelled</p>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('cancelBtn').addEventListener('click', function (event) {
+            event.preventDefault();
+            const cancelUrl = this.href;
+            const name = this.getAttribute('data-product-name');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to cancel the order for "${name}"?`,
+                showCancelButton: true,
+                confirmButtonColor: '#1cc0a0',
+                cancelButtonColor: '',
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = cancelUrl;
+                }
+            });
+        });
+    </script>
+    
+    <%- include('../layouts/footer') %>
+</body>
+</html>

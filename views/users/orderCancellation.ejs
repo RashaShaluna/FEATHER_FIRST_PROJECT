@@ -105,7 +105,20 @@
     </style>
 </head>
 <body class="mb-5" >
-
+  <main>
+    <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">Order Cancellation</h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
     <div class="cancel-order-container">
         <% if (order && order.orderitems.length > 0) { %>
             <% order.orderitems.forEach(orderitem => { %>
@@ -121,16 +134,16 @@
     
         <div class="cancel-form">
             <form action="/cancelOrder/<%= order._id %>" method="POST">
-                <label for="reason">Reason for Cancellation:</label>
-                <select name="reason" id="reason" required>
+                <label for="cancelReason">Reason for Cancellation:</label>
+                <select name="cancelReason" id="reason" required>
                     <option value="">--Select a reason--</option>
                     <option value="changed_mind">Changed my mind</option>
                     <option value="delay">Delivery took too long</option>
                     <option value="other">Other</option>
                 </select>
     
-                <label for="comments">Comments (Optional):</label>
-                <textarea name="comments" id="comments" placeholder="Explain why you want to cancel"></textarea>
+                <label for="cancellationComments">Comments (Optional):</label>
+                <textarea name="cancellationComments" id="comments" placeholder="Explain why you want to cancel"></textarea>
                 <div class="payment-methods ">
                     <label>Refund Modes:</label>
                     
@@ -154,6 +167,8 @@
             </form>
         </div>
     </div>
+   
+  </main>
    
     
 <%- include('../layouts/footer') %>

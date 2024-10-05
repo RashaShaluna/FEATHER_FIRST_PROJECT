@@ -44,7 +44,6 @@ const cancelPage = async (req, res) => {
         log('in cancel order page');
         const {orderId }= req.params; // Extract orderId correctly
         log('order',orderId);
-
         const order = await Order.findById(orderId) // Use orderId directly
             .populate('address')
             .populate({
@@ -73,11 +72,25 @@ const cancelOrder = async (req, res) => {
         log('in cancel order');
         const {orderId }= req.params; // Extract orderId correctly
         log('order',orderId);
+        const { cancelReason, cancellationComments, payment } = req.body;
 
-        await Order.findByIdAndUpdate(orderId, { status: 'Cancelled' });
-
-log('cancelleed')
-        res.redirect(`/orderDetial/${orderId}`);
+         await Order.findByIdAndUpdate(
+            orderId,
+            {
+                $set: {
+                    'orderitems.$[].cancelReason': cancelReason, // Update cancel reason for all items
+                    'orderitems.$[].cancellationComments': cancellationComments, // Update cancellation comments
+                    'orderitems.$[].refundMode': payment, // Update refund mode
+                    'orderitems.$[].cancelDate': new Date(), // Update cancellation date
+                    'orderitems.$[].status': 'Cancelled', // Set status of all order items to 'Cancelled'
+                    cancelDate: new Date(),
+                    status: 'Cancelled', // Set the overall order status to 'Cancelled'
+                }
+            },
+            { new: true } // Return the updated order
+        );
+   log('cancelleed')
+        res.redirect(`/orderDetail/${orderId}`);
     } catch (error) {
         log(error);
         res.redirect('/pageNotFound');
@@ -87,7 +100,7 @@ log('cancelleed')
 
 const orderDetail = async (req, res) => {
     try {
-        log('in order Detials');
+        log('in order DetaIls');
         const {orderId }= req.params; // Extract orderId correctly
         log('order',orderId);
 
@@ -106,9 +119,10 @@ const orderDetail = async (req, res) => {
             log('order is not found');
             return res.redirect('/serverError'); // Use return to avoid executing the next line
         }
-
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 7);
         const categories = await Category.find({ islisted: true, isDeleted: false });
-        res.render('users/orderDetail', { title: 'Order Detail - Feather', order, categories });
+        res.render('users/orderDetail', { title: 'Order Detail - Feather', order, categories ,deliveryDate });
     } catch (error) {
         log(error);
         res.redirect('/pageNotFound');
