@@ -40,7 +40,8 @@
         justify-content: center;
     }
     
-    .cancel-btn {
+    .cancel-btn ,
+    .return-btn{
         position: absolute;
         top: 0.5rem;
         right: 0.5rem;
@@ -52,7 +53,8 @@
         margin-top: 2rem;
     }
     
-    .cancel-btn .icon-wrapper {
+    .cancel-btn .icon-wrapper ,
+     .return-btn {
         width: 24px;
         height: 24px;
         border-radius: 50%;
@@ -86,7 +88,6 @@
         margin-top: 10px;
     }
     
-    .estimated-delivery,
     .order-cancelled {
         position: absolute;
         bottom: 0;
@@ -95,7 +96,14 @@
         margin: 10px;
         text-align: right;
     }
-    
+    .estimated-delivery  p {
+        position: absolute;
+        bottom: 0;
+        right:0;
+        margin-right: 30px;
+        margin-bottom: 10px;
+        text-align: right;
+    }
     @media (max-width: 767.98px) {
         .main-container {
             margin-left: 0;
@@ -115,7 +123,8 @@
             margin-bottom: 1rem;
         }
         
-        .cancel-btn {
+        .cancel-btn,
+        .return-btn {
             position: static;
             margin: 1rem 0 0 0;
         }
@@ -144,7 +153,7 @@
             <div class="container">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+                    <li class="breadcrumb-item active" aria-current="page">Order Details</li>
                 </ol>
             </div>
         </nav>
@@ -211,11 +220,15 @@
                                     </div>
                                     <span class="d-none d-sm-block">Cancel</span>
                                 </a>
-                            <% } %>
+                            <% }else if(orderitem.status == 'Delivered'){ %>
+                                <a href="/returnOrder/<%= order._id %>" class="return-btn" id="returnlBtn" data-product-name="<%= orderitem.productId.name%>">
+                                    <span class="d-none d-sm-block">Cancel</span>
+                                </a>
+                         <% } %>
                         </div>
-                        <div class="estimated-delivery">
-                            <% if (orderitem.status == 'Pending' || orderitem.status == 'Processing') { %>
-                                <p>Estimated Delivery Date: <%= orderitem.estimatedDeliveryDate %></p>
+                        <div class=" estimated-delivery">
+                            <% if (orderitem.status == 'Pending' || orderitem.status == 'Processing' || orderitem.status == 'Shipped') { %>
+                                <p>Estimated Delivery: <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
                             <% } %>
                         </div>
                         <div class="order-cancelled">

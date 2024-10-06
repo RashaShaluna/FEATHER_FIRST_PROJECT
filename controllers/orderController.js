@@ -129,10 +129,33 @@ const orderDetail = async (req, res) => {
     }
 };
 
+const orderPage = async (req, res) => {
+    try {
+        log('in order page');
+        
+        // Fetching the orders for the logged-in user
+        const orders = await Order.find({ userId: req.session.user })
+            .populate('address')
+            .populate({
+                path: 'orderitems.productId', // Populate product details within orderitems
+                model:  Product,
+            });
+            const deliveryDate = new Date();
+            deliveryDate.setDate(deliveryDate.getDate() + 7);
+        const categories = await Category.find({ islisted: true, isDeleted: false });
+        
+        res.render('users/orderPage', { title: 'Orders - Feather', orders, categories, activeTab: 'orderPage'  ,deliveryDate });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pageNotFound');
+    }
+};
+
 
 module.exports={
     orderConfirmation,
     cancelOrder,
     cancelPage,
-    orderDetail
+    orderDetail,
+    orderPage
 }

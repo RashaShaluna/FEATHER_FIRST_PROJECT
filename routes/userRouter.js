@@ -74,11 +74,11 @@ router.post('/checkout/addAddress', userAuth.isLogin,userAuth.isBlocked,checkout
 router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkoutController.placeOrder);
 
 // order
-router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
-router.get('/cancelOrder/:orderId',orderController.cancelPage);
-router.post('/cancelOrder/:orderId',orderController.cancelOrder);
-router.get('/orderDetail/:orderId',orderController.orderDetail);
-
+router.get('/orderconfirmation/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.orderConfirmation);
+router.get('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
+router.post('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
+router.get('/orderDetail/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
+router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
 
 
 
