@@ -185,11 +185,11 @@
                                                 <div class="product-status">
                                                     <% if (orderitem.status === 'Pending' || orderitem.status === 'Processing' || orderitem.status === 'Shipped') { %>
                                                         <p class="estimate">Estimated Delivery: <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'delivered') { %>
-                                                        <p>Delivered on: <%= new Date(order.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% } else if (orderitem.status === 'Delivered') { %>
+                                                        <p class="estimate">Delivered on: <%= new Date(orderitem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
                                                     <% } else if (orderitem.status === 'Cancelled') { %>
-                                                        <p class="text-danger">Order Cancelled on: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'returned') { %>
+                                                        <p class="text-danger">Order Cancelled on: <%= new Date(orderitem.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                                    <% } else if (orderitem.status === 'Returned') { %>
                                                         <p class="text-warning">Product Returned on: <%= new Date(orderitem.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
                                                     <% } %>
                                                 </div>

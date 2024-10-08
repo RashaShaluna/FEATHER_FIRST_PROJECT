@@ -19,7 +19,7 @@ const customerInfo = async (req, res) => {
         const userData = await User.find({
             isAdmin: false,
             $or: [
-                {name:{$regex:'.*'+ search+'.*'}}, // star for  numbers and all letters  beggning of the search
+                {name:{$regex:'.*'+ search+'.*'}}, 
                 {email:{$regex:'.*'+ search+'.*'}},
             ]
         })

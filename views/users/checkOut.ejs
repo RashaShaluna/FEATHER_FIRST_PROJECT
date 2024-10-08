@@ -370,12 +370,12 @@ input[type="radio"]:checked {
                         // Assuming you have variables for discounts or additional charges
                         const discountAmount = 0; // Example discount
                         const additionalCharges = 0; // Any additional charges (e.g., shipping)
-                        const finalAmount = subtotal - discountAmount + additionalCharges; // Calculate final amount
+                        const orderPrice = subtotal - discountAmount + additionalCharges; // Calculate order amount
                         %>
                     
                         <tr class="summary-total">
                             <td>Amount Payable:</td>
-                            <td>₹<%= finalAmount.toFixed(2) %></td> <!-- Display final amount -->
+                            <td>₹<%= orderPrice.toFixed(2) %></td> <!-- Display order amount -->
                         </tr><!-- End .summary-total -->
                     </tbody>               
                  </table><!-- End .table table-summary -->

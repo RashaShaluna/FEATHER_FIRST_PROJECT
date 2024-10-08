@@ -29,15 +29,42 @@ const orderSchema = new mongoose.Schema({
         },
         status: {
             type: String,
-            enum: ['Delivered', 'Shipping', 'Pending', 'Cancelled', 'Returned'],
+            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
             default: 'Pending'
 
         },
-        orderPrice: {
-            type: Number ,// Store the price at the time of ordering
+        orderDate: {
+            type: Date,
+            default: Date.now()
+        },
+          returnDate: {
+            type: Date
+          },
+          shippedDate: {
+            type: Date
+          },
+          deliveryDate: {
+            type: Date
+          },
+          cancelDate: {
+            type: Date
+          },
+         productPrice:{  // this is what that the product that ordered for price
+            type:Number,
             default:0
-        }
+         }
+        
     }],
+    returnReason: {
+        type: String
+    },
+    refundMode: {
+        type: String
+       },  
+      orderPrice: {    // this what the order price that means price of all product in a order
+          type: Number ,
+          default:0
+      },
     orderUserDetails: {
         type:Object,
         required: true
@@ -64,18 +91,7 @@ const orderSchema = new mongoose.Schema({
     cancellationComments: {
      type: String 
     },
-    shippedDate: {
-        type: Date
-      },
-      deliveryDate: {
-        type: Date
-      },
-      cancelDate: {
-        type: Date
-      },
-      returnDate: {
-        type: Date
-      },
+   
     returnReason: {
         type: String
     },
@@ -98,10 +114,6 @@ const orderSchema = new mongoose.Schema({
         type:Number,
         defualt:0
     },
-    finalAmount:{
-        type:Number,
-        required:true
-    },
   address:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Address',
@@ -110,7 +122,7 @@ const orderSchema = new mongoose.Schema({
   status:{
     type:String,
     required:true,
-    enum:['Pending','Processing','Shipped','Delivered','Canclled','Return Request','Returned']
+    enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded']
   },
   createdOn: {
     type: Date,

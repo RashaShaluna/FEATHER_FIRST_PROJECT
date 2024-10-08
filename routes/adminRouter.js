@@ -13,8 +13,8 @@ const adminController=require("../controllers/adminController");
 const customerController = require('../controllers/customerController');
 const categoryController = require('../controllers/catergoryController');
 const productController = require('../controllers/productController');
+const orderController = require('../controllers/orderController');
 const adminAuth = require('../middleware/adminAuth');
-const sharp = require('sharp');
 const uploads = require('../uplaods');
 
 adminRouter.use(nocache());
@@ -64,9 +64,23 @@ adminRouter.get('/instock',adminAuth.isAdmin,productController.instockProduct);
 adminRouter.get('/blockproduct',adminAuth.isAdmin,productController.productBlocked);
 adminRouter.get('/unblockproduct',adminAuth.isAdmin,productController.productUnBlock);
 adminRouter.delete('/product/delete/:productId', adminAuth.isAdmin, productController.softDeleteProduct);
-adminRouter.get('/editproduct/:id',  productController.editProduct);
+adminRouter.get('/editproduct/:id',  adminAuth.isAdmin,productController.editProduct);
 adminRouter.post('/editproduct/:id',  uploads.array('images',3) , productController.editingProduct);
 adminRouter.delete('/delete-image',productController.deleteSingleImage)
  
+// order management 
+adminRouter.get('/orderList',adminAuth.isAdmin, orderController. orderList) 
+adminRouter.post('/changeStatus',adminAuth.isAdmin,orderController.changeStatus)
+adminRouter.get('/orderItem/:orderId',adminAuth.isAdmin,orderController.orderItem)
+
+
+
+
+
+
+
+
+
+
 
 module.exports = adminRouter;

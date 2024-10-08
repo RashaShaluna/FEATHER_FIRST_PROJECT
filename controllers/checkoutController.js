@@ -163,32 +163,38 @@ const placeOrder = async (req, res) => {
 
         const discountAmount = cart.discountamount || 0; 
         const additionalCharges = 0; 
-        const finalAmount = totalAmount - discountAmount + additionalCharges;
+        const  orderPrice = totalAmount - discountAmount + additionalCharges;
 
         const orderItems = cart.items.map(item => ({
             productId: item.productId._id,
             quantity: item.quantity,
             originalQuantity: item.quantity,
             status: 'Pending',
-            orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity
+            orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity,
+            productPrice: item.productId.salesPrice * item.quantity, 
         }));
+
 
         const newOrder = new Order({
             userId, 
             orderUserDetails: userId, 
             orderitems: orderItems,
             totalAmount,
-            finalAmount,
+             orderPrice,
             paymentMethod,
             status: 'Pending',
             placedAt: new Date(),
             address: selectedAddress, 
         });
 
-        // Save the order
        await newOrder.save();
        log('newOrder',newOrder)
-        // Clear the cart
+
+        for(const item of orderItems){
+            await Product.findByIdAndUpdate(item.productId,{
+                $inc:{quantity:-item.quantity}
+            })
+        }
         await Cart.findOneAndDelete({ userId });
 
         res.redirect(`/orderConfirmation/${newOrder._id}`); 
@@ -197,8 +203,6 @@ const placeOrder = async (req, res) => {
         res.redirect('/serverError');
     }
 }; 
-
-
 
 module.exports ={
     checkout,
