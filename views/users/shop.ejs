@@ -104,7 +104,7 @@
                                         <input type="hidden" name="page" value="<%= currentPage %>">
                 						<label for="sortby">Sort by:</label>
                                         <div class="select-custom" style="margin-top: 10px; font-size: 14px; color: #999;">
-                                            <form method="get" action="/shop/<%= categoryId%>">
+                                            <form method="get" action="/shop">
                                                 <select name="sort" onchange="this.form.submit()" style="padding: 5px 10px; border: 1px solid #e1e1e1; color: #494949;">
                                                   <option value="relevant" <%= sort === 'relevant' ? 'selected' : '' %>>Featured</option>
                                                   <option value="a-z" <%= sort === 'a-z' ? 'selected' : '' %>>A-Z</option>

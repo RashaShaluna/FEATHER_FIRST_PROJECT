@@ -198,11 +198,12 @@
                         <div class="product-status" style="font-size: 12px; margin-left: 70px;">
                             <ul style="list-style: none; padding: 0;">
                                 <li>Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
-                                <% if (order.status == 'Shipping' || order.status == 'Delivered' || order.status == 'Out of Delivery') { %>
+                                
+                                <% if (order.status == 'Shipped' || order.status == 'Delivered' || order.status == 'Out of Delivery') { %>
                                     <li>Shipped Date: <%= new Date(order.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                                     <% } %>
                                 <% if (order.status == 'Delivered') { %>
-                                    <li>Delivery Date: <%= new Date(order.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <li>Delivery Date: <%= new Date(order.deliveredDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                                     <% } %>
                                 <% if (order.status == 'Cancelled') { %>
                                     <li>Cancelled At: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
@@ -212,22 +213,21 @@
                         </div>
                         <div class="actions d-flex justify-content-center">
                             <% if (order.status == 'Pending' || order.status == 'Processing') { %>
-                                <a href="/cancelOrder/<%= order._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= order.productId.name%>">
+                                <a href="/cancelOrder/<%= order._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderitem.productId.name%>">
                                     <div class="icon-wrapper">
                                         <i class="fa fa-close"></i>
                                     </div>
                                     <span class="d-none d-sm-block">Cancel</span>
                                 </a>
                             <% }else if(order.status == 'Delivered'){ %>
-                                <a href="/returnOrder/<%= order._id %>" class="return-btn" id="returnlBtn" data-product-name="<%= order.productId.name%>">
-                                    
-                                    <span class="d-none d-sm-block">Return</span>
+                                    <a href="">
+                                    <span class="d-none d-sm-block text-danger " style="margin-left: 300px;">Return</span>
                                 </a>
                          <% } %>
                         </div>
                         <div class=" estimated-delivery">
                             <% if (order.status == 'Pending' || order.status == 'Processing' || order.status == 'Shipped') { %>
-                                <p>Estimated Delivery: <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                <p>Estimated Delivery: <%=order.estimatedDeliveryDate .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
                             <% } %>
                         </div>
                         <div class="order-cancelled">

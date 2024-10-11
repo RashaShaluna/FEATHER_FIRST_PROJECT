@@ -64,8 +64,16 @@ adminRouter.get('/instock',adminAuth.isAdmin,productController.instockProduct);
 adminRouter.get('/blockproduct',adminAuth.isAdmin,productController.productBlocked);
 adminRouter.get('/unblockproduct',adminAuth.isAdmin,productController.productUnBlock);
 adminRouter.delete('/product/delete/:productId', adminAuth.isAdmin, productController.softDeleteProduct);
-adminRouter.get('/editproduct/:id',  adminAuth.isAdmin,productController.editProduct);
-adminRouter.post('/editproduct/:id',  uploads.array('images',3) , productController.editingProduct);
+adminRouter.get('/editproduct/:id', productController.editProduct);
+adminRouter.post(
+  '/editproduct/:id',  
+  uploads.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 }
+  ]),
+  productController.editingProduct
+);
 adminRouter.delete('/delete-image',productController.deleteSingleImage)
  
 // order management 

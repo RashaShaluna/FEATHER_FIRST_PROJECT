@@ -286,20 +286,20 @@ const softDeleteProduct = async (req, res) => {
   //     res.redirect('/admin/pageerror');
   //   }
   // }
-
   const editingProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const files = req.files;
-        
+        const files = req.files;  // Files uploaded from the form
         const product = await Product.findById(productId);
+
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        // Handle Category Update
         let categoryId = null;
-        if (req.body.category) {
-            const category = await Category.findOne({ name: req.body.category });
+        if (req.body.categoryId) {
+            const category = await Category.findById(req.body.categoryId);
             if (category) {
                 categoryId = category._id;
             } else {
@@ -307,86 +307,47 @@ const softDeleteProduct = async (req, res) => {
             }
         }
 
-       
+        // Update other product fields
         product.name = req.body.name;
         product.price = req.body.price;
-        product.salesPrice= req.body.salesPrice;
+        product.salesPrice = req.body.salesPrice;
         product.offerprice = req.body.offerprice;
         product.description = req.body.description;
         product.quantity = req.body.quantity;
         product.color = req.body.color;
         product.category = categoryId;
-      
 
-        if (files && files.length > 0) {
-          files.forEach((file, index) => {
-              if (index < product.images.length) {
-                  product.images[index] = file.filename;  // Replace existing image
-              } else {
-                  product.images.push(file.filename);  // Add new image if needed
-              }
-          });
-      }
-      // if (files && files.length > 0) {
-      //   const images = files.map(file => file.filename);
-      //   product.images = images;
-      // }
-      
-      await product.save();
+        // Image handling logic
+        const images = [
+            files['image1'] ? files['image1'][0].filename : product.images[0] || null,
+            files['image2'] ? files['image2'][0].filename : product.images[1] || null,
+            files['image3'] ? files['image3'][0].filename : product.images[2] || null
+        ];
 
+        
+        // Assign the updated images array back to the product
+        product.images = images.filter(image => image !== null); // Ensure no null values in images array
 
+        // Save the updated product
+        await product.save();
 
+        // Redirect after successful update
         res.redirect('/admin/product');
-
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).json({ message: 'Error updating product', error });
+        res.redirect('/serverError');
     }
 };
 
+//============================delete the image============================const fs = require('fs');
 
-
-
-//============================delete the image============================
-
-// const deleteSingleImage = async (req, res) => {
-//     try {
-//         const { imagePath } = req.body;
-
-//         // Delete the image from the server
-//         const fullPath = path.join(__dirname, 'uploads', imagePath);
-//         if (fs.existsSync(fullPath)) {
-//             fs.unlinkSync(fullPath);
-//         } else {
-//             return res.status(404).json({ success: false, message: 'Image not found' });
-//         }
-
-//         // Optionally, remove the image reference from the product document
-//         const productId = req.query.productId; // Retrieve productId from query params or elsewhere
-//         await Product.findByIdAndUpdate(productId, { $pull: { images: imagePath } });
-
-//         res.json({ success: true });
-//     } catch (error) {
-//         console.error('Error deleting image:', error);
-//         res.status(500).json({ success: false, message: 'Error deleting image' });
-//     }
-// });
-
-
-// Define the base path for images
-// const IMAGE_BASE_PATH = 'C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public/uploads';
-
-
-
-// Function to delete a single image
 const deleteSingleImage = async (req, res) => {
-  const { imagePath } = req.body;
+  log('delete')
+  const { imagePath, productId } = req.body;
 
   console.log('Received imagePath:', imagePath);
 
   // Ensure imagePath does not have leading slashes
-  // const image = '/new-images.png';
-
   const filePath = path.join('C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public', imagePath);
 
   console.log('Constructed filePath:', filePath);
@@ -398,6 +359,12 @@ const deleteSingleImage = async (req, res) => {
       fs.unlinkSync(filePath);
       
       console.log('File successfully deleted:', filePath);
+
+      // Remove image from product images array in database
+      const product = await Product.findByIdAndUpdate(productId, { $pull: { images: imagePath } }, { new: true });
+      if (!product) {
+        return res.status(404).json({ success: false, message: 'Product not found' });
+      }
 
       res.status(200).json({ success: true, message: 'Image deleted successfully' });
     } else {

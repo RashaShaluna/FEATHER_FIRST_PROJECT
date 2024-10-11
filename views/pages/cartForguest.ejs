@@ -1,0 +1,109 @@
+<%- include('../layouts/header') %>
+<style>
+ /* Toast container */
+.toast {
+    position: fixed;
+    bottom: 30px; /* Bottom center */
+    left: 50%;
+    transform: translateX(-50%); /* Center it horizontally */
+    background-color: black; /* Black background */
+    color: white; /* White text */
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add some shadow */
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.5s ease-in-out; /* Smooth fade in/out */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+/* Toast icon */
+.toast-icon {
+    color: white; /* Tick mark color */
+    font-size: 18px;
+    display: inline-block;
+}
+
+/* When the toast is visible */
+.toast.show {
+    opacity: 1; /* Show the toast */
+}
+.mt-100{
+   margin-top:100px;
+
+}
+
+.image-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 150px; /* Adjust height as needed */
+}
+
+.card .card-body {
+    padding: 30px;
+    background-color: transparent;
+}
+
+.btn-cart, .btn-cart.disabled, .btn-cart:disabled {
+    background-color:#1cc0a0!important;
+    border-color: #1cc0a0!important;
+}
+
+</style>
+<body>
+ 
+        <main class="main">
+        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        		<div class="container">
+        			<h1 class="page-title">Shopping Cart<span>Shop</span></h1>
+        		</div><!-- End .container -->
+        	</div><!-- End .page-header -->
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+                <div class="container-fluid ">
+                    <div class="row cart-row">
+        
+                       <div class="col-md-12">
+                       
+                               <!-- <div class="card"> -->
+                          
+                           <div class="cart mb-5">
+                                   <div class="col-sm-12 empty-cart-cls text-center">
+                                    <div class="image-container">
+                                        <img src="\assets\images\empty-cart.png" width="130" height="130" class="img-fluid">
+                                    </div>
+                                        <h3><strong>Missing cart items !</strong></h3>
+                                       <h4>Login to see the items you added previously
+                                        :)</h4>
+                                       <!-- <a href="#" class=" cart-btn-transform m-3" data-abc="true">Continue Shopping</a> -->
+                                       <!-- <a href="/checkout" class="btn btn-cart btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a> -->
+                                        <a href="/login" class="btn btn-outline-primary-2">Login</a>
+                                       
+                                   <!-- </div> -->
+                           </div>
+                   </div>
+                           
+                        
+                       </div>
+                    
+                    </div>
+                   
+                   </div>
+        </main><!-- End .main -->
+
+        <%- include('../layouts/footer') %>
+</body>
+
+
+<!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->
+</html>

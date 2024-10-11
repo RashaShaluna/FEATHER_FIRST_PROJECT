@@ -10,6 +10,12 @@ function capitalizeFirstLetter(string) {
     if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+const calculateEstimatedDeliveryDate = (daysToAdd) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysToAdd);
+    return date;
+};
+
 
 // ============================ checkout ===============================
 const checkout = async (req, res) => {
@@ -163,13 +169,13 @@ const placeOrder = async (req, res) => {
 
         const discountAmount = cart.discountamount || 0; 
         const additionalCharges = 0; 
-        const  orderPrice = totalAmount - discountAmount + additionalCharges;
+        const  orderPrice = totalAmount - discountAmount + additionalCharges;       
+        const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
 
         const orderItems = cart.items.map(item => ({
             productId: item.productId._id,
             quantity: item.quantity,
             originalQuantity: item.quantity,
-            status: 'Pending',
             orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity,
             productPrice: item.productId.salesPrice * item.quantity, 
         }));
@@ -180,11 +186,12 @@ const placeOrder = async (req, res) => {
             orderUserDetails: userId, 
             orderitems: orderItems,
             totalAmount,
-             orderPrice,
+            orderPrice,
             paymentMethod,
             status: 'Pending',
-            placedAt: new Date(),
+            orderDate: new Date(),
             address: selectedAddress, 
+            estimatedDeliveryDate        
         });
 
        await newOrder.save();
@@ -195,6 +202,17 @@ const placeOrder = async (req, res) => {
                 $inc:{quantity:-item.quantity}
             })
         }
+        //  count of each  product 
+        for(const item of orderItems){
+          const productId = item.productId;
+          const quantity = item.quantity;
+     
+          await Product.findByIdAndUpdate(
+            productId,
+            {$inc:{orderCount:quantity}}
+          );
+        }
+
         await Cart.findOneAndDelete({ userId });
 
         res.redirect(`/orderConfirmation/${newOrder._id}`); 

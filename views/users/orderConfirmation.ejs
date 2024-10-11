@@ -137,10 +137,10 @@
     </style>
 </head>
 <body>
-    <div class="container page  ">
+    <div class="container page ">
         <div class="thankyou text-center">
             <h1>Thank you for your order!</h1>
-            <p>Your ordered products will be delivered by <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+            <p>Your ordered products will be delivered by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
         </div>
 
         <div class="order-details card order-card">
@@ -178,7 +178,7 @@
                         <div style="font-size: 17px; font-weight: 450; color: #000000;"><%= orderitem.productId.name %></div>
                         <p class="para">Color: <%= orderitem.productId.color %></p>
                         <div class="delivery-info">
-                            <i class="fa fa-truck"></i> Delivery expected by <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
+                            <i class="fa fa-truck"></i> Delivery expected by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
                         </div>
                         
                         

@@ -40,6 +40,7 @@ const loadlandingpage = async (req, res) => {
     res.render('users/landingpage', {title: 'Feather - Homengpage' ,
        products: products,
        categories: categories,
+       
       });
     console.log('landing page loaded');
   } catch (error) {
@@ -57,6 +58,7 @@ const loadHome = async (req, res) => {
     console.log(req.session); // Check if session is being persisted
     const categories = await Category.find({ islisted: true, isDeleted: false });
     const user = req.session.user ;
+
     log(user)
     const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
     // log('product',products)
@@ -64,6 +66,7 @@ const loadHome = async (req, res) => {
     res.render('users/homepage', {title: 'Feather - Homengpage' ,
        products: products,
        categories: categories,
+       
       });
   } catch (error) {
     console.log('Home page not found', error); 
@@ -80,6 +83,7 @@ const loadregister = async (req, res) => {
   try {
     const categories = await Category.find({ islisted: true, isDeleted: false });
     // log(categories)
+
     res.render('users/register', { title: 'Feather - registerpage' ,categories: categories});
     console.log('register page');
   } catch (error) {
@@ -588,13 +592,10 @@ const successpass = async (req,res) => {
 
 const shop = async (req, res) => {
   try {
-    log('in shop')
+    log('in shop');
     const user = req.session.user;
-    log(user)
-    // const userId = user ? user._id : null; 
-    // log('userId',userId)
+    log(user);
 
-   
     const categories = await Category.aggregate([
       {
         $match: { isDeleted: false, islisted: true }
@@ -620,7 +621,10 @@ const shop = async (req, res) => {
         }
       }
     ]);
- 
+
+    // Extract search query from request
+    const searchQuery = req.query.q ? req.query.q.trim() : ''; // Get search query
+
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
@@ -628,8 +632,7 @@ const shop = async (req, res) => {
     const categoryId = req.params.categoryId || '';
     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
     const minPrice = parseFloat(req.query.minPrice) || 0;
-    const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
-  
+    const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
 
     let products = [];
     let totalProducts = 0;
@@ -637,6 +640,7 @@ const shop = async (req, res) => {
     let colors = [];
     let sortOptions = {};
 
+    // Sort options based on user selection
     switch (sort) {
       case 'a-z':
         sortOptions = { name: 1 };
@@ -645,13 +649,13 @@ const shop = async (req, res) => {
         sortOptions = { name: -1 };
         break;
       case 'low-high':
-        sortOptions = { offerprice: 1 };
+        sortOptions = { salesPrice: 1 };
         break;
       case 'high-low':
-        sortOptions = { offerprice: -1 };
+        sortOptions = { salesPrice: -1 };
         break;
       case 'popularity':
-        sortOptions = { popularity: -1 };
+        sortOptions = { orderCount: -1 };
         break;
       case 'newest':
         sortOptions = { createdAt: -1 };
@@ -667,6 +671,14 @@ const shop = async (req, res) => {
       salesPrice: { $gte: minPrice, $lte: maxPrice }
     };
 
+    // If there's a search query, add it to the query
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: searchQuery, $options: 'i' } },
+        { color: { $regex: searchQuery, $options: 'i' } }
+      ];
+    }
+
     if (categoryId) {
       query.category = categoryId;
       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
@@ -677,7 +689,7 @@ const shop = async (req, res) => {
       if (selectedColors.length > 0) {
         query.color = { $in: selectedColors };
       }
-
+      
       totalProducts = await Product.countDocuments(query);
       products = await Product.find(query)
         .sort(sortOptions)
@@ -690,8 +702,6 @@ const shop = async (req, res) => {
         isDeleted: { $ne: true }
       });
       colors.sort((a, b) => a.localeCompare(b));
-
-      
     } else {
       if (selectedColors.length > 0) {
         query.color = { $in: selectedColors };
@@ -726,155 +736,14 @@ const shop = async (req, res) => {
       selectedColors,
       minPrice,
       maxPrice,
-       
+      searchQuery, 
     });
   } catch (err) {
     console.error(err);
     return res.redirect('/pageNotFound');
   }
 };
-// const shop = async (req, res) => {
-//   try {
-//     //     log('in shop')
-//     const user = req.session.user;
-//      log('user',user);
 
-//     const categories = await Category.aggregate([
-//       {
-//         $match: { isDeleted: false, islisted: true }
-//       },
-//       {
-//         $lookup: {
-//           from: 'products',
-//           localField: '_id',
-//           foreignField: 'category',
-//           as: 'products'
-//         }
-//       },
-//       {
-//         $addFields: {
-//           productCount: { $size: "$products" }
-//         }
-//       },
-//       {
-//         $project: {
-//           name: 1,
-//           slug: 1,
-//           productCount: 1
-//         }
-//       }
-//     ]);
-
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = 6;
-//     const skip = (page - 1) * limit;
-//     const sort = req.query.sort || 'Featured';
-//     const categoryId = req.params.categoryId || '';
-//     const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
-//     const minPrice = parseFloat(req.query.minPrice) || 0;
-//     const maxPrice = parseFloat(req.query.maxPrice) || Infinity;log(minPrice);
-//     log(maxPrice)
-  
-//     let products = [];
-//     let totalProducts = 0;
-//     let categoryName = '';
-//     let colors = [];
-//     let sortOptions = {};
-
-//     switch (sort) {
-//       case 'a-z':
-//         sortOptions = { name: 1 };
-//         break;
-//       case 'z-a':
-//         sortOptions = { name: -1 };
-//         break;
-//       case 'low-high':
-//         sortOptions = { offerprice: 1 };
-//         break;
-//       case 'high-low':
-//         sortOptions = { offerprice: -1 };
-//         break;
-//       case 'popularity':
-//         sortOptions = { popularity: -1 };
-//         break;
-//       case 'newest':
-//         sortOptions = { createdAt: -1 };
-//         break;
-//       default:
-//         sortOptions = { featured: 1 };
-//         break;
-//     }
-
-//     let query = {
-//       isBlocked: false,
-//       isDeleted: false,
-//       offerprice: { $gte: minPrice, $lte: maxPrice }
-//     };
-
-//     if (categoryId) {
-//       query.category = categoryId;
-//       const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-//       if (category) {
-//         categoryName = category.name;
-//       }
-
-//       if (selectedColors.length > 0) {
-//         query.color = { $in: selectedColors };
-//       }
-
-//       totalProducts = await Product.countDocuments(query);
-//       products = await Product.find(query)
-//         .sort(sortOptions)
-//         .limit(limit)
-//         .skip(skip);
-
-//       colors = await Product.distinct('color', {
-//         category: categoryId,
-//         isBlocked: { $ne: true },
-//         isDeleted: { $ne: true }
-//       });
-//       colors.sort((a, b) => a.localeCompare(b));
-
-//     } else {
-//       if (selectedColors.length > 0) {
-//         query.color = { $in: selectedColors };
-//       }
-
-//       totalProducts = await Product.countDocuments(query);
-//       products = await Product.find(query)
-//         .sort(sortOptions)
-//         .limit(limit)
-//         .skip(skip);
-
-//       colors = await Product.distinct('color', {
-//         isBlocked: { $ne: true },
-//         isDeleted: { $ne: true }
-//       });
-//       colors.sort((a, b) => a.localeCompare(b));
-//     }
-
-//     const totalPages = Math.ceil(totalProducts / limit);
-
-//     res.render('users/shop', {
-//       title: 'Shop - Feather',
-//       categories,
-//       products,
-//       currentPage: page,
-//       totalPages,
-//       categoryName,
-//       colors,
-//       user: user,
-//       sort,
-//       categoryId,
-//       selectedColors,
-//       minPrice,
-//       maxPrice
-//     });
-//   } catch (err) {
-//     console.error(err);
-//     return res.redirect('/pageNotFound');
-//   }
-// };  this is form git 
 
 // ========================================================================= Product single view ==================================================================
 

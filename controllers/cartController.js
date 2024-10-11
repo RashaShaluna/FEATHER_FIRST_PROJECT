@@ -53,6 +53,22 @@ const cart = async (req, res) => {
     }
   };
 
+// ==================== guest cart ============================
+
+const guestCart = async(req,res)=>{
+  try{
+  
+  log('in guest cart');
+  const categories = await Category.find({islisted:true,isDeleted:false});
+  res.render('pages/cartForguest',{title:'Cart - Feather',categories});
+
+  }catch(err){
+    log(err);
+    res.redirect('/pageNotFound');
+  }
+}
+
+
 
 
 // ========================================= add cart ===================
@@ -217,5 +233,6 @@ if (itemIndex > -1) {
     cart,
     addToCart,
     removeFromCart,
-    updateQuantity
+    updateQuantity,
+    guestCart
   }

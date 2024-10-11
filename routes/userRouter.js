@@ -42,6 +42,7 @@ router.get('/changedpass',userController.successpass);
 // product
 router.get('/shop/:categoryId',userController.shop);
 router.get('/product/:id', userController. productView);
+router.get('/shop', userController.shop);
 
 // profile
 router.get('/profile',userController.userProfile);
@@ -56,16 +57,13 @@ router.delete('/deleteAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressCo
 router.get('/editAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressController.editAddress);
 router.post('/editAddress/:id',userAuth.isLogin,userAuth.isBlocked,addressController.editAddressVerify);
 
-// whislist
-// router.get('/whislist',userAuth.isLogin, wishlistController.whislist);
-// router.post('/addWishlist',userAuth.isLogin, wishlistController.addtoWishlist);
-// router.post('/removeWishlist',userAuth.isLogin, wishlistController. removeFromWishlist);
 
 // cart 
 router.get('/cart',userAuth.isLogin,userAuth.isBlocked, cartController.cart);
 router.post('/addToCart',userAuth.isLogin,userAuth.isBlocked, cartController.addToCart );
 router.post('/removeFromCart',userAuth.isLogin,userAuth.isBlocked, cartController.removeFromCart);
 router.post('/cart/update-quantity/:productId',userAuth.isLogin,userAuth.isBlocked, cartController.updateQuantity);
+router.get('/guestCart',cartController.guestCart);
 
 // checkOut
 router.get('/checkout',userAuth.isLogin,userAuth.isBlocked,checkoutController.checkout);
@@ -79,6 +77,11 @@ router.get('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderCont
 router.post('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
 router.get('/orderDetail/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
+
+// whislist
+// router.get('/whislist',userAuth.isLogin, wishlistController.whislist);
+// router.post('/addWishlist',userAuth.isLogin, wishlistController.addtoWishlist);
+// router.post('/removeWishlist',userAuth.isLogin, wishlistController. removeFromWishlist);
 
 
 

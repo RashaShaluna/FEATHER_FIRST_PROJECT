@@ -28,12 +28,9 @@ const orderConfirmation = async (req, res) => {
             return res.redirect('/serverError');
         }
 
-            const deliveryDate = new Date();
-            deliveryDate.setDate(deliveryDate.getDate() + 7);
-           
-
+        
             const categories = await Category.find({ islisted: true, isDeleted: false });
-        res.render('users/orderConfirmation', { title: 'Order Confirmation - Feather', order, categories, deliveryDate });
+        res.render('users/orderConfirmation', { title: 'Order Confirmation - Feather', order, categories });
     } catch (error) {
         log(error);
         res.redirect('/pageNotFound');
@@ -134,10 +131,9 @@ const orderDetail = async (req, res) => {
             log('order is not found');
             return res.redirect('/serverError');
         }
-        const deliveryDate = new Date();
-        deliveryDate.setDate(deliveryDate.getDate() + 7);
+     
         const categories = await Category.find({ islisted: true, isDeleted: false });
-        res.render('users/orderDetail', { title: 'Order Detail - Feather', order, categories ,deliveryDate });
+        res.render('users/orderDetail', { title: 'Order Detail - Feather', order, categories });
     } catch (error) {
         log(error);
         res.redirect('/pageNotFound');
@@ -156,11 +152,10 @@ const orderPage = async (req, res) => {
                 path: 'orderitems.productId', 
                 model:  Product,
             }).sort({orderDate: -1 });
-            const deliveryDate = new Date();
-            deliveryDate.setDate(deliveryDate.getDate() + 7);
+           
         const categories = await Category.find({ islisted: true, isDeleted: false });
         
-        res.render('users/orderPage', { title: 'Orders - Feather', orders, categories, activeTab: 'orderPage'  ,deliveryDate });
+        res.render('users/orderPage', { title: 'Orders - Feather', orders, categories, activeTab: 'orderPage'  });
     } catch (error) {
         console.error(error);
         res.redirect('/pageNotFound');
@@ -179,39 +174,17 @@ const orderList = async (req, res) => {
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        let filter = {};
+        const searchQuery = {
+            $or: [
+                { 'userId.name': { $regex: search, $options: 'i' } },
+                { status: { $regex: search, $options: 'i' } },
+            ]
+        };
 
-        if (search) {
-            filter = {
-                $or: [
-                    { 'userId.name': { $regex: search, $options: 'i' } },
-                    { 'order._id': { $regex: search, $options: 'i' } }, 
-                    { 'status': { $regex: search, $options: 'i' } },
-                ]
-            };
-
-            const parsedDate = new Date(search);
-            if (!isNaN(parsedDate.getTime())) {
-                filter.$or.push({ 
-                    'orderDate': {
-                        $gte: new Date(parsedDate.setHours(0, 0, 0)),
-                        $lt: new Date(parsedDate.setHours(23, 59, 59))
-                    }
-                });
-            }
-
-            const parsedPrice = parseFloat(search);
-            if (!isNaN(parsedPrice)) {
-                filter.$or.push({ 'totalAmount': parsedPrice });
-            }
-
-            filter.$or.push({ 'order._id': { $regex: new RegExp(search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i') } });
-        }
-
-        const count = await Order.countDocuments(filter);
+        const count = await Order.countDocuments(searchQuery);
         const totalPage = Math.ceil(count / limit);
 
-        const orders = await Order.find(filter)
+        const orders = await Order.find(searchQuery)
             .populate('userId', 'name')
             .populate('address')
             .populate({
@@ -228,6 +201,7 @@ const orderList = async (req, res) => {
             searchQuery: search,
             currentPage: page,
             totalPage,
+            count
         });
 
     } catch (error) {
@@ -236,28 +210,35 @@ const orderList = async (req, res) => {
     }
 };
 
-    
-
-
 // ================================= change the status of order =========================
-const changeStatus =async (req, res) => {
+const changeStatus = async (req, res) => {
     const { orderId, orderItemId, status } = req.body;
-   log(req.body)
+    log(req.body);
     try {
-      const order = await Order.findById(orderId);
-   
-      const orderItem = order.orderitems.id(orderItemId);
-    
-      order.status = status;
+        const order = await Order.findById(orderId);
 
-      await order.save();
-      log('saved',order)
-  
-    } catch (error) {
-   log(error);
-   res.redirect('/serverError')
+        order.status = status;
+
+    if (status === 'Delivered') {
+      order. deliveredDate = new Date(); 
+    } else if (status === 'Shipping') {
+      order.shippedDate = new Date(); 
+    } else if (status === 'Processing') {
+      order.processingDate = new Date(); 
+    } else if (status === 'Cancelled') {
+      order.cancelDate = new Date();
+    } else if (status === 'Returned') {
+      order.returnDate = new Date(); 
     }
-  };
+
+        await order.save();
+        log('saved', order);
+
+    } catch (error) {
+        log(error);
+        res.redirect('/serverError')
+    }
+};
 
 //=========== order item  ==============
 

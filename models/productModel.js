@@ -67,7 +67,11 @@ const productSchema = new Schema ({
     deletedAt:{
         type:Date,
         default:null,
-    }
+    },
+    orderCount:{
+        type:Number,
+        default:0,
+    },
     
 },{timestamps:true})
 

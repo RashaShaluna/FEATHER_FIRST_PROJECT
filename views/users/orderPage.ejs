@@ -183,14 +183,14 @@
                 
                                                 <!-- Product Status on the right side -->
                                                 <div class="product-status">
-                                                    <% if (orderitem.status === 'Pending' || orderitem.status === 'Processing' || orderitem.status === 'Shipped') { %>
-                                                        <p class="estimate">Estimated Delivery: <%= deliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'Delivered') { %>
-                                                        <p class="estimate">Delivered on: <%= new Date(orderitem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
-                                                    <% } else if (orderitem.status === 'Cancelled') { %>
-                                                        <p class="text-danger">Order Cancelled on: <%= new Date(orderitem.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'Returned') { %>
-                                                        <p class="text-warning">Product Returned on: <%= new Date(orderitem.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% if (order.status === 'Pending' || order.status === 'Processing' || order.status === 'Shipped') { %>
+                                                        <p class="estimate">Estimated Delivery: <%=new Date(order.estimatedDeliveryDate) .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                                    <% } else if (order.status === 'Delivered') { %>
+                                                        <p class="estimate">Delivered on: <%= new Date(order.deliveredDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% } else if (order.status === 'Cancelled') { %>
+                                                        <p class="text-danger">Order Cancelled on: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                                    <% } else if (order.status === 'Returned') { %>
+                                                        <p class="text-warning">Product Returned on: <%= new Date(order.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
                                                     <% } %>
                                                 </div>
                                             </div>

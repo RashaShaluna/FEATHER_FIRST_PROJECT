@@ -27,28 +27,28 @@ const orderSchema = new mongoose.Schema({
             type: Number, // New field to store original quantity
             required: true
         },
-        status: {
-            type: String,
-            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
-            default: 'Pending'
+        // status: {
+        //     type: String,
+        //     enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
+        //     default: 'Pending'
 
-        },
-        orderDate: {
-            type: Date,
-            default: Date.now()
-        },
-          returnDate: {
-            type: Date
-          },
-          shippedDate: {
-            type: Date
-          },
-          deliveryDate: {
-            type: Date
-          },
-          cancelDate: {
-            type: Date
-          },
+        // },
+        // orderDate: {
+        //     type: Date,
+        //     default: Date.now()
+        // },
+        //   returnDate: {
+        //     type: Date
+        //   },
+        //   shippedDate: {
+        //     type: Date
+        //   },
+        //   deliveryDate: {
+        //     type: Date
+        //   },
+        //   cancelDate: {
+        //     type: Date
+        //   },
          productPrice:{  // this is what that the product that ordered for price
             type:Number,
             default:0
@@ -84,7 +84,27 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-
+    returnDate: {
+      type: Date
+    },
+   shippedDate: {
+     type: Date
+    },
+    deliveredDate: {
+      type: Date
+    },
+    cancelDate: {
+      type: Date
+    },
+    processingDate:{
+     type:Date
+    },
+        //   deliveryDate:{ //its like a just estimate delivery date only 
+        //     type:Date
+        //   },
+    estimatedDeliveryDate:{
+        type:Date
+    },
     cancelReason: {
         type: String
     },
