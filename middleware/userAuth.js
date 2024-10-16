@@ -1,11 +1,9 @@
 const User = require('../models/userSchema');
 
 const isLogin =(req, res, next) => {
-  // Check if the user is logged in
   if (req.session && req.session.user) {
-      return next(); // Proceed to the next middleware/controller
+      return next(); 
   } else {
-      // If the user is not logged in, redirect to the login page
       return res.redirect('/');
   }
 };
@@ -46,10 +44,12 @@ const isBlocked = async (req, res, next) => {
       }
     } catch (error) {
       console.log('Error in isBlocked middleware:', error);
-      next(); // Don't redirect to login if no user exists
+      next(); 
     }
   };
 
+
+  
 // const logout = async (req, res, next) => {
 //     try {
 //         req.session.destroy((err) => {

@@ -18,43 +18,60 @@ const orderSchema = new mongoose.Schema({
             ref: 'Product',
             required:true
         },
-        quantity: {
-            type: Number,
-            required: true,
-           
-        },
+       
         originalQuantity: {
-            type: Number, // New field to store original quantity
+            type: Number, 
             required: true
         },
-        // status: {
-        //     type: String,
-        //     enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
-        //     default: 'Pending'
+        cancelReason: {
+            type: String
+        },
+        cancellationComments: {
+         type: String 
+        },
+        returnReason: {
+            type: String
+        },
+        refundMode: {
+          type: String
+         }, 
+        
+        status: {
+            type: String,
+            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
+            default: 'Pending'
 
-        // },
-        // orderDate: {
-        //     type: Date,
-        //     default: Date.now()
-        // },
-        //   returnDate: {
-        //     type: Date
-        //   },
-        //   shippedDate: {
-        //     type: Date
-        //   },
-        //   deliveryDate: {
-        //     type: Date
-        //   },
-        //   cancelDate: {
-        //     type: Date
-        //   },
+        },
+        orderDate: {
+            type: Date,
+            default: Date.now()
+        },
+          returnDate: {
+            type: Date
+          },
+          shippedDate: {
+            type: Date
+          },
+          deliveryDate: {
+            type: Date
+          },
+          cancelDate: {
+            type: Date
+          },
+          estimatedDeliveryDate:{
+            type:Date
+        },
          productPrice:{  // this is what that the product that ordered for price
             type:Number,
             default:0
          }
         
     }],
+    orderQuantity: {
+      type: Number,
+      required: true,
+     
+  },
     returnReason: {
         type: String
     },

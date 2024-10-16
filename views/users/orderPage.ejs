@@ -150,7 +150,8 @@
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <div class="container">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/profile"> My Account</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Order Page</li>
                 </ol>
             </div>
@@ -163,7 +164,7 @@
                             <% if (order.orderitems && order.orderitems.length > 0) { %>
                                 <% order.orderitems.forEach(orderitem => { %>
                                     <!-- Wrap the entire card in a link to the order detail page -->
-                                    <a href="/orderDetail/<%= order._id %>" class="product-card-link">
+                                    <a href="/orderDetail/<%= order._id %>/<%= orderitem._id %>" class="product-card-link">
                                         <div class="product-card">
                                             <div class="product-info d-flex flex-column flex-md-row">
                                                 <!-- Check if images exist -->
@@ -178,20 +179,20 @@
                                                     <p style="font-size: 12px; margin-bottom: 10px;">Order Id: #<%= order._id %></p>
                                                     <h5><%= orderitem.productId.name %></h5>
                                                     <p>Color: <%= orderitem.productId.color %></p>
-                                                    <p>Quantity: <%= orderitem.quantity %></p>
+                                                    <p>Quantity: <%= orderitem.originalQuantity %></p>
                                                     <p style="font-size: 15px;">Price: ₹<%= orderitem.productId.salesPrice %></p>
                                                 </div>
                 
                                                 <!-- Product Status on the right side -->
                                                 <div class="product-status">
-                                                    <% if (order.status === 'Pending' || order.status === 'Processing' || order.status === 'Shipped') { %>
+                                                    <% if (orderitem.status === 'Pending' || orderitem.status === 'Processing' || orderitem.status === 'Shipped') { %>
                                                         <p class="estimate">Estimated Delivery: <%=new Date(order.estimatedDeliveryDate) .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (order.status === 'Delivered') { %>
-                                                        <p class="estimate">Delivered on: <%= new Date(order.deliveredDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
-                                                    <% } else if (order.status === 'Cancelled') { %>
-                                                        <p class="text-danger">Order Cancelled on: <%= new Date(order.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (order.status === 'Returned') { %>
-                                                        <p class="text-warning">Product Returned on: <%= new Date(order.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% } else if (orderitem.status === 'Delivered') { %>    
+                                                        <p class="estimate">Delivered on: <%= new Date(orderitem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+                                                    <% } else if (orderitem.status === 'Cancelled') { %>
+                                                        <p class="text-danger">Order Cancelled on: <%= new Date(orderitem.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                                    <% } else if (orderitem.status === 'Returned') { %>
+                                                        <p class="text-warning">Product Returned on: <%= new Date(orderitem.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
                                                     <% } %>
                                                 </div>
                                             </div>

@@ -95,62 +95,71 @@ const loadregister = async (req, res) => {
 //=================================== register validation ========================================
 const registerVerify = async (req, res) => {
   try {
-    const { name, email, password,cpassword,phone} = req.body;
-    const categories = await Category.find({ islisted: true, isDeleted: false });
+    const [categories, findUser, findPhone] = await Promise.all([
+      Category.find({ islisted: true, isDeleted: false }),
+      User.findOne({ email: req.body.email }),
+      User.findOne({ phone: req.body.phone }),
+    ]);
 
-   
- console.log('verfying1')
-    if (password !== cpassword) {
+    console.log('verfying1')
+    if (req.body.password !== req.body.cpassword) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
         message: 'Password do not match',
-        categories: categories
+        categories,
       });
     }
-    console.log('verfying1')
 
-    const findUser = await User.findOne({ email });
     if (findUser) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
         message: 'User already exists',
-        categories: categories
+        categories,
       });
     }
-    console.log('verfying1')
+    if (findPhone) {
+      return res.render('users/register', {
+        title: 'Feather - registerpage',
+        message: 'Phone already exists',
+        categories,
+      });
+    }
 
     const otp = generateOtp();
 
-    const emailSent = await sendVerificationEmail(email, otp);
+    const emailSent = await sendVerificationEmail(req.body.email, otp);
     console.log('verfying1')
-    if (!email || email.trim() === '') {
+    if (!req.body.email || req.body.email.trim() === '') {
       return res.render('users/register', {
-       title: 'Feather - registerpage',
-       message: 'All feilds required',
-     });
-   }
+        title: 'Feather - registerpage',
+        message: 'All feilds required',
+      });
+    }
     if (!emailSent) {
       return res.render('users/register', {
         title: 'Feather - registerpage',
         message: 'Email sending failed. Please try again.',
-        categories: categories
+        categories,
       });
     } 
-     req.session.userOtp = otp;
-    req.session.userData = {email,password,name,phone};
+    req.session.userOtp = otp;
+    req.session.userData = {
+      email: req.body.email,
+      password: req.body.password,
+      name: req.body.name,
+      phone: req.body.phone,
+    };
 
-    // req.session.pass1 = password;
     console.log('User session data:', req.session.userData);
 
     console.log('otp is ', otp);
 
-    res.render('users/otp', { title: 'OTP Verification',});
+    res.render('users/otp', { title: 'OTP Verification', });
   } catch (error) {
     console.log('Verifying register has a problem', error); // backend error
     res.redirect('/pageNotFound');
   }
 };
-
 //  OTP generation
 
 function generateOtp() {
@@ -176,7 +185,7 @@ async function sendVerificationEmail(email, otp ) {
     // Email data and subject displaying
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
-      to: email,
+      to: 'rasha14@gmail.com',
       subject: 'Verifying your account',
       text: `Your OTP is ${otp}`,
       html: `<b>Your OTP: ${otp} </b>`
@@ -190,43 +199,59 @@ async function sendVerificationEmail(email, otp ) {
 }
 
 //====================================================== veriyin otp==========================================================
-const verifyOtp = async(req,res)=>{
-      try {
-        console.log('session ',req.session);
-          const {otp} = req.body;
-        console.log('req',req.body);
-          console.log('otp in verify ',otp);  
-          const user = req.session.userData
-           console.log(req.session.userOtp);
-          console.log('user',user);
-          const categories = await Category.find({ islisted: true, isDeleted: false });
-          const products = await Product.find({isBlocked:false,isDeleted:false});
-          if(otp == req.session.userOtp){
-              const passHash= await bcrypt.hash(user.password, 10);
-     console.log('pass',passHash);
-        const saveUserData = new User({
-                  name: user.name,
-                  email: user.email,
-                  password: passHash,
-                  phone:user.phone
-              })
-          console.log('coming to saveuserdata');
-          console.log('saveuserdata',saveUserData);
-          await saveUserData.save();
-        
-        console.log('saved')
+const verifyOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    console.log('OTP entered by user:', otp);
+    const userOtp = req.session.userOtp;
+    console.log('OTP stored in session:', userOtp);
 
-          req.session.user = saveUserData._id;
-          res.render('users/home', { success:true,title: 'Home page -Feather',categories, products});
-         }else{
-           res.status(400).json({success:false,message:"Invalid OTP ,try again"})
-           console.log(error)
-         }
-       }catch (error) {
-          console.error(error.message+" error in verifyOtp");
-          res.redirect('/serverError');
-        }
+    const user = req.session.userData;
+
+    // Fetch categories and products asynchronously
+    const [categories, products] = await Promise.all([
+      Category.find({ islisted: true, isDeleted: false }),
+      Product.find({ isBlocked: false, isDeleted: false })
+    ]);
+
+    // Ensure both OTP values are strings before comparing
+    if (otp.toString() === userOtp.toString()) {
+      // OTP is valid, proceed to register the user
+      const passHash = await bcrypt.hash(user.password, 10);
+      const saveUserData = new User({
+        name: user.name,
+        email: user.email,
+        password: passHash,
+        phone: user.phone
+      });
+
+      await saveUserData.save();  // Save the user only if OTP is valid
+
+      console.log('User saved successfully.');
+
+      req.session.user = saveUserData._id; // Store user ID in session
+      console.log('Session updated with user ID.');
+
+      // Send a success response
+      return res.json({ success: true, redirectUrl: '/home' });
+    } else {
+      // OTP is invalid, handle the error
+      console.log('Invalid OTP entered.');
+      return res.json({
+        success: false,
+        message: 'Invalid OTP, please try again.'
+      });
+    }
+  } catch (error) {
+    console.error(error.message + " error in verifyOtp");
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error.'
+    });
   }
+};
+
+
 
 // ======================================================= Resend otp ============================================================ 
 const resendOtp =   async (req,res) => {
@@ -596,129 +621,73 @@ const shop = async (req, res) => {
     const user = req.session.user;
     log(user);
 
-    const categories = await Category.aggregate([
-      {
-        $match: { isDeleted: false, islisted: true }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: 'category',
-          as: 'products'
-        }
-      },
-      {
-        $addFields: {
-          productCount: { $size: "$products" }
-        }
-      },
-      {
-        $project: {
-          name: 1,
-          slug: 1,
-          productCount: 1
-        }
-      }
-    ]);
-
-    // Extract search query from request
-    const searchQuery = req.query.q ? req.query.q.trim() : ''; // Get search query
-
-    const page = parseInt(req.query.page) || 1;
+    const searchQuery = req.query.q?.trim() || '';
+    const page = parseInt(req.query.page, 10) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
     const sort = req.query.sort || 'Featured';
     const categoryId = req.params.categoryId || '';
-    const selectedColors = req.query.colors ? req.query.colors.split(',') : [];
+    const selectedColors = req.query.colors?.split(',') || [];
     const minPrice = parseFloat(req.query.minPrice) || 0;
     const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
 
-    let products = [];
-    let totalProducts = 0;
-    let categoryName = '';
-    let colors = [];
-    let sortOptions = {};
+    const sortOptions = {
+      'a-z': { name: 1 },
+      'z-a': { name: -1 },
+      'low-high': { salesPrice: 1 },
+      'high-low': { salesPrice: -1 },
+      'popularity': { orderCount: -1 },
+      'newest': { createdAt: -1 },
+      'Featured': { featured: 1 }
+    }[sort] || { featured: 1 };
 
-    // Sort options based on user selection
-    switch (sort) {
-      case 'a-z':
-        sortOptions = { name: 1 };
-        break;
-      case 'z-a':
-        sortOptions = { name: -1 };
-        break;
-      case 'low-high':
-        sortOptions = { salesPrice: 1 };
-        break;
-      case 'high-low':
-        sortOptions = { salesPrice: -1 };
-        break;
-      case 'popularity':
-        sortOptions = { orderCount: -1 };
-        break;
-      case 'newest':
-        sortOptions = { createdAt: -1 };
-        break;
-      default:
-        sortOptions = { featured: 1 };
-        break;
-    }
-
-    let query = {
+    const productQuery = {
       isBlocked: false,
       isDeleted: false,
       salesPrice: { $gte: minPrice, $lte: maxPrice }
     };
 
-    // If there's a search query, add it to the query
     if (searchQuery) {
-      query.$or = [
+      productQuery.$or = [
         { name: { $regex: searchQuery, $options: 'i' } },
         { color: { $regex: searchQuery, $options: 'i' } }
       ];
     }
 
+    let categoryName = '';
     if (categoryId) {
-      query.category = categoryId;
-      const category = await Category.findOne({ _id: categoryId, islisted: true, isDeleted: false });
-      if (category) {
-        categoryName = category.name;
-      }
-
-      if (selectedColors.length > 0) {
-        query.color = { $in: selectedColors };
-      }
-      
-      totalProducts = await Product.countDocuments(query);
-      products = await Product.find(query)
-        .sort(sortOptions)
-        .limit(limit)
-        .skip(skip);
-
-      colors = await Product.distinct('color', {
-        category: categoryId,
-        isBlocked: { $ne: true },
-        isDeleted: { $ne: true }
-      });
-      colors.sort((a, b) => a.localeCompare(b));
-    } else {
-      if (selectedColors.length > 0) {
-        query.color = { $in: selectedColors };
-      }
-
-      totalProducts = await Product.countDocuments(query);
-      products = await Product.find(query)
-        .sort(sortOptions)
-        .limit(limit)
-        .skip(skip);
-
-      colors = await Product.distinct('color', {
-        isBlocked: { $ne: true },
-        isDeleted: { $ne: true }
-      });
-      colors.sort((a, b) => a.localeCompare(b));
+      productQuery.category = categoryId;
     }
+
+    if (selectedColors.length > 0) {
+      productQuery.color = { $in: selectedColors };
+    }
+
+    const [categories, totalProducts, products, colors, category] = await Promise.all([
+      Category.aggregate([
+        { $match: { isDeleted: false, islisted: true } },
+        {
+          $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: 'category',
+            as: 'products'
+          }
+        },
+        { $addFields: { productCount: { $size: "$products" } } },
+        { $project: { name: 1, slug: 1, productCount: 1 } }
+      ]),
+      Product.countDocuments(productQuery),
+      Product.find(productQuery).sort(sortOptions).limit(limit).skip(skip),
+      Product.distinct('color', { ...productQuery, category: categoryId || undefined }),
+      categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null
+    ]);
+
+    if (category) {
+      categoryName = category.name;
+    }
+
+    colors.sort((a, b) => a.localeCompare(b));
 
     const totalPages = Math.ceil(totalProducts / limit);
 
@@ -730,13 +699,13 @@ const shop = async (req, res) => {
       totalPages,
       categoryName,
       colors,
-      user: user,
+      user,
       sort,
       categoryId,
       selectedColors,
       minPrice,
       maxPrice,
-      searchQuery, 
+      searchQuery
     });
   } catch (err) {
     console.error(err);
@@ -959,7 +928,3 @@ module.exports = {
   updateprofile,
   editProfile,
 };
-
-
-
-

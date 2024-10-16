@@ -120,20 +120,19 @@
         </div><!-- End .container -->
     </nav><!-- End .breadcrumb-nav -->
     <div class="cancel-order-container">
-        <% if (order && order.orderitems.length > 0) { %>
-            <% order.orderitems.forEach(orderitem => { %>
-                <div class="product-card">
-                    <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image">
-                    <h4><%= orderitem.productId.name %></h4>
-                    <p>Price: ₹<%= orderitem.productId.salesPrice %></p>
-                </div>
-            <% }); %>
+        <% if (orderitem) { %>
+            <div class="product-card">
+                <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image">
+                <h4><%= orderitem.productId.name %></h4>
+                <p>Price: ₹<%= orderitem.productId.salesPrice %></p>
+            </div>
         <% } else { %>
-            <p>No order items found.</p>
+            <p>No product found for cancellation.</p>
         <% } %>
-    
+        
         <div class="cancel-form">
-            <form action="/cancelOrder/<%= order._id %>" method="POST">
+            <form action="/cancelOrder/<%= order._id %>/<%= orderitem.productId %>" method="POST">
+              
                 <label for="cancelReason">Reason for Cancellation:</label>
                 <select name="cancelReason" id="reason" required>
                     <option value="">--Select a reason--</option>
@@ -141,31 +140,37 @@
                     <option value="delay">Delivery took too long</option>
                     <option value="other">Other</option>
                 </select>
-    
+        
                 <label for="cancellationComments">Comments (Optional):</label>
                 <textarea name="cancellationComments" id="comments" placeholder="Explain why you want to cancel"></textarea>
-                <div class="payment-methods ">
+                
+                <div class="payment-methods">
                     <label>Refund Modes:</label>
                     
                     <label>
-                        <input type="radio" id="cod" name="payment" value=" Cash On Delivery" required checked aria-label="Cash on Delivery" />
+                        <input type="radio" id="cod" name="payment" value="Cash On Delivery" required checked aria-label="Cash on Delivery" />
                         No valid refund
                     </label>
                     <div id="refundInfo" style="color: rgb(126, 126, 126); font-size: 11px;" class="mb-1">
                         There will be no refunds for Cash on Delivery orders.
                     </div>
                 </div>
-                <div class="">
+        
+                <div>
                     <label>
                         <input type="radio" id="online" name="payment" value="online" aria-label="Online Payment" />
                         Online Payment
                     </label>
-                    <div>
-                     <button type="submit" class="submit-btn">Submit Cancellation</button>
-                    </div>
+                </div>
+        
+                <div>
+                    <button type="submit" class="submit-btn">Submit Cancellation</button>
                 </div>
             </form>
         </div>
+        
+    
+      
     </div>
    
   </main>

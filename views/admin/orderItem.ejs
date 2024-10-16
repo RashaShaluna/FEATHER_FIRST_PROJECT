@@ -37,18 +37,32 @@
                                     <tr>
                                         <th>Product name</th>
                                         <th>Quantity</th>
+                                        <th>Status</th>
                                         <th class="text-end">Price</th>
                                     </tr>
-                                </thead>
+                                </thead>    
                                 <tbody>
                                     <% order.orderitems.forEach(orderitem => { %>
-                                    <tr>
-                                        <td><%= orderitem.productId.name %></td>
-                                        <td><%= orderitem.quantity %></td>
-                                        <td class="text-end">₹<%= orderitem.productPrice  %></td>
-                                    </tr>
+                                        <tr>
+                                            <td><%= orderitem.productId.name %></td>
+                                            <td><%= orderitem.originalQuantity %></td>
+                                            <td>
+                                                <select class="form-control" style="width: 89px;" onchange="updateStatus(this, '<%= order._id %>', '<%= orderitem._id %>')"  >
+                                                    <option value="Pending" <%=(orderitem.status === ' Pending') ? 'selected':''%>>Pending</option>
+                                                    <option value="Processing" <%= (orderitem.status === 'Processing') ? 'selected' : '' %>>Processing</option>
+                                                    <option value="Shipped" <%= (orderitem.status === 'Shipped') ? 'selected' : '' %>>Shipped</option>
+                                                    <option value="Delivered" <%= (orderitem.status === 'Delivered') ? 'selected' : '' %>>Delivered</option>
+                                                    <option value="Return Request"<%= (orderitem.status === 'Return Request') ? 'selected':'' %>>Return Request</option>
+                                                    <option value="Returned"<%= (orderitem.status === 'Returned') ? 'selected':'' %>> Returned</option>
+                                                    <option value="Refunded" <%= (orderitem.status === 'Refunded') ? 'selected':'' %>>Refunded</option>
+                                                    <option value="Cancelled"<%= (orderitem.status === 'Cancelled') ? 'selected':'' %>>Cancelled</option>
+                                                </select>
+                                            </td>
+                                            <td class="text-end">₹<%= orderitem.productPrice %></td>
+                                        </tr>
                                     <% }); %>
                                 </tbody>
+                                
                             </table>
                         </div>
                     </div>
@@ -158,6 +172,45 @@
 
         </div>
     </div>
+    
+           <script>
+            function updateStatus(selectElement, orderId, orderItemId) {
+    // Get the selected value from the dropdown
+    const newStatus = selectElement.value;
+
+    // Create the data object to send to the backend
+    const data = {
+        orderId: orderId,
+        orderItemId: orderItemId,
+        status: newStatus
+    };
+
+    // Send the data to the backend using Fetch API
+    fetch('/admin/changeStatus', {
+        method: 'POST', // Use POST method to send data
+        headers: {
+            'Content-Type': 'application/json' // Set the content type to JSON
+        },
+        body: JSON.stringify(data) // Convert the data object to a JSON string
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); // Parse the response JSON
+    })
+    .then(data => {
+        // Handle the response data as needed (e.g., show a success message)
+        console.log('Status updated successfully:', data);
+        // You can show a success notification here, e.g., using SweetAlert
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+        // Handle the error as needed (e.g., show an error message)
+    });
+}
+
+           </script>
     <%- include('../adminlayouts/footer')  %>
 
 </body>

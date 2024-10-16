@@ -42,7 +42,7 @@ router.get('/changedpass',userController.successpass);
 // product
 router.get('/shop/:categoryId',userController.shop);
 router.get('/product/:id', userController. productView);
-router.get('/shop', userController.shop);
+// router.get('/shop', userController.shop);
 
 // profile
 router.get('/profile',userController.userProfile);
@@ -72,11 +72,13 @@ router.post('/checkout/addAddress', userAuth.isLogin,userAuth.isBlocked,checkout
 router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkoutController.placeOrder);
 
 // order
-router.get('/orderconfirmation/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.orderConfirmation);
-router.get('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
-router.post('/cancelOrder/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
-router.get('/orderDetail/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
+router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
+router.get('/cancelOrder/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
+router.post('/cancelOrder/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
+// router.get('/orderDetail/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
+// router.get('/order/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController. getOrderDetail);
+router.get('/orderDetail/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 
 // whislist
 // router.get('/whislist',userAuth.isLogin, wishlistController.whislist);

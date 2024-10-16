@@ -167,43 +167,37 @@
         <h2 style="font-size: 20px;">Order Details</h2>
 
             <div class="cart-item card order-items">
-
         <% order.orderitems.forEach(orderitem => { %>
-        <% for (let i = 0; i < orderitem.quantity; i++) { %>
-          
-                <div class="cart-body items-body mb-5 order-products">
-                    <div class="product-details">
-                    <img src="/uploads/<%= orderitem.productId.images[0]%>" alt="Product Image">
-                    <div class="details">
-                        <div style="font-size: 17px; font-weight: 450; color: #000000;"><%= orderitem.productId.name %></div>
-                        <p class="para">Color: <%= orderitem.productId.color %></p>
-                        <div class="delivery-info">
-                            <i class="fa fa-truck"></i> Delivery expected by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
+        <div class="cart-body items-body mb-5 order-products">
+            <div class="product-details">
+                <img src="/uploads/<%= orderitem.productId.images[0]%>" alt="Product Image">
+                <div class="details">
+                    <div style="font-size: 17px; font-weight: 450; color: #000000;"><%= orderitem.productId.name %></div>
+                    <p class="para">Color: <%= orderitem.productId.color %></p>
+                    <p class="para">Quantity: <%= orderitem. originalQuantity %></p>
+                    <div class="delivery-info">
+                        <i class="fa fa-truck"></i> Delivery expected by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="price-details">
+                <div class="actions">
+                    <a href="/cancelOrder/<%= order._id %>/<%= orderitem._id %>" class="cancel-btn">
+                        <div class="icon-wrapper">
+                            <i class="fa fa-close"></i>
                         </div>
-                        
-                        
-                    </div>
+                        Cancel
+                    </a>
                 </div>
-                <div class="price-details">
-                    <div class="actions">
-                        <a href="/cancelOrder/<%= order._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderitem.productId.name%>">
-                            <div class="icon-wrapper">
-                                <i class="fa fa-close"></i>
-                            </div>
-                            Cancel
-                        </a>
-                    </div>
-                    <p class="price para">₹<%= orderitem.productId.salesPrice %></p>
-                </div>
-                
-
+                <p class="price para">₹<%= orderitem.productId.salesPrice %></p>
             </div>
             
-        <% } %>
+
+        </div>
         <% }) %>        
     </div>
     </div>
-
 
     <script>
         // Select the cancel button
@@ -219,7 +213,7 @@
             // Show the SweetAlert2 confirmation dialog with the product name
             Swal.fire({
                 title: 'Are you sure?',
-                text: `Do you want to cancel the order for "${name}"?`,
+                text: `Do you want to cancel the order?`,
                 showCancelButton: true,
                 confirmButtonColor: '#1cc0a0',
                 cancelButtonColor: '',
@@ -239,4 +233,5 @@
 
 </body>
 </html>
+
 

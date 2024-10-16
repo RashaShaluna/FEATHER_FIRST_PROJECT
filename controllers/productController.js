@@ -76,14 +76,13 @@ const productAdding = async (req, res) => {
 
     log('in add')
 
-    // Check for existing product
     const existingProduct = await Product.findOne({ name: { $regex: `${name}`, $options: 'i' }, category });
     if (existingProduct) {
       return res.status(400).json({ success: false, message: 'Product already exists' });
     }
     log('in add')
     console.log('name price offerprice images:',name, price, offerprice, images);
-    // Create new product
+
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
       price,
@@ -96,7 +95,7 @@ const productAdding = async (req, res) => {
       color: capitalizeFirstLetter(color),
       images, 
     });
-
+    //capitalizing the first letter
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
@@ -289,14 +288,13 @@ const softDeleteProduct = async (req, res) => {
   const editingProduct = async (req, res) => {
     try {
         const productId = req.params.id;
-        const files = req.files;  // Files uploaded from the form
+        const files = req.files;  
         const product = await Product.findById(productId);
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        // Handle Category Update
         let categoryId = null;
         if (req.body.categoryId) {
             const category = await Category.findById(req.body.categoryId);
@@ -307,7 +305,6 @@ const softDeleteProduct = async (req, res) => {
             }
         }
 
-        // Update other product fields
         product.name = req.body.name;
         product.price = req.body.price;
         product.salesPrice = req.body.salesPrice;
@@ -317,7 +314,6 @@ const softDeleteProduct = async (req, res) => {
         product.color = req.body.color;
         product.category = categoryId;
 
-        // Image handling logic
         const images = [
             files['image1'] ? files['image1'][0].filename : product.images[0] || null,
             files['image2'] ? files['image2'][0].filename : product.images[1] || null,
@@ -325,13 +321,10 @@ const softDeleteProduct = async (req, res) => {
         ];
 
         
-        // Assign the updated images array back to the product
-        product.images = images.filter(image => image !== null); // Ensure no null values in images array
+        product.images = images.filter(image => image !== null); 
 
-        // Save the updated product
         await product.save();
 
-        // Redirect after successful update
         res.redirect('/admin/product');
     } catch (error) {
         console.error('Error updating product:', error);
@@ -347,7 +340,6 @@ const deleteSingleImage = async (req, res) => {
 
   console.log('Received imagePath:', imagePath);
 
-  // Ensure imagePath does not have leading slashes
   const filePath = path.join('C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public', imagePath);
 
   console.log('Constructed filePath:', filePath);
@@ -360,7 +352,6 @@ const deleteSingleImage = async (req, res) => {
       
       console.log('File successfully deleted:', filePath);
 
-      // Remove image from product images array in database
       const product = await Product.findByIdAndUpdate(productId, { $pull: { images: imagePath } }, { new: true });
       if (!product) {
         return res.status(404).json({ success: false, message: 'Product not found' });

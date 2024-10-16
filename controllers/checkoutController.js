@@ -21,25 +21,25 @@ const calculateEstimatedDeliveryDate = (daysToAdd) => {
 const checkout = async (req, res) => {
     try {
         log('in checkout')
-        const user = req.session.user
-        const userId = await User.findById(req.session.user);
-        const products = await Product.find({ isBlocked: false, isDeleted: false });
-        const categories = await Category.find({ islisted: true, isDeleted: false });
-        log('1')
+        const [user, products, categories, addresses, cart] = await Promise.all([
+            User.findById(req.session.user),
+            Product.find({ isBlocked: false, isDeleted: false }),
+            Category.find({ islisted: true, isDeleted: false }),
+            Address.find({ userId:req.session.user, isDeleted: false }),
+            Cart.findOne({ userId: req.session.user }).populate({
+                path: 'items.productId',
+                model: Product
+            }),
+        ]);
        
-        log('2')
-        const addresses = await Address.find({ userId:userId , isDeleted: false});
-        const cart= await Cart.findOne({ userId: user}).populate({
-            path: 'items.productId',
-            model: Product
-          });
         const totalPrice=cart.items.reduce((total,item)=>total+item.totalPrice,0);
-        res.render('users/checkOut', { title: 'Feather - Checkout', userId, products, categories,addresses,cart,totalPrice});
+        res.render('users/checkOut', { title: 'Feather - Checkout', userId:user, products, categories, addresses, cart, totalPrice});
     } catch (error) {
        log(error);
        res.redirect('/pageNotFound');
 
     }
+
 
 }
  
@@ -79,8 +79,7 @@ const editAddress = async (req, res) => {
 
 
 
-// Example
-console.log(capitalizeFirstLetter('hello')); // "Hello"
+
 
 // =================================== add address ================
     const addAddress= async (req, res) => {
@@ -146,15 +145,18 @@ const placeOrder = async (req, res) => {
         const { selectedAddress, paymentMethod } = req.body;
         log('selected address',selectedAddress)
 
-        const address = await Address.findById(selectedAddress);
+        const [address, cart] = await Promise.all([
+            Address.findById(selectedAddress),
+            Cart.findOne({ userId }).populate({
+                path: 'items.productId',
+                model: Product
+            }),
+        ]);
+
         if (!address) {
             return res.status(400).send("Invalid address selected.");
         }
-      log(address)
-        const cart = await Cart.findOne({ userId }).populate({
-            path: 'items.productId',
-            model: Product
-        });
+
         if (!cart || cart.items.length === 0) {
             log('cart is empty')
             return res.redirect('/serverError');
@@ -171,6 +173,7 @@ const placeOrder = async (req, res) => {
         const additionalCharges = 0; 
         const  orderPrice = totalAmount - discountAmount + additionalCharges;       
         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
+        const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
         const orderItems = cart.items.map(item => ({
             productId: item.productId._id,
@@ -179,7 +182,6 @@ const placeOrder = async (req, res) => {
             orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity,
             productPrice: item.productId.salesPrice * item.quantity, 
         }));
-
 
         const newOrder = new Order({
             userId, 
@@ -191,35 +193,28 @@ const placeOrder = async (req, res) => {
             status: 'Pending',
             orderDate: new Date(),
             address: selectedAddress, 
-            estimatedDeliveryDate        
+            estimatedDeliveryDate,
+            orderQuantity
         });
 
-       await newOrder.save();
-       log('newOrder',newOrder)
-
-        for(const item of orderItems){
-            await Product.findByIdAndUpdate(item.productId,{
+        await Promise.all([
+            newOrder.save(),
+            ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
                 $inc:{quantity:-item.quantity}
-            })
-        }
-        //  count of each  product 
-        for(const item of orderItems){
-          const productId = item.productId;
-          const quantity = item.quantity;
-     
-          await Product.findByIdAndUpdate(
-            productId,
-            {$inc:{orderCount:quantity}}
-          );
-        }
-
-        await Cart.findOneAndDelete({ userId });
+            })),
+            ...orderItems.map(item => Product.findByIdAndUpdate(
+                item.productId,
+                {$inc:{orderCount:item.quantity}}
+            )),
+            Cart.findOneAndDelete({ userId }),
+        ]);
 
         res.redirect(`/orderConfirmation/${newOrder._id}`); 
     } catch (error) {
         console.error("Error placing order:", error);
         res.redirect('/serverError');
     }
+
 }; 
 
 module.exports ={

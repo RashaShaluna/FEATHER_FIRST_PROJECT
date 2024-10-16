@@ -229,6 +229,9 @@
                     <figure class="product-media">
                         <a href="/product/<%= related._id %>">
                             <img src="/uploads/<%= related.images[0] %>" alt="product">
+                            <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
+                                <span class="product-label label-out">Out of stock</span>
+                            <% } %>
                         </a>
                         <div class="product-action-vertical">
                             <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
@@ -243,7 +246,7 @@
                         </div><!-- End .product-price -->
                         <div class="product-nav product-nav-thumbs" >
                             <% if(related.quantity==0 || related.status == 'Out of stock') {%>
-                                <p style="font-size: 4px;">(Out of stock)</p>
+                                <p style="font-size: 14px;">(Out of stock)</p>
                                 <% } %>
                         </div><!-- End .product-nav -->
                         <div class="ratings-container">

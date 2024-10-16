@@ -28,47 +28,37 @@
                 <th>
                   Order ID
                 </th>
-                <th style="white-space: nowrap;">
+                <th>
                   User Name
                 </th>
-                
                 <th>
-                    Price
-                  </th>
-                <th style="white-space: nowrap;">
-                  Status
+                  Order Price
                 </th>
-                
+                <th style="white-space: nowrap;">
+                  Order Status
+                </th>
                 <th style="white-space: nowrap;">
                   Order Date
                 </th>
+             
                 <th style="white-space: nowrap;">
                   Payment Method
                 </th>
+              
               </tr>
             </thead>
             <tbody>
                 <% if (orders && orders.length > 0) { %>
                   <% orders.forEach(order => { %>
-                      <tr>
-                        <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order._id %></td>
-                        <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order.userId.name %></td>
-                        <td><%= order.orderPrice %></td>
-                        <td >
-                          <select class="form-control" style="width: 89px;" onchange="updateStatus(this, '<%= order._id %>', '<%= order._id %>')"  >
-                           <option value="Pending" <%=(order.status === ' Pending') ? 'selected':''%>>Pending</option>
-                            <option value="Processing" <%= (order.status === 'Processing') ? 'selected' : '' %>>Processing</option>
-                            <option value="Shipped" <%= (order.status === 'Shipped') ? 'selected' : '' %>>Shipped</option>
-                            <option value="Delivered" <%= (order.status === 'Delivered') ? 'selected' : '' %>>Delivered</option>
-                            <option value="Return Request"<%= (order.status === 'Return Request') ? 'selected':'' %>>Return Request</option>
-                            <option value="Returned"<%= (order.status === 'Returned') ? 'selected':'' %>> Returned</option>
-                            <option value="Refunded" <%= (order.status === 'Refunded') ? 'selected':'' %>>Refunded</option>
-                            <option value="Cancelled"<%= (order.status === 'Cancelled') ? 'selected':'' %>>Cancelled</option>
-                          </select>
-                        </td>
-                        <td><%= order.orderDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' , year:'numeric' }) %></td>
-                        <td><%= order.paymentMethod %></td>
-                      </tr>
+                    <tr>
+                      <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order._id %></td>
+                      <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order.userId.name %></td>
+                      <td><%= order.orderPrice %></td>
+                      <td><%= order.status %></td>
+
+                      <td><%= order.orderDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' , year:'numeric' }) %></td>
+                      <td><%= order.paymentMethod %></td>
+                    </tr>
                   <% }) %>
                 <% } else { %>
                   <tr>
@@ -111,27 +101,7 @@
 </div>
 
   </div>
-  <script>
-    function updateStatus(select, orderId, orderItemId) {
-      const status = select.value;
-      fetch('/admin/changeStatus', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ orderId, orderItemId, status })
-      }).then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            window.location.reload();
-          } else {
-            alert(data.message);
-          }
-        }).catch(err => {
-          console.log(err);
-        });
-    }
-  </script>
+
   <%- include('../adminlayouts/footer')  %>
 </div>
 </body>
