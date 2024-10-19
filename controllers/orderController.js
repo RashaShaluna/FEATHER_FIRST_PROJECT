@@ -37,102 +37,89 @@ const {log} = require('console');
 };
 
 // ================================= order cancellation page in  user side =========================
+
+
 const cancelPage = async (req, res) => {
     try {
-        const { orderId, productId } = req.params;
+        const { orderId, orderItemId } = req.params;
 
-        const [order, categories] = await Promise.all([
-            Order.findById(orderId).populate({
-                path: 'orderitems.productId',
-                model: Product,
-            }),
-            Category.find({ islisted: true, isDeleted: false }),
+        // Fetch the user data, order details, and categories concurrently
+        const [userData, order, categories] = await Promise.all([
+            User.findOne({ _id: req.session.user }),  // Fetch the logged-in user data
+            Order.findById(orderId)
+                .populate('address')  // Populate the address field in the order
+                .populate({
+                    path: 'orderitems.productId',  // Populate product details in order items
+                    model: Product
+                }),
+            Category.find({ islisted: true, isDeleted: false })  // Fetch active categories
         ]);
 
-        const orderitem = order.orderitems.find(item => item._id.toString() === productId);
+        // Find the specific order item by the given orderItemId
+        const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
 
-        res.render('users/orderCancellation', { order, orderitem, title: 'Order Cancellation - Feather', categories });
+        if (!orderItem) {
+            return res.status(404).send('Order item not found');
+        }
+
+        res.render("users/orderCancellation", {
+            userData,
+            order,
+            categories,
+            orderItem,
+            title: 'Order Detail - Feather'  // Set the page title
+        });
     } catch (error) {
-        console.error(error);
-        res.redirect('/serverError');
+        console.error("Error fetching order details:", error);
+        res.redirect('/serverError');  // Redirect to a server error page on failure
     }
 };
-
 
 // ================================= order cancellation in user side =========================
 const cancelOrder = async (req, res) => {
     try {
-        const { orderId, productId } = req.params;
-        log('Initial productId:', productId);
-        
-        const { cancelReason, cancellationComments, payment } = req.body;
+        const { orderId, orderItemId } = req.params;
+        const { cancelReason, cancellationComments, refundMode } = req.body;
 
-        const [userData, order, categories, product] = await Promise.all([
-            User.findOne({ _id: req.session.user }),
-            Order.findById(orderId)
-                .populate({
-                    path: 'orderitems.productId',
-                    model: Product,
-                }),
-            Category.find({ islisted: true, isDeleted: false }),
-            Product.findById(productId),
-        ]);
+        const order = await Order.findById(orderId);
+        const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
 
-        log('Order Items:', order.orderitems);
-
-        const productToCancel = order.orderitems.find(item => {
-            log('Checking item:', item);  
-            return item._id.toString() === productId;  
-        });
-
-        if (!productToCancel) {
-            log('Product to cancel not found!');
-            return res.redirect('/orderNotFound'); // Redirect if product not found
+        if (!orderItem) {
+            return res.status(404).send('Order item not found.');
         }
 
-        // Update cancellation details
-        productToCancel.status = 'Cancelled';
-        productToCancel.cancelReason = cancelReason;
-        productToCancel.cancellationComments = cancellationComments;
-        productToCancel.cancelDate = new Date();
-        productToCancel.refundMode = payment;
+        if (orderItem.status === 'Cancelled') {
+            return res.status(400).send('Order item is already cancelled.');
+        }
 
-        // Adjust the order's total amount and quantity
-        const productPrice = productToCancel.productPrice;
-        const cancelledQuantity = productToCancel.originalQuantity;
+        orderItem.status = 'Cancelled';
+        orderItem.cancelReason = cancelReason;
+        orderItem.cancellationComments = cancellationComments;
+        orderItem.refundMode = refundMode;
+        orderItem.cancelDate = new Date();
 
-        order.totalAmount -= productPrice * cancelledQuantity;
-        order.orderQuantity -= cancelledQuantity;
+        order. orderPrice-= orderItem.productPrice * orderItem.originalQuantity;
 
-        const productUpdatePromises = [
-            Product.findByIdAndUpdate(
-                productId,
-                {
-                    $inc: { quantity: cancelledQuantity, orderCount: -cancelledQuantity }
-                }
-            )
-        ];
+        const product = await Product.findById(orderItem.productId);
+        product.quantity += orderItem.originalQuantity;
+        log(product.quantity)
+        await product.save();
 
-        // Save order and update product details
-        await Promise.all([order.save(), ...productUpdatePromises]);
+        await order.save();
 
-        log('Order and product successfully updated.');
-        res.redirect(`/orderDetail/${orderId}/${productId}`);
-
+        res.redirect(`/orderDetail/${order._id}/${orderItemId}`);
     } catch (error) {
-        console.error('Error in cancelOrder:', error);
+        console.error('Error cancelling order:', error);
         res.redirect('/serverError');
     }
 };
-
-
 // ================================= order detail page in user side =========================
 
 // 
 const orderDetail = async (req, res) => {
     try {
-        const { orderId, orderItemId } = req.params; // Assuming you're passing both orderId and orderItemId
-        console.log('In detail');
+        const { orderId, orderItemId } = req.params;
+        console.log('Order Detail Request:', orderId, orderItemId);
 
         const [userData, order, categories] = await Promise.all([
             User.findOne({ _id: req.session.user }),
@@ -145,19 +132,26 @@ const orderDetail = async (req, res) => {
             Category.find({ islisted: true, isDeleted: false }),
         ]);
 
-        // Find the specific order item using the orderItemId
         const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
 
         if (!orderItem) {
+            console.error('Order item not found');
             return res.status(404).send('Order item not found');
         }
 
-        res.render("users/orderDetail", { userData, order, title: 'Order Detail - Feather', categories, orderItem });
+        res.render("users/orderDetail", {
+            userData,
+            order,
+            title: 'Order Detail - Feather',
+            categories,
+            orderItem
+        });
     } catch (error) {
-        console.log(error);
+        console.error('Error fetching order details:', error);
         res.redirect('/serverError');
     }
 };
+
 
 // ================================= ordered product page in user side =========================
 const orderPage = async (req, res) => {

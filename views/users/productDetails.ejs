@@ -87,9 +87,15 @@
                             <% } else { %>
                                 <a href="#" class="btn-product" style="pointer-events: none;cursor: not-allowed;width: fit-content;background-color: #e5e5e5;border-color: #ffffff;"><span style="color: #000000;">Out of stock</span></a>
                             <% } %>
+                         
+                                <!-- Wishlist button -->
+                                <a href="#" 
+                                   class="btn-product btn-wishlist <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'wishlist-active' : '' %>" 
+                                   data-product-id="<%= product._id %>">
+                                   <span><%= user && user.wishlist && user.wishlist.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
+                                </a>
                             
-
-                            <a href="/wishlist/add/<%= product._id %>" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
+                                                      
                         </div><!-- End .product-details-action -->
 
                         <div class="product-cat">
@@ -224,40 +230,41 @@
                     "dots": false
                 }
             }
-        }'>            <% relatedProducts.forEach(function(related) { %>
-                <div class="product">
-                    <figure class="product-media">
-                        <a href="/product/<%= related._id %>">
-                            <img src="/uploads/<%= related.images[0] %>" alt="product">
-                            <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
-                                <span class="product-label label-out">Out of stock</span>
-                            <% } %>
+        }'>           <% relatedProducts.forEach(function(related) { %>
+            <div class="product">
+                <figure class="product-media">
+                    <a href="/product/<%= related._id %>">
+                        <img src="/uploads/<%= related.images[0] %>" alt="product">
+                    </a>
+                    <div class="product-action-vertical">
+                        <!-- Check if the related product is already in the user's wishlist -->
+                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable <%= user && user.wishlist && user.wishlist.includes(related._id) ? 'wishlist-active' : '' %>" data-product-id="<%= related._id %>">
+                            <span><%= user && user.wishlist && user.wishlist.includes(related._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
                         </a>
-                        <div class="product-action-vertical">
-                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                        </div><!-- End .product-action-vertical -->
-    
-                       
-                    </figure><!-- End .product-media -->
-                    <div class="product-body">
-                        <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
-                        <div class="product-price">
-                            ₹<%= related.salesPrice%>
-                        </div><!-- End .product-price -->
-                        <div class="product-nav product-nav-thumbs" >
-                            <% if(related.quantity==0 || related.status == 'Out of stock') {%>
-                                <p style="font-size: 14px;">(Out of stock)</p>
-                                <% } %>
-                        </div><!-- End .product-nav -->
-                        <div class="ratings-container">
-                            <div class="ratings">
-                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
-                            </div><!-- End .ratings -->
-                            <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
-                        </div><!-- End .ratings-container -->
-                    </div><!-- End .product-body -->
-                </div><!-- End .product -->
-            <% }); %>
+                    </div><!-- End .product-action-vertical -->
+                </figure><!-- End .product-media -->
+        
+                <div class="product-body">
+                    <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
+                    <div class="product-price">
+                        ₹<%= related.salesPrice %>
+                    </div><!-- End .product-price -->
+                    <div class="product-nav product-nav-thumbs">
+                        <% if (related.quantity == 0 || related.status == 'Out of stock') { %>
+                            <p style="font-size: 14px;">(Out of stock)</p>
+                        <% } %>
+                    </div><!-- End .product-nav -->
+        
+                    <div class="ratings-container">
+                        <div class="ratings">
+                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                        </div><!-- End .ratings -->
+                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                    </div><!-- End .ratings-container -->
+                </div><!-- End .product-body -->
+            </div><!-- End .product -->
+        <% }); %>
+        
         </div><!-- End .owl-carousel -->
     </div><!-- End .container -->
 </div><!-- End .page-content -->
@@ -301,6 +308,78 @@
 
 
  
+document.addEventListener('DOMContentLoaded', function() {
+    const wishlistBtn = document.querySelector('.btn-wishlist');
+
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const productId = this.getAttribute('data-product-id');
+            const isRemoving = this.classList.contains('wishlist-active');
+
+            fetch(`/wishlist/${isRemoving ? 'remove' : 'add'}/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Toggle button text and class
+                    this.classList.toggle('wishlist-active');
+                    this.querySelector('span').textContent = isRemoving ? 'Add to Wishlist' : 'Remove from Wishlist';
+                } else {
+                    console.error('Wishlist update failed');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    }
+});
+            document.querySelectorAll('.btn-wishlist').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    const isInWishlist = this.classList.contains('wishlist-active');
+                    const url = isInWishlist ? '/remove' : '/add';
+            
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.classList.toggle('wishlist-active');
+                            this.querySelector('span').textContent = isInWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
+                              
+                            Swal.fire({
+                                icon: 'success',
+                                title: isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+            
+                            this.style.color = isInWishlist ? '' : 'red';
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            }); 
 
 
 </script>

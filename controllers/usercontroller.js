@@ -10,6 +10,7 @@ const jwt = require('jsonwebtoken');
 const {log} = require('console');
 const flash = require('connect-flash');
 const Cart = require('../models/cartModel');
+const Wishlist = require('../models/wishlistModel')
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
   try {
@@ -55,17 +56,19 @@ const loadHome = async (req, res) => {
   try {
     log('home page loaded');
 
-    console.log(req.session); // Check if session is being persisted
-    const categories = await Category.find({ islisted: true, isDeleted: false });
-    const user = req.session.user ;
+    console.log(req.session); 
+    const userId = req.session.user;
 
-    log(user)
-    const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
-    // log('product',products)
+    const [categories, products, user] = await Promise.all([
+      Category.find({ islisted: true, isDeleted: false }), 
+      Product.find({ isBlocked: false, isDeleted: false }).limit(4), 
+      User.findById(userId) 
+    ]);
 
     res.render('users/homepage', {title: 'Feather - Homengpage' ,
        products: products,
        categories: categories,
+       user:user
        
       });
   } catch (error) {
@@ -718,38 +721,23 @@ const shop = async (req, res) => {
 
 const productView = async (req, res) => {
   try {
-      log('in product');
-      const productId = req.params.id; 
-      log('product id', productId);
-      const user = req.session.user;
-
-      const product = await Product.findOne({
-          _id: productId,
-          isBlocked: false,    
-          isDeleted: false     
-      }).populate({
-          path: 'category',
-          match: { isDeleted: false, islisted: true } 
-      });
-
-      log('product', product);
-
-      if (!product || !product.category) {
-        return res.status(404).render('404', { message: 'Product or category not found' });
-    }
+    log('in product');
+    const productId = req.params.id; 
+    const userId = req.session.user;
+ const user = await User.findById(userId)
+    // Fetch the product
+    const product = await Product.findOne({
+      _id: productId,
+      isBlocked: false,    
+      isDeleted: false     
+    }).populate({
+      path: 'category',
+      match: { isDeleted: false, islisted: true } 
+    });
+      
     const categories = await Category.find({ islisted: true, isDeleted: false });
-    log('cat', categories)
-
-    const relatedProducts = await Product.find({
-      _id: { $ne: productId },
-      // category: product.category._id,
-      isBlocked: false,
-      isDeleted: false
-    }).limit(4); 
-
-    // cart
-    isInCart = false;
-     if(user){
+    let isInCart = false;
+    if (user) {
       const cart = await Cart.findOne({ userId: user });
       if (cart) {
         const item = cart.items.find((item) => item.productId.toString() === productId);
@@ -757,20 +745,31 @@ const productView = async (req, res) => {
           isInCart = true;
         }
       }
-     }
-      res.render('users/productDetails', {
-        title: `${product.name} - Feather`,
-        product,
-        categories,
-        relatedProducts,
-        isInCart,
-        user, 
-      });
-    } catch (error) {
-      log(error);
-     return res.redirect('/pageNotFound');
     }
+
+   
+   // Fetch related products
+   const relatedProducts = await Product.find({
+    _id: { $ne: productId },
+    isBlocked: false,
+    isDeleted: false
+  }).limit(4); 
+    // Render the product details page
+    res.render('users/productDetails', {
+      title: `${product.name} - Feather`,
+      product,
+      user,
+      categories,
+      relatedProducts,
+      isInCart,
+    });
+  } catch (error) {
+    log(error);
+    return res.redirect('/pageNotFound');
+  }
 };
+
+
 
 
 // ======================================================== User profile ===================================================

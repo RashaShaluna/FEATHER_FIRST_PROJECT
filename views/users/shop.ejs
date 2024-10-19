@@ -121,7 +121,7 @@
                 			</div><!-- End .toolbox -->
                             <div class="products mb-3">
                                 <div class="row justify-content-center">
-                                    <% products.forEach(product => { %>
+                                  <% products.forEach(product => { %>
                                     <div class="col-6 col-md-4 col-lg-4">
                                         <div class="product product-7 text-center">
                                             <figure class="product-media">
@@ -131,8 +131,18 @@
                                                         <span class="product-label label-out">Out of stock</span>
                                                     <% } %>
                                                 </a>   
+                                                <div class="product-action-vertical">
+                                                    <!-- Check if the product is already in the user's wishlist -->
+                                                    <a href="#" 
+                                                       class="btn-product-icon btn-wishlist btn-expandable <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'wishlist-active' : '' %>" 
+                                                       data-product-id="<%= product._id %>">
+                                                        <span>
+                                                            <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                                                        </span>
+                                                    </a>
+                                                </div><!-- End .product-action-vertical -->
                                             </figure><!-- End .product-media -->
-
+                                
                                             <div class="product-body">
                                                 <div class="product-cat">
                                                     <!-- Category Name or Filter Here -->
@@ -151,7 +161,8 @@
                                             </div><!-- End .product-body -->
                                         </div><!-- End .product -->
                                     </div><!-- End .col-6 col-md-4 col-lg-4 -->
-                                    <% }) %>
+                                <% }) %>
+                                
                                 </div><!-- End .row -->
                             </div><!-- End .products -->
 
@@ -329,111 +340,47 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Add product to wishlist
-function addProductToWishlist(productId, event) {
-  event.preventDefault(); // Prevent the default action of <a> tag
-  const btn = event.target.closest('a'); // Get the closest anchor element (button)
-
-  btn.classList.add('disabled'); // Disable the button during the request
-
-  fetch('/addWishlist', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ productId })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Product added to wishlist', 'success');
-      // Update the UI to reflect the change, like switching the button to 'Remove'
-      btn.innerHTML = '<span>Remove from Wishlist</span>';
-      btn.setAttribute('onclick', `removeProductFromWishlist('${productId}', event);`);
-    } else {
-      showToast(data.message, 'error');
-      console.error(data.message);
-    }
-  })
-  .catch(error => {
-    showToast('Failed to add product to wishlist. Please try again later.', 'error');
-    console.error('Error:', error);
-  })
-  .finally(() => {
-    btn.classList.remove('disabled'); // Re-enable the button
-  });
-}
-
-// Remove product from wishlist
-function removeProductFromWishlist(productId, event) {
-  event.preventDefault(); // Prevent the default action of <a> tag
-  const btn = event.target.closest('a'); // Get the closest anchor element (button)
-
-  btn.classList.add('disabled'); // Disable the button during the request
-
-  fetch('/removeWishlist', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ productId })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      showToast('Product removed from wishlist', 'success');
-      // Update the UI to reflect the change, like switching the button to 'Add'
-      btn.innerHTML = '<span>Add to Wishlist</span>';
-      btn.setAttribute('onclick', `addProductToWishlist('${productId}', event);`);
-    } else {
-      showToast(data.message, 'error');
-      console.error(data.message);
-    }
-  })
-  .catch(error => {
-    showToast('Failed to remove product from wishlist. Please try again later.', 'error');
-    console.error('Error:', error);
-  })
-  .finally(() => {
-    btn.classList.remove('disabled'); // Re-enable the button
-  });
-}
-
-// Toast notification function
-function showToast(message, type) {
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-  
-  // Automatically remove the toast after 3 seconds
-  setTimeout(() => {
-    toast.remove();
-  }, 3000);
-}
-
-
+document.querySelectorAll('.btn-wishlist').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    const isInWishlist = this.classList.contains('wishlist-active');
+                    const url = isInWishlist ? '/remove' : '/add';
+            
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.classList.toggle('wishlist-active');
+                            this.querySelector('span').textContent = isInWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
+                              
+                            Swal.fire({
+                                icon: 'success',
+                                title: isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+            
+                            this.style.color = isInWishlist ? '' : 'red';
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            }); 
 
 
 </script>

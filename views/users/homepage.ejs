@@ -1,6 +1,10 @@
 <%- include('../layouts/header', { categories: categories}) %>
 
+<style>
 
+
+
+</style>
 <body>
         <main class="main">
             <div class="intro-section bg-lighter pt-3">
@@ -36,8 +40,14 @@
                                             <img src="/uploads/<%= product.images[0] %>" alt="Product image" class="product-image">
                                         </a>
     
-                                        <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
+                                            <div class="product-action-vertical">
+                                                <a href="#" 
+                                                   class="btn-product-icon btn-wishlist btn-expandable 
+                                                   <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'wishlist-active' : '' %>" 
+                                                   data-product-id="<%= product._id %>">
+                                                   <span><%= user && user.wishlist && user.wishlist.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
+                                                </a>
+                                            
                                         </div><!-- End .product-action -->
     
                                     </figure><!-- End .product-media -->
@@ -128,5 +138,48 @@
         
         <%- include('../layouts/footer') %>
 
-
-       
+        <script>
+            document.querySelectorAll('.btn-wishlist').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const productId = this.getAttribute('data-product-id');
+                    const isInWishlist = this.classList.contains('wishlist-active');
+                    const url = isInWishlist ? '/remove' : '/add';
+            
+                    fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ productId }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.classList.toggle('wishlist-active');
+                            this.querySelector('span').textContent = isInWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
+                              
+                            Swal.fire({
+                                icon: 'success',
+                                title: isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+            
+                            this.style.color = isInWishlist ? '' : 'red';
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            }); 
+            </script>
+            
+</body>

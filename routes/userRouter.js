@@ -73,17 +73,21 @@ router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkout
 
 // order
 router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
-router.get('/cancelOrder/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
-router.post('/cancelOrder/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
+router.get('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
+router.post('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
 // router.get('/orderDetail/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
 // router.get('/order/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController. getOrderDetail);
 router.get('/orderDetail/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 
 // whislist
-// router.get('/whislist',userAuth.isLogin, wishlistController.whislist);
-// router.post('/addWishlist',userAuth.isLogin, wishlistController.addtoWishlist);
-// router.post('/removeWishlist',userAuth.isLogin, wishlistController. removeFromWishlist);
+router.post('/add',userAuth.isLogin,userAuth.isBlocked, wishlistController.addToWishlist);
+
+// Remove from wishlist
+router.post('/remove',userAuth.isLogin,userAuth.isBlocked, wishlistController.removeFromWishlist);
+
+// View wishlist
+router.get('/wishlist',userAuth.isLogin,userAuth.isBlocked, wishlistController.getWishlist);
 
 
 

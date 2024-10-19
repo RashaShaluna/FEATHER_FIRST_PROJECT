@@ -86,11 +86,7 @@ const orderSchema = new mongoose.Schema({
         type:Object,
         required: true
     },
-    totalAmount: {
-        type: Number,
-        required:true
-        
-    },
+   
     paymentMethod: {
         type: String,
         enum: ['wallet', 'Cash on Delivery', 'online'],
