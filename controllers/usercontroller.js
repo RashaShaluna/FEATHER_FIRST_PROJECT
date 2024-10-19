@@ -621,9 +621,8 @@ const successpass = async (req,res) => {
 const shop = async (req, res) => {
   try {
     log('in shop');
-    const user = req.session.user;
-    log(user);
-
+    const userId = req.session.user;
+     
     const searchQuery = req.query.q?.trim() || '';
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 6;
@@ -666,7 +665,8 @@ const shop = async (req, res) => {
       productQuery.color = { $in: selectedColors };
     }
 
-    const [categories, totalProducts, products, colors, category] = await Promise.all([
+    const [user,categories, totalProducts, products, colors, category] = await Promise.all([
+      User.findById(userId),
       Category.aggregate([
         { $match: { isDeleted: false, islisted: true } },
         {
