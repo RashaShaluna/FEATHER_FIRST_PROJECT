@@ -125,8 +125,8 @@
                                                                 data-product-id="<%= item.productId._id %>"
                                                                 data-salesPrice="<%= item.productId.salesPrice %>"
                                                                 data-available-stock="<%= item.productId.quantity %>"
-                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>',' <%= item.productId.quantity %>','<%=item.productId.name %>') "  />
-                                                        </div>
+                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>')">
+                                                            </div>
                                                     </td>                                                   
                                                     <td class="total-col" id="total-<%= item.productId._id %>">₹<%= (item.productId.salesPrice * item.quantity).toFixed(2) %></td>
 											<% } %>
@@ -210,8 +210,7 @@
                 <% } %>
         </main><!-- End .main -->
 
-        <%- include('../layouts/footer') %>
-</body>
+     
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="path/to/your/script.js"></script>
@@ -318,17 +317,17 @@ function updateGrandTotal() {
 
 
 window.onload = function() {
-    updateGrandTotal(); // Update the grand total when the page loads
+    updateGrandTotal(); 
 };
 
 
 
 
-function updateQuantity(quantityInput, productId, salesPrice, availableStock,productName) {
+function updateQuantity(quantityInput, productId, salesPrice, availableStock, productName) {
   const quantity = parseInt(quantityInput.value);
   salesPrice = parseFloat(salesPrice);
   availableStock = parseInt(availableStock);
-  const maxLimit = Math.min(availableStock, 10);
+  const maxLimit = Math.min(availableStock, 10); 
 
   // Ensure valid input
   if (isNaN(quantity) || quantity < 1) {
@@ -337,23 +336,30 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock,pro
     return;
   }
 
-  // Check if the quantity exceeds available stock
-    if (quantity > maxLimit) {
+  if (quantity > maxLimit) {
     alert(`You cannot select more than ${maxLimit} items.`);
-    quantityInput.value = maxLimit; // Set to max allowed quantity
+    quantityInput.value = maxLimit; 
     return;
   }
-  // Calculate and update total price for the product
-  const totalPriceElement = document.querySelector(`#salesPrice-${productId}`);
+
+  if (quantity > availableStock) {
+    alert(`Sorry, you cannot select more than ${availableStock} units for "${productName}".`);
+    quantityInput.value = availableStock; 
+    return;
+  }
+
+  const totalPriceElement = document.querySelector(`#total-${productId}`);
   const newTotalPrice = quantity * salesPrice;
 
   if (totalPriceElement) {
-    totalPriceElement.innerText = newTotalPrice.toFixed(2); // Update UI
+    totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;   
   } else {
-    console.error(`Element with ID #salesPrice-${productId} not found`);
+    console.error(`Element with ID #total-${productId} not found`);
   }
+
   updateTotalPrice(quantityInput, salesPrice);
-  updateGrandTotal(totalPriceElement);  // Send AJAX request to update quantity in the backend
+  updateGrandTotal(totalPriceElement);
+
   fetch(`/cart/update-quantity/${productId}`, {
     method: 'POST',
     headers: {
@@ -361,40 +367,38 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock,pro
     },
     body: JSON.stringify({ quantity }),
   })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-      
-        console.log('Quantity updated successfully:', data);
-        // updateQuantity();
-        showToast(`Quantity updated successfully for ${productName}`);          
-      } else {
-        alert('Failed to update quantity');
-        console.error(data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error updating quantity:', error);
-    });
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      console.log('Quantity updated successfully:', data);
+      showToast(`Quantity updated successfully for ${productName}`);
+    } else {
+      alert('Failed to update quantity');
+      console.error(data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error updating quantity:', error);
+  });
 }
+        
+
+
 function showToast(message) {
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
 
-    // Set the message
     toastMessage.innerText = message;
 
-    // Show the toast
     toast.style.display = 'flex';
     toast.classList.add('show');
 
-    // Automatically hide the toast after 3 seconds
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
             toast.style.display = 'none';
-        }, 500); // Delay hiding after opacity transition
-    }, 3000); // Visible for 3 seconds
+        }, 500); 
+    }, 2000); 
 }
 
 
@@ -404,3 +408,5 @@ function showToast(message) {
 </script>
 <!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->
 </html>
+<%- include('../layouts/footer') %>
+</body>

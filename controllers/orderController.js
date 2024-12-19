@@ -5,7 +5,7 @@ const User = require('../models/userSchema');
 const {log} = require('console');
 
 
-// ================================= order cofirmation page  in user side =========================const orderConfirmation = async (req, res) => {
+// ================================= order cofirmation page  in user side =========================
    const orderConfirmation = async (req, res) => {
     try {
         const { orderId } = req.params;  // productId isn't needed here, since you're dealing with all items in the order
@@ -43,19 +43,17 @@ const cancelPage = async (req, res) => {
     try {
         const { orderId, orderItemId } = req.params;
 
-        // Fetch the user data, order details, and categories concurrently
         const [userData, order, categories] = await Promise.all([
-            User.findOne({ _id: req.session.user }),  // Fetch the logged-in user data
+            User.findOne({ _id: req.session.user }), 
             Order.findById(orderId)
-                .populate('address')  // Populate the address field in the order
+                .populate('address')  
                 .populate({
-                    path: 'orderitems.productId',  // Populate product details in order items
+                    path: 'orderitems.productId',  
                     model: Product
                 }),
-            Category.find({ islisted: true, isDeleted: false })  // Fetch active categories
+            Category.find({ islisted: true, isDeleted: false })  
         ]);
 
-        // Find the specific order item by the given orderItemId
         const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
 
         if (!orderItem) {
@@ -67,11 +65,11 @@ const cancelPage = async (req, res) => {
             order,
             categories,
             orderItem,
-            title: 'Order Detail - Feather'  // Set the page title
+            title: 'Order Detail - Feather'  
         });
     } catch (error) {
         console.error("Error fetching order details:", error);
-        res.redirect('/serverError');  // Redirect to a server error page on failure
+        res.redirect('/serverError');  
     }
 };
 
@@ -113,6 +111,7 @@ const cancelOrder = async (req, res) => {
         res.redirect('/serverError');
     }
 };
+
 // ================================= order detail page in user side =========================
 
 // 
@@ -232,8 +231,14 @@ const changeStatus = async (req, res) => {
     
     try {
         const order = await Order.findById(orderId); 
-        
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
         const orderItem = order.orderitems.id(orderItemId); 
+        if (!orderItem) {
+            return res.status(404).json({ message: 'Order item not found' });
+        }
 
         orderItem.status = status;
 
@@ -250,13 +255,40 @@ const changeStatus = async (req, res) => {
         }
 
         await order.save(); 
-        log('saved', order);
+        log('Order item status updated', orderItem);
+
+        const allStatuses = order.orderitems.map(item => item.status);
+
+        if (allStatuses.every(status => status === 'Cancelled')) {
+            order.status = 'Cancelled';
+        }
+        else if (allStatuses.includes('Delivered')) {
+            order.status = 'Delivered';
+        }
+        else if (allStatuses.every(status => status === 'Returned')) {
+            order.status = 'Retunrned';
+        }
+        else if (allStatuses.some(status => status === 'Shipped')) {
+            order.status = 'Shipped';
+        }
+        else if (allStatuses.some(status => status === 'Processing')) {
+            order.status = 'Processing';
+        }
+        else if (allStatuses.some(status => status === 'Pending')) {
+            order.status = 'Pending';
+        }
+
+        await order.save(); 
+        log('Order status updated', order);
+        
+        res.json({ message: 'Order status updated successfully', order });
          
     } catch (error) {
         log(error);
-       res.redirect('/serverError')
+        res.redirect('/serverError');
     }
 };
+
 
 
 

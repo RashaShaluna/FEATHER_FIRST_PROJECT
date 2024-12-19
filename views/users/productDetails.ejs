@@ -88,13 +88,17 @@
                                 <a href="#" class="btn-product" style="pointer-events: none;cursor: not-allowed;width: fit-content;background-color: #e5e5e5;border-color: #ffffff;"><span style="color: #000000;">Out of stock</span></a>
                             <% } %>
                          
-                                <!-- Wishlist button -->
-                                <a href="#" 
-                                   class="btn-product btn-wishlist <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'wishlist-active' : '' %>" 
-                                   data-product-id="<%= product._id %>">
-                                   <span><%= user && user.wishlist && user.wishlist.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
-                                </a>
+
                             
+                             
+                            <% if (user) { %>
+                                <a href="#" class="btn-product btn-wishlist" data-product-id="<%= product._id %>" data-in-wishlist="<%= isInWishlist %>">
+                                  <span id="wishlistBtnText_<%= product._id %>"><%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
+                                </a>
+                              <% } else { %>
+                                <a href="/login" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
+                              <% } %>
+                           
                                                       
                         </div><!-- End .product-details-action -->
 
@@ -237,10 +241,21 @@
                         <img src="/uploads/<%= related.images[0] %>" alt="product">
                     </a>
                     <div class="product-action-vertical">
-                        <!-- Check if the related product is already in the user's wishlist -->
-                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable <%= user && user.wishlist && user.wishlist.includes(related._id) ? 'wishlist-active' : '' %>" data-product-id="<%= related._id %>">
-                            <span><%= user && user.wishlist && user.wishlist.includes(related._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
-                        </a>
+                        <% if (user) { %>
+                            <a href="#" 
+                               class="btn-product-icon btn-wishlist btn-expandable <%= related.isInWishlist ? 'added' : '' %>"
+                               data-product-id="<%= related._id %>"
+                               data-in-wishlist="<%= related.isInWishlist %>">
+                              <span id="wishlistBtnText_<%= related._id %>">
+                                <%= related.isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                              </span>
+                            </a>
+                          <% } else { %>
+                            <a href="/login" class="btn-product-icon btn-wishlist btn-expandable">
+                              <span>Add to Wishlist</span>
+                            </a>
+                          <% } %>
+        
                     </div><!-- End .product-action-vertical -->
                 </figure><!-- End .product-media -->
         
@@ -263,7 +278,7 @@
                     </div><!-- End .ratings-container -->
                 </div><!-- End .product-body -->
             </div><!-- End .product -->
-        <% }); %>
+        <% }); %>   
         
         </div><!-- End .owl-carousel -->
     </div><!-- End .container -->
@@ -308,81 +323,72 @@
 
 
  
-document.addEventListener('DOMContentLoaded', function() {
-    const wishlistBtn = document.querySelector('.btn-wishlist');
 
-    if (wishlistBtn) {
-        wishlistBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const productId = this.getAttribute('data-product-id');
-            const isRemoving = this.classList.contains('wishlist-active');
 
-            fetch(`/wishlist/${isRemoving ? 'remove' : 'add'}/${productId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Toggle button text and class
-                    this.classList.toggle('wishlist-active');
-                    this.querySelector('span').textContent = isRemoving ? 'Add to Wishlist' : 'Remove from Wishlist';
-                } else {
-                    console.error('Wishlist update failed');
-                }
-            })
-            .catch(error => console.error('Error:', error));
+document.addEventListener('DOMContentLoaded', () => {
+  const wishlistButtons = document.querySelectorAll('.btn-wishlist');
+
+  wishlistButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
+
+      const productId = button.dataset.productId;
+      const isInWishlist = button.dataset.inWishlist === 'true';
+
+      try {
+        const response = await fetch(isInWishlist ? '/wishlist/remove' : '/wishlist/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId }),
         });
-    }
+
+        const data = await response.json();
+
+        if (data.success) {
+          const btnText = document.getElementById(`wishlistBtnText_${productId}`);
+          if (isInWishlist) {
+            button.dataset.inWishlist = 'false';
+            btnText.textContent = 'Add to Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Removed from Wishlist',
+              text: 'The product has been removed from your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            button.dataset.inWishlist = 'true';
+            btnText.textContent = 'Remove from Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Added to Wishlist',
+              text: 'The product has been added to your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: data.message || 'Something went wrong!',
+          });
+        }
+      } catch (error) {
+        console.error('Error updating wishlist:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'There was an error updating your wishlist. Please try again.',
+        });
+      }
+    });
+  });
 });
-            document.querySelectorAll('.btn-wishlist').forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const productId = this.getAttribute('data-product-id');
-                    const isInWishlist = this.classList.contains('wishlist-active');
-                    const url = isInWishlist ? '/remove' : '/add';
-            
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ productId }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.classList.toggle('wishlist-active');
-                            this.querySelector('span').textContent = isInWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
-                              
-                            Swal.fire({
-                                icon: 'success',
-                                title: isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-            
-                            this.style.color = isInWishlist ? '' : 'red';
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                });
-            }); 
-
-
 </script>
 
 </body>
 <%- include('../layouts/homefooter') %>
+

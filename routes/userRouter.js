@@ -81,15 +81,13 @@ router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPa
 router.get('/orderDetail/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 
 // whislist
-router.post('/add',userAuth.isLogin,userAuth.isBlocked, wishlistController.addToWishlist);
-
-// Remove from wishlist
-router.post('/remove',userAuth.isLogin,userAuth.isBlocked, wishlistController.removeFromWishlist);
-
-// View wishlist
+router.post('/wishlist/add',userAuth.isLogin,userAuth.isBlocked, wishlistController.addToWishlist);
+router.post('/wishlist/remove',userAuth.isLogin,userAuth.isBlocked, wishlistController.removeFromWishlist);
 router.get('/wishlist',userAuth.isLogin,userAuth.isBlocked, wishlistController.getWishlist);
 
-
+// razorpay 
+router.post('/createOrder',userAuth.isLogin,userAuth.isBlocked, checkoutController.createOrder);
+router.post('/verifyPayment',userAuth.isLogin,userAuth.isBlocked, checkoutController.verifyRazorpay);
 
 
 

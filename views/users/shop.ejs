@@ -132,14 +132,19 @@
                                                     <% } %>
                                                 </a>   
                                                 <div class="product-action-vertical">
-                                                    <!-- Check if the product is already in the user's wishlist -->
-                                                    <a href="#" 
-                                                       class="btn-product-icon btn-wishlist btn-expandable <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'wishlist-active' : '' %>" 
-                                                       data-product-id="<%= product._id %>">
-                                                        <span>
-                                                            <%= user && user.wishlist && user.wishlist.includes(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist' %>
-                                                        </span>
+                                                  <% if (user) { %>
+                                                    <a href="#" class="btn-product-icon btn-wishlist btn-expandable add-to-wishlist-btn"
+                                                       data-product-id="<%= product._id %>"
+                                                       data-in-wishlist="<%= product.isInWishlist %>">
+                                                      <span><%= product.isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
                                                     </a>
+                                                  <% } else { %>
+                                                    <a href="/login" class="btn-product-icon btn-wishlist btn-expandable">
+                                                      <span>Add to Wishlist</span>
+                                                    </a>
+                                                  <% } %>
+                                          
+                                                  
                                                 </div><!-- End .product-action-vertical -->
                                             </figure><!-- End .product-media -->
                                 
@@ -340,49 +345,72 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-document.querySelectorAll('.btn-wishlist').forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const productId = this.getAttribute('data-product-id');
-                    const isInWishlist = this.classList.contains('wishlist-active');
-                    const url = isInWishlist ? '/remove' : '/add';
-            
-                    fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ productId }),
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.classList.toggle('wishlist-active');
-                            this.querySelector('span').textContent = isInWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
-                              
-                            Swal.fire({
-                                icon: 'success',
-                                title: isInWishlist ? 'Removed from Wishlist' : 'Added to Wishlist',
-                                showConfirmButton: false,
-                                timer: 1500
-                            });
-            
-                            this.style.color = isInWishlist ? '' : 'red';
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-                });
-            }); 
+// wishlist
+document.addEventListener('DOMContentLoaded', () => {
+  const wishlistButtons = document.querySelectorAll('.add-to-wishlist-btn');
 
+  wishlistButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
 
+      const productId = button.dataset.productId;
+      const isInWishlist = button.dataset.inWishlist === 'true';
+
+      try {
+        const response = await fetch(isInWishlist ? '/wishlist/remove' : '/wishlist/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (isInWishlist) {
+            button.dataset.inWishlist = 'false';
+            button.querySelector('span').textContent = 'Add to Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Removed from Wishlist',
+              text: 'The product has been removed from your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            button.dataset.inWishlist = 'true';
+            button.querySelector('span').textContent = 'Remove from Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Added to Wishlist',
+              text: 'The product has been added to your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: data.message || 'Something went wrong!',
+          });
+        }
+      } catch (error) {
+        console.error('Error updating wishlist:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'There was an error updating your wishlist. Please try again.',
+        });
+      }
+    });
+  });
+});
 </script>
 
     </body>

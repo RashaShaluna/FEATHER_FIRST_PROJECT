@@ -38,7 +38,7 @@ const loadlandingpage = async (req, res) => {
     const categories = await Category.find({ islisted: true, isDeleted: false });
     const products = await Product.find({isBlocked:false,isDeleted:false}).limit(4);
     // log('product',products)
-    res.render('users/landingpage', {title: 'Feather - Homengpage' ,
+    res.render('users/landingpage', {title: 'Feather - Homepage' ,
        products: products,
        categories: categories,
        
@@ -54,31 +54,38 @@ const loadlandingpage = async (req, res) => {
 
 const loadHome = async (req, res) => {
   try {
-    log('home page loaded');
+    console.log('home page loaded');
+    const user = req.session.user;
 
-    console.log(req.session); 
-    const userId = req.session.user;
-
-    const [categories, products, user] = await Promise.all([
-      Category.find({ islisted: true, isDeleted: false }), 
-      Product.find({ isBlocked: false, isDeleted: false }).limit(4), 
-      User.findById(userId) 
+    const [categories, products, wishlist] = await Promise.all([
+      Category.find({ islisted: true, isDeleted: false }),
+      Product.find({ isBlocked: false, isDeleted: false }).limit(4),
+      user ? Wishlist.findOne({ userId: user }) : null,
     ]);
 
-    res.render('users/homepage', {title: 'Feather - Homengpage' ,
-       products: products,
-       categories: categories,
-       user:user
-       
-      });
+
+    const productsWithWishlistStatus = products.map(product => {
+      const isInWishlist = wishlist ? wishlist.products.some(item => 
+        item.productsId.toString() === product._id.toString()
+      ) : false;
+      
+      return {
+        ...product.toObject(),
+        isInWishlist
+      };
+    });
+
+    res.render('users/homepage', {
+      title: 'Feather - Homepage',
+      products: productsWithWishlistStatus,
+      categories: categories,
+      user: user,
+    });
   } catch (error) {
-    console.log('Home page not found', error); 
+    console.log('Home page not found', error);
     res.redirect('/pageNotFound');
   }
 };
-
-
-
 // ====================================register load=================================================================
 const loadregister = async (req, res) => {
   console.log('welcome to register');
@@ -665,7 +672,7 @@ const shop = async (req, res) => {
       productQuery.color = { $in: selectedColors };
     }
 
-    const [user,categories, totalProducts, products, colors, category] = await Promise.all([
+    const [user,categories, totalProducts, products, colors, category,wishlist] = await Promise.all([
       User.findById(userId),
       Category.aggregate([
         { $match: { isDeleted: false, islisted: true } },
@@ -683,9 +690,11 @@ const shop = async (req, res) => {
       Product.countDocuments(productQuery),
       Product.find(productQuery).sort(sortOptions).limit(limit).skip(skip),
       Product.distinct('color', { ...productQuery, category: categoryId || undefined }),
-      categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null
-    ]);
+      categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null,
+      Wishlist.findOne({ userId: userId })
 
+    ]);
+log(wishlist)
     if (category) {
       categoryName = category.name;
     }
@@ -693,11 +702,15 @@ const shop = async (req, res) => {
     colors.sort((a, b) => a.localeCompare(b));
 
     const totalPages = Math.ceil(totalProducts / limit);
-
+    const wishlistProductIds = wishlist ? wishlist.products.map(product => product.productsId.toString()) : [];
+    const productsWithWishlistInfo = products.map(product => ({
+      ...product.toObject(),
+      isInWishlist: wishlistProductIds.includes(product._id.toString())
+    }));
     res.render('users/shop', {
       title: 'Shop - Feather',
       categories,
-      products,
+      products: productsWithWishlistInfo,
       currentPage: page,
       totalPages,
       categoryName,
@@ -708,7 +721,10 @@ const shop = async (req, res) => {
       selectedColors,
       minPrice,
       maxPrice,
-      searchQuery
+      searchQuery,
+      wishlist,
+       wishlistProductIds
+
     });
   } catch (err) {
     console.error(err);
@@ -721,56 +737,63 @@ const shop = async (req, res) => {
 
 const productView = async (req, res) => {
   try {
-    log('in product');
-    const productId = req.params.id; 
-    const userId = req.session.user;
- const user = await User.findById(userId)
-    // Fetch the product
-    const product = await Product.findOne({
-      _id: productId,
-      isBlocked: false,    
-      isDeleted: false     
-    }).populate({
-      path: 'category',
-      match: { isDeleted: false, islisted: true } 
-    });
-      
-    const categories = await Category.find({ islisted: true, isDeleted: false });
+    const productId = req.params.id;
+    const user = req.session.user;
+
+    const [product, categories, relatedProducts, wishlist] = await Promise.all([
+      Product.findOne({
+        _id: productId,
+        isBlocked: false,    
+        isDeleted: false    
+      }).populate({
+        path: 'category',
+        match: { isDeleted: false, islisted: true }
+      }),
+      Category.find({ islisted: true, isDeleted: false }),
+      Product.find({
+        _id: { $ne: productId },
+        isBlocked: false,
+        isDeleted: false
+      }).limit(4),
+      Wishlist.findOne({ userId: user }),
+    ]);
+log(wishlist)
     let isInCart = false;
+    let isInWishlist = false;
+
     if (user) {
       const cart = await Cart.findOne({ userId: user });
       if (cart) {
-        const item = cart.items.find((item) => item.productId.toString() === productId);
-        if (item) {
-          isInCart = true;
-        }
+        isInCart = cart.items.some((item) => item.productId.toString() === productId);
+      }
+
+      if (wishlist) {
+        isInWishlist = wishlist.products.some((item) => item.productsId.toString() === productId);
       }
     }
+    const relatedProductsWithWishlist = relatedProducts.map(product => {
+      const productObj = product.toObject();
+      productObj.isInWishlist = wishlist?.products.some(item => 
+        item.productsId.toString() === product._id.toString()
+      ) || false;
+      return productObj;
+    });
 
-   
-   // Fetch related products
-   const relatedProducts = await Product.find({
-    _id: { $ne: productId },
-    isBlocked: false,
-    isDeleted: false
-  }).limit(4); 
-    // Render the product details page
+
     res.render('users/productDetails', {
       title: `${product.name} - Feather`,
       product,
       user,
       categories,
-      relatedProducts,
+     relatedProducts: relatedProductsWithWishlist,
       isInCart,
+      isInWishlist,
     });
   } catch (error) {
-    log(error);
+    console.error(error);
     return res.redirect('/pageNotFound');
   }
 };
-
-
-
 
 // ======================================================== User profile ===================================================
 const userProfile = async (req, res) => {

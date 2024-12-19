@@ -1,0 +1,371 @@
+<%- include('../layouts/header') %>
+<style>
+    .wishlist-cont {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+    }
+
+    .wishlist-empty {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .paper {
+        position: relative;
+        width: 100px;
+        height: 120px;
+        background: white;
+        border: 2px solid #333;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .paper-face {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .paper-eyes {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .paper-eye {
+        width: 4px;
+        height: 4px;
+        background: #333;
+        border-radius: 50%;
+    }
+
+    .paper-mouth {
+        width: 8px;
+        height: 8px;
+        border: 2px solid #333;
+        border-radius: 50%;
+        margin: 16px auto 0;  /* Increased top margin to move mouth down */
+        border-bottom: none;  /* Changed from border-top to border-bottom */
+        transform: rotate(180deg);  /* Rotated 180 degrees for sad expression */
+    }
+
+    .message {
+        margin-top: 1rem;
+        color: #666;
+    }
+
+    .title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .start-shopping {
+        margin-top: 2rem;
+        padding: 0.8rem 2rem;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .start-shopping:hover {
+        background: #ff5252;
+        transform: translateY(-2px);
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .sparkle {
+        position: absolute;
+        pointer-events: none;
+        background: #ffeb3b;
+        border-radius: 50%;
+        opacity: 0;
+    }
+</style>
+<body>
+        <main class="main">
+        	<div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
+        		<div class="container">
+        			<h1 class="page-title">Wishlist<span>Shop</span></h1>
+        		</div><!-- End .container -->
+        	</div><!-- End .page-header -->
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+                    </ol>
+                </div><!-- End .container -->
+            </nav><!-- End .breadcrumb-nav -->
+            <div class="page-content">
+            	<div class="container">
+                    <% if (wishlist.products && wishlist.products.length > 0) { %>
+
+					<table class="table table-wishlist table-mobile">
+						<thead>
+							<tr>
+								<th>Product</th>
+								<th>Price</th>
+								<th>Stock Status</th>
+								<th></th>
+								<th></th>
+							</tr>
+						</thead>
+					
+                        <tbody>
+                                <% wishlist.products.forEach(function(wish) { %>
+                                    <% if (wish.productsId) { %>
+                                        <tr data-product-id="<%= wish.productsId._id %>">
+                                            <td class="product-col">
+                                                <div class="product">
+                                                    <figure class="product-media">
+                                                        <a href="/product/<%= wish.productsId._id %>">
+                                                            <img src="/uploads/<%= wish.productsId.images[0] %>" alt="Product image">
+                                                        </a>
+                                                    </figure>
+                                                    <h3 class="product-title">
+                                                        <a href="/product/<%= wish.productsId._id %>"><%= wish.productsId.name %></a>
+                                                    </h3>
+                                                </div>
+                                            </td>
+                                            <td class="price-col"><%= wish.productsId.salesPrice %></td>
+                                            <td class="stock-col"><span class="in-stock <%= wish.productsId.quantity === 0 || wish.productsId.status === 'Out of stock' ? 'out-stock' : '' %>"><%= wish.productsId.quantity === 0 || wish.productsId.status === 'Out of stock' ? 'Out of stock' : 'In stock' %></span></td>
+                                            <td class="action-col">
+                                                <% 
+                                                const isInCart = cart.items && cart.items.some(item => 
+                                                    item.productId._id.toString() === wish.productsId._id.toString()
+                                                );
+                                                %>
+                                                
+                                                <div class="cart-action-wrapper">
+                                                    <input type="hidden" name="productId" value="<%= wish.productsId._id %>">
+                                                    <% if (wish.productsId.quantity === 0 || wish.productsId.status === 'Out of stock') { %>
+                                                      
+                                                    <% } else if (isInCart) { %>
+                                                        <a class="btn btn-block btn-outline-secondary" href="/cart">
+                                                            <i class="icon-shopping-cart"></i>Go to Cart
+                                                        </a>
+                                                    <% } else { %>
+                                                        <button class="btn btn-block btn-outline-secondary btn-add">
+                                                            <i class="icon-shopping-cart"></i>Add to Cart
+                                                        </button>
+                                                    <% } %>
+
+                                                </div>
+                                            </td>
+                                            <td class="remove-col">
+                                                <button class="btn-remove" onclick="removeFromWishlist('<%= wish.productsId._id %>')">
+                                                    <i class="icon-close"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                <% }); %>
+                           
+                        </tbody>
+                        
+                        
+					</table>
+                    <% } else { %>
+                        <div class="container wishlist-cont">
+                        <div class="wishlist-empty">
+                            <div class="paper">
+                                <div class="paper-face">
+                                    <div class="paper-eyes">
+                                        <div class="paper-eye"></div>
+                                        <div class="paper-eye"></div>
+                                    </div>
+                                    <div class="paper-mouth"></div>
+                                </div>
+                            </div>
+                            <h2 class="title">Your wishlist is empty!</h2>
+                            <p class="message">Explore more and shortlist some items</p>
+                            <a href="/home" class="start-shopping">START SHOPPING</a>
+                    </div>
+                
+                    <script>
+                    
+                    </script>
+                </body>
+                </html>
+                    <% } %>
+	            
+            	</div><!-- End .container -->
+            </div><!-- End .page-content -->
+        </main><!-- End .main -->
+<script>
+
+
+function removeFromWishlist(productId) {
+    // Show confirmation alert first
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to remove this item from wishlist?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Removing...',
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false
+            });
+
+            // Make the API call
+            fetch('/wishlist/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the product row from the table
+                    const productRow = document.querySelector(`tr[data-product-id="${productId}"]`);
+                    if (productRow) {
+                        productRow.remove();
+                        
+                        // Check if wishlist is empty after removal
+                        const remainingProducts = document.querySelectorAll('tbody tr');
+                        if (remainingProducts.length === 0) {
+                            const tbody = document.querySelector('tbody');
+                           location.reload();
+                        }
+
+                        // Show success message
+                        Swal.fire({
+                            title: 'Removed!',
+                            text: 'Product has been removed from your wishlist.',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                } else {
+                    // Show error message
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message || 'Failed to remove product from wishlist',
+                        icon: 'error'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while removing the product',
+                    icon: 'error'
+                });
+            });
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-add').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+
+            const productId = e.currentTarget.closest('.cart-action-wrapper').querySelector('input[name="productId"]').value;
+            console.log('Product ID:', productId); // Check product ID
+            
+            if (!productId) {
+                console.error('Product ID is missing');
+                return;
+            }
+
+            try {
+                const response = await fetch('/addToCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId, quantity: 1 }),
+                });
+
+                const data = await response.json();
+                console.log('Response data:', data); // Log the response
+
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    console.error('Error adding product to cart: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    
+});
+function addSparkles(event) {
+    const button = event.currentTarget;
+    const sparkleCount = 8;
+    
+    for (let i = 0; i < sparkleCount; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        
+        // Random position around the button
+        const angle = (i / sparkleCount) * Math.PI * 2;
+        const distance = 60;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        
+        sparkle.style.width = '8px';
+        sparkle.style.height = '8px';
+        sparkle.style.left = (event.clientX + x) + 'px';
+        sparkle.style.top = (event.clientY + y) + 'px';
+        
+        document.body.appendChild(sparkle);
+        
+        // Animate the sparkle
+        sparkle.animate([
+            {
+                transform: `translate(0, 0) scale(0)`,
+                opacity: 1
+            },
+            {
+                transform: `translate(${x * 1.5}px, ${y * 1.5}px) scale(1)`,
+                opacity: 0
+            }
+        ], {
+            duration: 1000,
+            easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+        });
+        
+        // Remove sparkle after animation
+        setTimeout(() => sparkle.remove(), 1000);
+    }
+}
+		</script>
+        <%- include('../layouts/footer') %>
+    </body>

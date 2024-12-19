@@ -56,9 +56,7 @@ app.use('/', userRouter);
 const adminRoute = require("./routes/adminRouter");
 app.use('/admin', adminRoute);
 
-// app.get('/test', (req, res) => {
-//   res.send('This is a test route');
-// });
+
 
 app.listen(process.env.PORT, () => {
   console.log('Server is running ');

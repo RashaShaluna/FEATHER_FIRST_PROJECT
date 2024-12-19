@@ -4,7 +4,10 @@ const Category = require('../models/category');
 const Address = require('../models/addressModel');
 const Order = require('../models/orderModel');
 const Cart = require('../models/cartModel');
+const env = require('dotenv').config();
 const {log} = require('console');
+const Razorpay = require('razorpay');
+
 
 function capitalizeFirstLetter(string) {
     if (!string) return '';
@@ -39,8 +42,6 @@ const checkout = async (req, res) => {
        res.redirect('/pageNotFound');
 
     }
-
-
 }
  
 // ============================== edit address ==============================
@@ -135,8 +136,6 @@ const editAddress = async (req, res) => {
     };
 
 
-
-
 // =================== order placing ====================
 const placeOrder = async (req, res) => {
     try {
@@ -145,8 +144,8 @@ const placeOrder = async (req, res) => {
         const { selectedAddress, paymentMethod } = req.body;
         log('selected address',selectedAddress)
 
-        const [address, cart] = await Promise.all([
-            Address.findById(selectedAddress),
+        const [address, cart] = await Promise.all([ 
+            Address.findById(selectedAddress),  
             Cart.findOne({ userId }).populate({
                 path: 'items.productId',
                 model: Product
@@ -161,7 +160,7 @@ const placeOrder = async (req, res) => {
             log('cart is empty')
             return res.redirect('/serverError');
         }
-
+      
         if (paymentMethod !== 'Cash on Delivery') {
             log('cod is availabel')
             return res.redirect('/serverError');
@@ -217,9 +216,60 @@ const placeOrder = async (req, res) => {
 
 }; 
 
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_ID_KEY,
+    key_secret: process.env.RAZORPAY_SECRET_KEY
+});
+// razorpay payment
+const createOrder = async (req, res) => {
+    try {
+        log('razor')
+        const { amount } = req.body;
+        const options = {
+            amount: amount * 100, // amount in the smallest currency unit
+            currency: 'INR',
+            receipt: `receipt#${Math.floor(Math.random() * 10000)}`
+        };
+        const order = await razorpay.orders.create(options);
+        res.status(200).json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(error);
+    }
+};
+
+
+const verifyRazorpay = async(req,res)=>{
+     try{
+        log('in verifying payment')
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(body.toString())
+            .digest('hex');
+    
+        const isAuthentic = expectedSignature === razorpay_signature;
+    
+        if (isAuthentic) {
+            res.json({ success: true, message: 'Payment verified successfully' });
+        } else {
+            res.status(400).json({ success: false, message: 'Payment verification failed' });
+        }
+     }catch(error){
+        log(error)
+      res.redirect('/serverError')
+     }
+}
+
+
 module.exports ={
     checkout,
     editAddress,
     addAddress,
-    placeOrder
+    placeOrder,
+    createOrder,
+    verifyRazorpay
 }

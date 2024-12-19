@@ -341,7 +341,7 @@ input[type="radio"]:checked {
                     <div class="card mt-1 mb-1">
                         <div class="card-header" id="heading-5">
                             <h2 class="card-title">
-                                <input type="radio" name="paymentMethod" value="razorpay" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed">
+                                <input type="radio" name="paymentMethod" value="razorpay" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed" checked>
                                 Razorpay
                                 </a>
                             </h2>
@@ -352,13 +352,22 @@ input[type="radio"]:checked {
                     <div class="card  mb-1">
                         <div class="card-header" id="heading-3">
                             <h2 class="card-title">
-                    <input type="radio" name="paymentMethod" value="Cash on Delivery" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " checked>
+                    <input type="radio" name="paymentMethod" value="Cash on Delivery" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " >
                                     Cash on delivery
                                 </a>
                             </h2>
                         </div><!-- End .card-header -->
-                        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-                            <div class="card-body">Free Delivery
+                        
+                    </div><!-- End .card -->
+                    <div class="card  mb-1">
+                        <div class="card-header" id="heading-4">
+                            <h2 class="card-title">
+                                <input type="radio" name="paymentMethod" value="wallet" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4" class="collapsed">
+                                Wallet
+                            </h2>
+                        </div><!-- End .card-header -->
+                        <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
+                            <div class="card-body">Make payment using your wallet balance
                             </div><!-- End .card-body -->
                         </div><!-- End .collapse -->
                     </div><!-- End .card -->
@@ -366,6 +375,7 @@ input[type="radio"]:checked {
 
                 <table class="table table-summary">
                     <tbody>
+                        <p>Free delivery</p>
                         <% 
                         // Assuming you have variables for discounts or additional charges
                         const discountAmount = 0; // Example discount
@@ -381,7 +391,7 @@ input[type="radio"]:checked {
                  </table><!-- End .table table-summary -->
 
 
-                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
+                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block " id="procced-btn">
                     <span class="btn-text">Place Order</span>
                     <span class="btn-hover-text">Proceed</span>
                 </button>
@@ -619,7 +629,117 @@ input[type="radio"]:checked {
 });
 
 
+document.getElementById('procced-btn').onclick = async function() {
+            // First create an order
+            const response = await fetch('/createOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const order = await response.json();
+
+            const options = {
+                key: 'YOUR_KEY_ID', // Replace with your key
+                amount: order.amount,
+                currency: order.currency,
+                name: "Your Company Name",
+                description: "Test Transaction",
+                order_id: order.id,
+                handler: async function (response) {
+                    try {
+                        const verificationResponse = await fetch('/verifyPayment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(response)
+                        });
+                        const data = await verificationResponse.json();
+                        
+                        if (data.success) {
+                            alert('Payment successful!');
+                        } else {
+                            alert('Payment verification failed.');
+                        }
+                    } catch (error) {
+                        alert('Error verifying payment');
+                        console.error(error);
+                    }
+                },
+                prefill: {
+                    name: "Test Customer",
+                    email: "test@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        };
+
 </script>
 
 <%- include('../layouts/footer')  %>
 </body>
+<!-- <script>
+  document.getElementById('procced-btn').onclick = async function() {
+    // First create an order
+    const response = await fetch('/createOrder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ amount: 
+      <%= orderAmount %> }), // assuming orderAmount is defined in your ejs template
+    });
+
+    const order = await response.json();
+
+    // Create a payment request
+    const options = {
+      key: 'YOUR_KEY_ID',
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Your Company Name',
+      description: 'Test Transaction',
+      order_id: order.id,
+      handler: async function(response) {
+        try {
+          const verificationResponse = await fetch('/verifyPayment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(response),
+          });
+
+          const data = await verificationResponse.json();
+
+          if (data.success) {
+            alert('Payment successful!');
+          } else {
+            alert('Payment verification failed.');
+          }
+        } catch (error) {
+          alert('Error verifying payment');
+          console.error(error);
+        }
+      },
+      prefill: {
+        name: 'Test Customer',
+        email: 'test@example.com',
+        contact: '9999999999',
+      },
+      theme: {
+        color: '#3399cc',
+      },
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open();
+  };
+</script> -->

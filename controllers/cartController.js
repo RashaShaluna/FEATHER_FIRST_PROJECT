@@ -19,14 +19,12 @@ const cart = async (req, res) => {
       return res.status(401).json({ message: 'User not logged in' });
     }
   
-      // Find user's cart
       const cartData = await Cart.findOne({ userId: user}).populate({
         path: 'items.productId',
         model: Product
       });
       
       
-   // If the user has no cart, initialize an empty cartData
    if (!cartData) {
     return res.render('users/cart', {
       title: 'Cart - Feather',
@@ -195,24 +193,21 @@ const updateQuantity = async (req, res) => {
 
 // ================ Remove product from the cart ==================
 const removeFromCart = async (req, res) => {
-  const { productId } = req.body; // Use req.body to get the productId
+  const { productId } = req.body; 
   log(productId)
   const user = req.session.user;
 
   try {
-      // Find the cart for the logged-in user
       let cart = await Cart.findOne({ userId: user });
       if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
-      // Find the index of the item to be removed
      
       const itemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
           log(itemIndex)
 
 if (itemIndex > -1) {
-      cart.items.splice(itemIndex, 1); // Remove the product from the cart
+      cart.items.splice(itemIndex, 1); 
 
-      // Save the updated cart
       await cart.save();
 
       return res.status(200).json({ message: "Product removed from cart successfully" });
@@ -226,7 +221,6 @@ if (itemIndex > -1) {
   }
 };
 
-// Router setup
 
   
   module.exports = {
