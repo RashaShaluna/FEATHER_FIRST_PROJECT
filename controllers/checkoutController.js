@@ -7,6 +7,8 @@ const Cart = require('../models/cartModel');
 const env = require('dotenv').config();
 const {log} = require('console');
 const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
 
 
 function capitalizeFirstLetter(string) {
@@ -137,131 +139,222 @@ const editAddress = async (req, res) => {
 
 
 // =================== order placing ====================
+// const placeOrder = async (req, res) => {
+//     try {
+//         log('placing order')
+//         const userId = req.session.user;
+//         const { selectedAddress, paymentMethod } = req.body;
+//         // log('selected address',selectedAddress)
+
+//         const [address, cart] = await Promise.all([ 
+//             Address.findById(selectedAddress),  
+//             Cart.findOne({ userId }).populate({
+//                 path: 'items.productId',
+//                 model: Product
+//             }),
+//         ]);
+
+//         if (!address) {
+//             return res.status(400).send("Invalid address selected.");
+//         }
+
+//         if (!cart || cart.items.length === 0) {
+//             log('cart is empty')
+//             return res.redirect('/serverError');
+//         }
+      
+//         // if (paymentMethod !== 'Cash on Delivery') {
+//         //     log('cod is available')
+//         //     return res.redirect('/serverError');
+//         // }
+
+//         const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || item.productId.salesPrice * item.quantity), 0);
+
+//         const discountAmount = cart.discountamount || 0; 
+//         const additionalCharges = 0; 
+//         const  orderPrice = totalAmount - discountAmount + additionalCharges;       
+//         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
+//         const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+//         const orderItems = cart.items.map(item => ({
+//             productId: item.productId._id,
+//             quantity: item.quantity,
+//             originalQuantity: item.quantity,
+//             orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity,
+//             productPrice: item.productId.salesPrice * item.quantity, 
+//         }));
+
+//         const newOrder = new Order({
+//             userId, 
+//             orderUserDetails: userId, 
+//             orderitems: orderItems,
+//             totalAmount,
+//             orderPrice,
+//             paymentMethod,
+//             status: 'Pending',
+//             orderDate: new Date(),
+//             address: selectedAddress, 
+//             estimatedDeliveryDate,
+//             orderQuantity
+//         });
+
+//         await Promise.all([
+//             newOrder.save(),
+//             ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
+//                 $inc:{quantity:-item.quantity}
+//             })),
+//             ...orderItems.map(item => Product.findByIdAndUpdate(
+//                 item.productId,
+//                 {$inc:{orderCount:item.quantity}}
+//             )),
+//             Cart.findOneAndDelete({ userId }),
+//         ]);
+//          console.log('checkoutcontroller completteed')
+//         res.redirect(`/orderConfirmation/${newOrder._id}`); 
+//     } catch (error) {
+//         console.error("Error placing order:", error);
+//         res.redirect('/serverError');
+//     }
+
+// }; 
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_ID_KEY ,
+    key_secret: process.env.RAZORPAY_SECRET_KEY
+});
+
 const placeOrder = async (req, res) => {
     try {
-        log('placing order')
+        log('Placing order...');
         const userId = req.session.user;
         const { selectedAddress, paymentMethod } = req.body;
-        log('selected address',selectedAddress)
 
-        const [address, cart] = await Promise.all([ 
-            Address.findById(selectedAddress),  
+        // Fetch address and cart details concurrently
+        const [address, cart] = await Promise.all([
+            Address.findById(selectedAddress),
             Cart.findOne({ userId }).populate({
                 path: 'items.productId',
-                model: Product
+                model: Product,
             }),
         ]);
 
-        if (!address) {
-            return res.status(400).send("Invalid address selected.");
-        }
+        if (!address) return res.status(400).send("Invalid address selected.");
+        if (!cart || cart.items.length === 0) return res.redirect('/serverError');
 
-        if (!cart || cart.items.length === 0) {
-            log('cart is empty')
-            return res.redirect('/serverError');
-        }
-      
-        if (paymentMethod !== 'Cash on Delivery') {
-            log('cod is availabel')
-            return res.redirect('/serverError');
-        }
+        // Calculate amounts
+        const totalAmount = cart.items.reduce((sum, item) =>
+            sum + (item.totalPrice || item.productId.salesPrice * item.quantity), 0
+        );
+        const discountAmount = cart.discountamount || 0;
+        const orderPrice = totalAmount - discountAmount;
 
-        const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || item.productId.salesPrice * item.quantity), 0);
-
-        const discountAmount = cart.discountamount || 0; 
-        const additionalCharges = 0; 
-        const  orderPrice = totalAmount - discountAmount + additionalCharges;       
+        // Prepare order details
         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-        const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-
         const orderItems = cart.items.map(item => ({
             productId: item.productId._id,
             quantity: item.quantity,
             originalQuantity: item.quantity,
             orderPrice: item.totalPrice || item.productId.salesPrice * item.quantity,
-            productPrice: item.productId.salesPrice * item.quantity, 
+            productPrice: item.productId.salesPrice * item.quantity,
         }));
+        const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
 
         const newOrder = new Order({
-            userId, 
-            orderUserDetails: userId, 
+            userId,
+            orderUserDetails: userId,
             orderitems: orderItems,
             totalAmount,
             orderPrice,
-            paymentMethod,
+            paymentMethod: paymentMethod === 'Cash on Delivery' ? 'Cash on Delivery' : paymentMethod === 'razorpay' ? 'razorpay' : 'wallet',
+            paymentStatus: paymentMethod === 'razorpay' || paymentMethod === 'wallet' ? 'Paid' : 'Cash on Delivery',
             status: 'Pending',
             orderDate: new Date(),
-            address: selectedAddress, 
+            address: selectedAddress,
             estimatedDeliveryDate,
-            orderQuantity
+            orderQuantity,
         });
 
+        log('Saving order...');
+        await newOrder.save();
+
+        // Update products and clear cart
+        const productUpdates = orderItems.map(item => ({
+            updateQuantity: Product.findByIdAndUpdate(item.productId, { $inc: { quantity: -item.quantity } }),
+            updateOrderCount: Product.findByIdAndUpdate(item.productId, { $inc: { orderCount: item.quantity } }),
+        }));
+
         await Promise.all([
-            newOrder.save(),
-            ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
-                $inc:{quantity:-item.quantity}
-            })),
-            ...orderItems.map(item => Product.findByIdAndUpdate(
-                item.productId,
-                {$inc:{orderCount:item.quantity}}
-            )),
+            ...productUpdates.map(update => update.updateQuantity),
+            ...productUpdates.map(update => update.updateOrderCount),
             Cart.findOneAndDelete({ userId }),
         ]);
 
-        res.redirect(`/orderConfirmation/${newOrder._id}`); 
+        //payment 
+        if (paymentMethod === 'Cash on Delivery') {
+            return res.json({ orderId: newOrder._id });
+        } else if (paymentMethod === 'razorpay') {
+            log('Creating Razorpay order...');
+            const razorpayOrder = await razorpay.orders.create({
+                amount: orderPrice * 100, 
+                currency: "INR",
+                receipt: `order_rcptid_${newOrder._id}`,
+            });
+
+            newOrder.razorpayOrderId = razorpayOrder.id;
+            await newOrder.save();
+
+            log('Razorpay order created:', razorpayOrder);
+            return res.json({
+                success: true,
+                razorpayOrderId: razorpayOrder.id,
+                orderId: newOrder._id,
+                orderPrice,
+                
+            });
+        }
+        return res.redirect(`/orderConfirmation/${newOrder._id}`);
     } catch (error) {
         console.error("Error placing order:", error);
         res.redirect('/serverError');
-    }
-
-}; 
-
-
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_ID_KEY,
-    key_secret: process.env.RAZORPAY_SECRET_KEY
-});
-// razorpay payment
-const createOrder = async (req, res) => {
-    try {
-        log('razor')
-        const { amount } = req.body;
-        const options = {
-            amount: amount * 100, // amount in the smallest currency unit
-            currency: 'INR',
-            receipt: `receipt#${Math.floor(Math.random() * 10000)}`
-        };
-        const order = await razorpay.orders.create(options);
-        res.status(200).json(order);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json(error);
     }
 };
 
 
 const verifyRazorpay = async(req,res)=>{
-     try{
-        log('in verifying payment')
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-        
-        const body = razorpay_order_id + "|" + razorpay_payment_id;
-        const expectedSignature = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(body.toString())
-            .digest('hex');
-    
-        const isAuthentic = expectedSignature === razorpay_signature;
-    
-        if (isAuthentic) {
-            res.json({ success: true, message: 'Payment verified successfully' });
-        } else {
-            res.status(400).json({ success: false, message: 'Payment verification failed' });
-        }
-     }catch(error){
+    try{
+       log('in verifying payment')
+       const { razorpay_order_id, razorpay_payment_id, razorpay_signature,orderId } = req.body;
+       console.log('Received Payment Details:', req.body);
+
+       const body = razorpay_order_id + "|" + razorpay_payment_id;
+       const expectedSignature = crypto
+           .createHmac('sha256', process.env.RAZORPAY_SECRET_KEY)
+           .update(body.toString())
+           .digest('hex');
+   
+       const isAuthentic = expectedSignature === razorpay_signature;
+   
+       if (isAuthentic) {
+        log('payment success')
+           res.json({ success: true, message: 'Payment verified successfully',orderId });
+       } else {
+           res.status(400).json({ success: false, message: 'Payment verification failed' });
+       }
+    }catch(error){
+       log('payment error',error)
+     res.redirect('/serverError')
+    }
+}
+
+const paymentFailed =async(req,res)=>{
+    try{
+        log('in payment failed')
+        res.render('pages/paymentFailurepage');
+    }catch(error){
         log(error)
-      res.redirect('/serverError')
-     }
+        res.redirect('/pageNotFound');
+    }
 }
 
 
@@ -270,6 +363,6 @@ module.exports ={
     editAddress,
     addAddress,
     placeOrder,
-    createOrder,
-    verifyRazorpay
+    verifyRazorpay,
+    paymentFailed
 }

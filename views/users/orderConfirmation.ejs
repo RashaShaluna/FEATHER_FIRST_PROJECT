@@ -137,8 +137,12 @@
     </style>
 </head>
 <body>
-    <div class="container page ">
-        <div class="thankyou text-center">
+    <div class="container page " >
+        <a href="/orders" class="btn" style="border: 1px solid #1cc0a0;color: #1cc0a0; ">
+            View Orders
+        </a>
+      
+       <div class="thankyou text-center">
             <h1>Thank you for your order!</h1>
             <p>Your ordered products will be delivered by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
         </div>

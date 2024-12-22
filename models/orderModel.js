@@ -32,13 +32,21 @@ const orderSchema = new mongoose.Schema({
         returnReason: {
             type: String
         },
+        // paymentStatus: {
+        //     type: String,
+        //     enum: ['Pending', 'Paid', 'Failed'],
+        //     default: 'Pending'
+        // },
+        paymentStatus:{
+          type:'String'
+        },
         refundMode: {
           type: String
          }, 
         
         status: {
             type: String,
-            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded'],
+            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded','Failed'],
             default: 'Pending'
 
         },
@@ -89,9 +97,12 @@ const orderSchema = new mongoose.Schema({
    
     paymentMethod: {
         type: String,
-        enum: ['wallet', 'Cash on Delivery', 'online'],
+        enum: ['wallet', 'Cash on Delivery', 'razorpay'],
         required: true
 
+    },
+    paymentStatus:{
+      type:'String'
     },
     orderDate: {
         type: Date,

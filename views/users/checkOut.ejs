@@ -341,7 +341,7 @@ input[type="radio"]:checked {
                     <div class="card mt-1 mb-1">
                         <div class="card-header" id="heading-5">
                             <h2 class="card-title">
-                                <input type="radio" name="paymentMethod" value="razorpay" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed" checked>
+                                <input type="radio"name="paymentMethod" value="razorpay" id="razorpay-method" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed" checked>
                                 Razorpay
                                 </a>
                             </h2>
@@ -391,7 +391,7 @@ input[type="radio"]:checked {
                  </table><!-- End .table table-summary -->
 
 
-                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block " id="procced-btn">
+                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block " id="proceed-btn">
                     <span class="btn-text">Place Order</span>
                     <span class="btn-hover-text">Proceed</span>
                 </button>
@@ -410,13 +410,12 @@ input[type="radio"]:checked {
               </main><!-- End .main -->
             <!-- Include jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Include Popper.js (Bootstrap dependency) -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-
-<!-- Include Bootstrap's JS -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- razorpay  -->
 
+<!-- address modal -->
 <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -536,30 +535,27 @@ input[type="radio"]:checked {
     </div>
 </div>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const editLinks = document.querySelectorAll("[id^='editLink']"); // Select all edit links with IDs starting with editLink
-        editLinks.forEach(link => {
-            link.addEventListener("click", function() {
-                const index = this.id.replace('editLink', ''); // Extract index from ID
-                console.log("Edit link clicked for address index: " + index);
-                // Additional logic to populate the modal can go here if needed
-            });
+    
+document.addEventListener("DOMContentLoaded", function() {
+    // To edit address
+    const editLinks = document.querySelectorAll("[id^='editLink']"); 
+    editLinks.forEach(link => {
+        link.addEventListener("click", function() {
+            const index = this.id.replace('editLink', ''); 
+            console.log("Edit link clicked for address index: " + index);
         });
     });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.getElementById("addform").addEventListener("submit", function (event) {
-        event.preventDefault(); // Prevent immediate form submission
 
-        // Clear previous error messages
+    // To check address valid 
+    document.getElementById("addform").addEventListener("submit", function (event) {
+        event.preventDefault(); 
+
         document.querySelectorAll('.error-message').forEach(el => {
-            el.style.display = 'none'; // Hide all error messages
+            el.style.display = 'none'; 
         });
 
         let isValid = true;
 
-        // Grab input values
         const name = document.getElementById('name');
         const phone = document.getElementById('phone');
         const locality = document.getElementById('locality');
@@ -626,60 +622,88 @@ input[type="radio"]:checked {
             console.log("Form is invalid, not submitting.");
         }
     });
+
+    // For razorpay
+    document.getElementById('proceed-btn').addEventListener('click', async () => {
+        event.preventDefault(); 
+
+        console.log('in the event');
+console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
+console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
+console.log('hello darling')
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+
+        if (selectedPaymentMethod === 'Cash on Delivery') {
+            const response = await fetch('/checkout/placeOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery' }),
+            });
+
+            if (response.ok) {
+                const { orderId } = await response.json();
+                window.location.href = `/orderConfirmation/${orderId}`;
+            } else {
+                alert('Failed to place order. Please try again.');
+            }
+        } else if (selectedPaymentMethod === 'razorpay') {
+            try {
+                const response = await fetch('/checkout/placeOrder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selectedAddress, paymentMethod: 'razorpay' }),
+                });
+
+                if (!response.ok) throw new Error('Failed to initiate Razorpay order.');
+
+                const { razorpayOrderId, orderPrice,orderId } = await response.json();
+
+                const options = {
+                    key: 'rzp_test_QClWP75u7ELl6o',
+                    amount: orderPrice * 100,
+                    currency: 'INR',
+                    name: 'Feather',
+                    description: 'Order Payment',
+                    order_id: razorpayOrderId,
+                    handler: async (paymentDetails) => {
+                        const verifyResponse = await fetch('/verifyPayment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...paymentDetails, selectedAddress ,orderId}),
+                       });
+
+                        if (verifyResponse.ok) {
+                            const { orderId } = await verifyResponse.json();
+                            window.location.href = `/orderConfirmation/${orderId}`;
+                        } else {
+                            alert('Payment verification failed. Please try again.');
+                        }
+                    },
+                    prefill: {
+                        name: "Lucifer Moringstar",
+                        email: "Lucy@example.com",
+                        contact: "9078563412",
+                    },
+                    theme: { color: "#3399cc" },
+                };
+                console.log('Razorpay Options:', options);
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                rzp.on('payment.failed', (response) => {
+                    console.error('Payment failed:', response.error);
+                  window.location.href = '/paymentFailed';
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error occurred while initiating Razorpay order. Please try again.');
+            }
+        }
+    });
 });
 
-
-document.getElementById('procced-btn').onclick = async function() {
-            // First create an order
-            const response = await fetch('/createOrder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            const order = await response.json();
-
-            const options = {
-                key: 'YOUR_KEY_ID', // Replace with your key
-                amount: order.amount,
-                currency: order.currency,
-                name: "Your Company Name",
-                description: "Test Transaction",
-                order_id: order.id,
-                handler: async function (response) {
-                    try {
-                        const verificationResponse = await fetch('/verifyPayment', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(response)
-                        });
-                        const data = await verificationResponse.json();
-                        
-                        if (data.success) {
-                            alert('Payment successful!');
-                        } else {
-                            alert('Payment verification failed.');
-                        }
-                    } catch (error) {
-                        alert('Error verifying payment');
-                        console.error(error);
-                    }
-                },
-                prefill: {
-                    name: "Test Customer",
-                    email: "test@example.com",
-                    contact: "9999999999"
-                },
-                theme: {
-                    color: "#3399cc"
-                }
-            };
-
-            const rzp1 = new Razorpay(options);
-            rzp1.open();
-        };
 
 </script>
 
@@ -694,7 +718,7 @@ document.getElementById('procced-btn').onclick = async function() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ amount: 
-      <%= orderAmount %> }), // assuming orderAmount is defined in your ejs template
+      oorderamout in ejs }), // assuming orderAmount is defined in your ejs template
     });
 
     const order = await response.json();

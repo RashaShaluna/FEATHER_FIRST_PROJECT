@@ -104,6 +104,9 @@
         margin-bottom: 10px;
         text-align: right;
     }
+    .paymet{
+        font-size: 12px;
+    }
     @media (max-width: 767.98px) {
         .main-container {
             margin-left: 0;
@@ -193,6 +196,8 @@
                                 <p>Color: <%= orderItem.productId.color %></p>
                                 <p>Price: ₹<%= orderItem.productPrice %></p> <!-- Assuming you have a productPrice in the order item -->
                                 <p>Quantity: <%= orderItem.originalQuantity %></p>
+                                <p class="paymet">Payment Method: <%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
+                                <p class="paymet">Payment Status: <%= order.paymentStatus %></p>
                             </div>
                         </div>
                         
@@ -226,8 +231,8 @@
                                 </a>
                             <% } %>
                         </div>
-                        
                         <div class="estimated-delivery">
+                            
                             <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing' || orderItem.status === 'Shipped') { %>
                                 <p>Estimated Delivery: <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
                             <% } %>

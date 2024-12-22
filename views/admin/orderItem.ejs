@@ -46,6 +46,7 @@
                                         <tr>
                                             <td><%= orderitem.productId.name %></td>
                                             <td><%= orderitem.originalQuantity %></td>
+                                            <!-- changing status of order by select -->
                                             <td>
                                                 <select class="form-control" style="width: 89px;" onchange="updateStatus(this, '<%= order._id %>', '<%= orderitem._id %>')"  >
                                                     <option value="Pending" <%=(orderitem.status === ' Pending') ? 'selected':''%>>Pending</option>
@@ -70,6 +71,7 @@
 
                 <div class="card mt-4">
                     <div class="card-header">
+                        <!-- status of the order  -->
                         <h5 class="mb-0">Order Status</h5>
                     </div>
                     <div class="card-body">
@@ -108,7 +110,7 @@
                             <% } %>
                         </p>
                     </div>
-</div>
+                  </div>
                       <div class="card mt-4">
                     <div class="card-header">
                         <h5 class="mb-0">Delivery Address</h5>
@@ -175,38 +177,32 @@
     
            <script>
             function updateStatus(selectElement, orderId, orderItemId) {
-    // Get the selected value from the dropdown
     const newStatus = selectElement.value;
 
-    // Create the data object to send to the backend
     const data = {
         orderId: orderId,
         orderItemId: orderItemId,
         status: newStatus
     };
 
-    // Send the data to the backend using Fetch API
     fetch('/admin/changeStatus', {
-        method: 'POST', // Use POST method to send data
+        method: 'POST', 
         headers: {
-            'Content-Type': 'application/json' // Set the content type to JSON
+            'Content-Type': 'application/json' 
         },
-        body: JSON.stringify(data) // Convert the data object to a JSON string
+        body: JSON.stringify(data) 
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-        return response.json(); // Parse the response JSON
+        return response.json(); 
     })
     .then(data => {
-        // Handle the response data as needed (e.g., show a success message)
         console.log('Status updated successfully:', data);
-        // You can show a success notification here, e.g., using SweetAlert
     })
     .catch(error => {
         console.error('There was a problem with the fetch operation:', error);
-        // Handle the error as needed (e.g., show an error message)
     });
 }
 
@@ -214,3 +210,4 @@
     <%- include('../adminlayouts/footer')  %>
 
 </body>
+

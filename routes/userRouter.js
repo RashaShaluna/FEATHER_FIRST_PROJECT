@@ -75,19 +75,17 @@ router.post('/checkout/placeOrder', userAuth.isLogin,userAuth.isBlocked,checkout
 router.get('/orderconfirmation/:orderId',orderController.orderConfirmation);
 router.get('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelPage);
 router.post('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
-// router.get('/orderDetail/:orderId/:productId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
-// router.get('/order/:orderId',userAuth.isLogin,userAuth.isBlocked,orderController. getOrderDetail);
 router.get('/orderDetail/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
 
 // whislist
 router.post('/wishlist/add',userAuth.isLogin,userAuth.isBlocked, wishlistController.addToWishlist);
 router.post('/wishlist/remove',userAuth.isLogin,userAuth.isBlocked, wishlistController.removeFromWishlist);
 router.get('/wishlist',userAuth.isLogin,userAuth.isBlocked, wishlistController.getWishlist);
-
+ 
 // razorpay 
-router.post('/createOrder',userAuth.isLogin,userAuth.isBlocked, checkoutController.createOrder);
 router.post('/verifyPayment',userAuth.isLogin,userAuth.isBlocked, checkoutController.verifyRazorpay);
+router.get('/paymentFailed',userAuth.isLogin,userAuth.isBlocked, checkoutController.paymentFailed);
 
 
 
