@@ -1,913 +1,245 @@
-<%- include('../layouts/header')  %>
-<%- include('../layouts/header2')  %>
-<%- include('../layouts/mobileNav')  %>
+<%- include("../layouts/profileList")  %>
 
 <style>
 
-	/* Style for the address details */
-.address-details {
-    border: 1px solid #ccc;
-    margin-bottom: 20px;
-    padding: 10px;
-    border-radius: 5px;
+    
+    /* Styling for Scrollable History */
+    #scrollableHistory {
+        max-height: 200px; /* Set a max height and overflow-y to enable scrolling */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+
+    /* Styling for Collapsible History */
+    #collapseContent {
+        display: none; /* Hide the content by default */
+    }
+    #scrollableHistory {
+    overflow: auto;
 }
 
-/* Style for the radio buttons */
-.address-details input[type="radio"] {
-    margin-right: 10px;
+#scrollableTable {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-/* Style for the address name */
-.address-details label {
-    font-weight: bold;
+#scrollableTable th, #scrollableTable td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
 }
 
-/* Style for the checkbox */
-.custom-control-label {
-    margin-left: 5px;
+#scrollableTable th {
+    background-color: #f2f2f2;
 }
 
-/* Style for the order notes textarea */
-textarea.form-control {
-    margin-top: 10px;
-	
-}
-label{
-	color: #000;
-}
-.form-control{
-	color: #000;
-	font-weight: 400;
-}
-.product-image {
-    width: 60px; /* Set the maximum width of the image */
-    height: 60px; /* Set the maximum height of the image */
-	border-radius: 30px;
-	
-}.card-title{
-	line-height: 25px;
-}
-/* Example CSS for the modal */
-.modal-content {
- background-color: #f9f9f9;
- color: #333;
+#scrollableTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
 }
 
-.modal-header {
- background-color: #333;
- color: #fff;
+#scrollableTable tbody tr:hover {
+    background-color: #ddd;
 }
 
-.modal-footer {
- background-color: #f9f9f9;
-}
 
 </style>
 
 
-<style>
-	.form-check-label {
-		padding-left: 1.5rem;
-	}
-
-	.modalCoupon {
-		display: none;
-		position: fixed;
-		z-index: 9999;
-		left: 0;
-		top: 0;
-		width: 100%;
-		height: 100%;
-		overflow: auto;
-		background-color: rgba(0, 0, 0, 0.4);
-	}
-
-	.modalCoupon-dialog {
-		margin: 50px auto;
-		max-width: 800px;
-	}
-
-	.modalCoupon-content {
-		background-color: #fefefe;
-		border: 1px solid #888;
-		border-radius: 5px;
-	}
-
-	.modalCoupon-header {
-		padding: 15px;
-		background-color: #f5f5f5;
-		border-bottom: 1px solid #ddd;
-		border-radius: 5px 5px 0 0;
-	}
-
-	.modalCoupon-title {
-		margin: 0;
-	}
-
-	.modalCoupon-body {
-		padding: 20px;
-	}
-
-	.modalCoupon-footer {
-		padding: 15px;
-		background-color: #f5f5f5;
-		border-top: 1px solid #ddd;
-		border-radius: 0 0 5px 5px;
-	}
-
-	.copy-coupon-btn {
-		background-color: #007bff;
-		color: #fff;
-		border: none;
-		border-radius: 5px;
-		padding: 5px 10px;
-		cursor: pointer;
-		transition: background-color 0.3s ease;
-	}
-
-	.copy-coupon-btn:hover {
-		background-color: #0056b3;
-	}
-</style>
+<!-- <div class='col-md-8 p-0 right' style=" border-radius: 0;"> -->
 
 
 
-
-    <div class="page-wrapper">
-        <header class="header">
-            
-            <div class="header-middle sticky-header">
-                <div class="container">
-                    <div class="header-left">
-                     
-
-                     
-                    
-                    </div><!-- End .header-left -->
-
-                </div><!-- End .container -->
-            </div><!-- End .header-middle -->
-        </header><!-- End .header -->
-<br><br><br>
-
-        <main class="main"><br>
-            <div class="container">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
-                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
-                    <li class="breadcrumb-item"><a href="/cartPage">Cart</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Checkout</li>
-                </ol>
-            </div><!-- End .container -->
-            
-        	<div class="page-header text-center" style="background-image: url('user/assets/images/new/page-header-bg.jpg')">
-        		<div class="container">
-        			<h1 class="page-title">Checkout<span>Shop</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
-            <nav aria-label="breadcrumb" class="breadcrumb-nav">
-                
-            </nav><!-- End .breadcrumb-nav -->
-
-
-
-            <div class="page-content">
-            	<div class="checkout">
-	                <div class="container">
-
-						<div class="">
-                            <button class="btn btn-secondary rounded " id="checkCouponsBtn" type="submit">Check Coupons</button>
+    <!-- <div id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link"> -->
+        <!-- <div class="row" style="padding: 20px; background-color: #f0f0f0;"> -->
+            <!-- <div class="col-lg-6" style="margin-top: 0px;"> -->
+                <div class="card card-dashboard" style="background-color: #fff; border-radius: 0px; padding: 20px;">
+                    <h3 style="color: #333;">My E-Wallet</h3>
+                    <!-- <div class="card-body"> -->
+                        <div class="bg-white" style="padding: 10px; border-radius: 5px; border-width: 1px; border: solid;">
+                            <h4 class="fw-bolder" style="color: #000000;">Available Balance</h4>
+                            <h6 class="text-primary ">₹ <%= walletBalance %></h6>
                         </div>
+                        <form id="addMoneyForm" action="/wallet/add-money" method="post">
+                            <input type="text" name="amount" id="amountInput"  placeholder="Enter Amount" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px; height: 40px; width: 100px; border-radius: 5px;">Add Now</button>
+                        </form
+                        
+                    
+                        <br>
+                        <br>
+                        <h4>Transaction History</h4>
+                     <!-- Scrollable History -->
+                     <div id="scrollableHistory">
+                        <table id="scrollableTable">
+                            <thead>
+                                <tr>
+                                    <th>Reason</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% transactions.slice().reverse().forEach(transaction => { %>
+                                    <tr>
+                                        <td><%= transaction.reason %></td>
+                                        <td><%= transaction.date.toDateString() %></td>
+                                        <td>₹<%= transaction.transactionAmount %></td>
+                                        <td><%= transaction.type %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    
 
-						<!-- Modal -->
-							<div class="modalCoupon" id="couponModal">
-							<div class="modalCoupon-dialog">
-								<div class="modalCoupon-content" style="width: 50%;">
-									<div class="modalCoupon-header">
-										<h5 class="modalCoupon-title">Available Coupons</h5>
-										<button type="button" class="close" data-dismiss="modal">&times;</button>
-									</div>
-									<div class="modalCoupon-body" id="couponListContent">
-										<!-- Coupon items will be dynamically added here -->
-									</div>
-								</div>
-							</div>
-						</div>
-						
-						<br>
-            			<div class="checkout-discount">
-
-							<form id="couponForm">
-                                <input type="text" class="form-control" id="couponCode" placeholder="Enter coupon code here">
-                                <button type="submit" class="btn btn-danger	 rounded   " id="applyCouponBtn">Apply</button>
-                            </form>
-							
-            			</div>
-						  <!-- End .checkout-discount -->
-							
-						
-						<div class="row">
-		                		<div class="col-lg-8">
-									<h2 class="checkout-title">Delivery Address</h2>
-									  
-						<button class="btn btn-primary" style="display: flex; justify-content: end;" type="button" data-toggle="collapse" data-target="#addAddressFormCollapse" aria-expanded="false" aria-controls="addAddressFormCollapse">
-							+ Add New Address
-						</button>
-
-						<!-- add address form -->
-						<form id="addressForm" action="/checkout/add-address" method="POST">
-							<div class="collapse" id="addAddressFormCollapse">
-								<div class="form-row">
-									<!-- Left Section -->
-									<div class="col-md-6">
-										<div class="form-group">
-											<label for="name">Name:</label>
-											<input type="text" class="form-control" id="name" name="name" required>
-										</div>
-										<div class="form-group">
-											<label for="phone">Phone:</label>
-											<input type="text" class="form-control" id="phone" name="phone">
-										</div>
-										<div class="form-group">
-											<label for="pincode">Pincode:</label>
-											<input type="text" class="form-control" id="pincode" name="pincode" required>
-										</div>
-										<div class="form-group">
-											<label for="locality">Locality:</label>
-											<input type="text" class="form-control" id="locality" name="locality" required>
-										</div>
-										<div class="form-group">
-											<label for="streetaddress">Street Address:</label>
-											<input type="text" class="form-control" id="streetaddress" name="streetaddress" required>
-										</div>
-									</div>
-						
-									<!-- Right Section -->
-									<div class="col-md-6">
-										<div class="form-group">
-											<label for="place">City/Distric/Town</label>
-											<input type="text" class="form-control" id="place" name="place" required>
-										</div>
-										<div class="form-group">
-											<label for="country">Country:</label>
-											<input type="text" class="form-control" id="country" name="country" required>
-										</div>
-										
-										<div class="form-group">
-											<label for="state">State </label>
-											<input type="text" class="form-control" name="state" required>
-										</div>
-										<div class="form-group">
-											<label for="landmark">Landmark (Optional)</label>
-											<input type="text" class="form-control" name="landmark">
-										</div>
-										<div class="form-group">
-											<label for="number">Alternate Phone (Optional)</label>
-											<input type="text" class="form-control" name="number">
-										</div>
-										<button type="submit" class="btn btn-primary">Submit</button>
-									</div>
-								</div>
-							</div>
-						</form>
-						
-						
-						<br>
-									<!-- Display addresses -->
-									<% if (addressData && addressData.length > 0) { %>
-										<% addressData.forEach(address => { %>
-											
-											<div class="address-details">
-												<a href="" class="edt" style="display: flex; justify-content: end; "id="editButton_<%= address._id %>" data-id="<%= address._id %>" data-toggle="collapse" data-target="#collapse_<%= address._id %>">Edit</a>
-												
-												<input type="radio" id="address_<%= address._id %>" name="selectedAddress" value="<%= address._id %>" <% if (addressData.indexOf(address) === 0) { %> checked <% } %>>
-												<label for="address_<%= address._id %>"><strong><%= address.name %> -  <%= address.phone %></strong></label>
-												<p class="streetaddress" style="color: #000; font-weight: 400;"><%= address.streetaddress %>, <%= address.city %>
-												<p class="address" style="color: #000; background-color: #ffffff;">
-													<%= address.place %> , <%= address.locality %> , <%= address.landmark %> <br>
-													<%= address.country %> - <%= address.state %> - <%= address.pincode %> <br>
-													<%= address.alternatePhone  %>
-												</p>
+                        
+                        <!-- Collapsible History -->
+                        <br>
+                        <!-- <div id="collapsibleHistory">
+                            <button id="toggleCollapse">Wallet History</button>
+                            <div id="collapseContent">
+                                <table id="collapseTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th></th>
+                                            <th>Type</th>
+                                            <th>Reason</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="collapseList">
+                                        <% transactions.slice().reverse().forEach(transaction => { %>
+                                            <tr>
+                                                <td><%= transaction.date.toDateString() %></td>
+                                                <td><%= transaction.type %></td>
+                                                <td><%= transaction.reason %></td>
+                                                <td>₹<%= transaction.transactionAmount %></td>
+                                                <% if (transaction.orderId) { %>
+                                                    <td><a href="/profile/myorders/orderDetails/<%= transaction.orderId %>">View Order</a></td>
+                                                <% } else { %>
+                                                    <td></td>
+                                                <% } %>
+                                                <% if (transaction.returnReason) { %>
+                                                    <td><%= transaction.returnReason %></td>
+                                                <% } else { %>
+                                                    <td></td>
+                                                <% } %>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> -->
+                        
 
 
-     										  <!-- Edit checkout address form (hidden by default) -->
-											<div class="collapse" id="collapse_<%= address._id %>">
-												<div class="card card-body">
-													<form id="editAddressForm" action="/checkout/edit-address" method="POST">
-														<input type="hidden" name="addressId" value="<%= address._id %>">
-											
-														<div class="form-group">
-															<label for="name">Name:</label>
-															<input type="text" class="form-control" id="name" name="name" value="<%= address.name %>" placeholder="Enter name" required>
-														</div>
-											
-														<div class="form-group">
-															<label for="phone">Phone:</label>
-															<input type="text" class="form-control" id="phone" name="phone" value="<%= address.phone %>" placeholder="Enter phone" required>
-														</div>
-										
-														<div class="form-group">
-														  <label for="pincode">Pincode:</label>
-														  <input type="text" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>" placeholder="Enter pincode" required>
-														</div>
-											
-														<div class="form-group">
-														  <label for="streetaddress">Street Address:</label>
-														  <input type="text" class="form-control" id="streetaddress" name="streetaddress" value="<%= address.streetaddress %>" placeholder="Enter street address" required>
-														</div>
-										
-														<div class="form-group">
-															<label for="locality">Locality:</label>
-															<input type="text" class="form-control" id="locality" name="locality" value="<%= address.locality %>" placeholder="Enter locality" required>
-														</div>
-										
-														<div class="form-group">
-															<label for="place">City/Distric/Town</label>
-															<input type="text" class="form-control" id="place" name="place" value="<%= address.place %>" placeholder="Enter place" required>
-														</div>
-											
-														<div class="form-group">
-															<label for="country">Country:</label>
-															<input type="text" class="form-control" id="country" name="country" value="<%= address.country %>" placeholder="Enter country" required>
-														</div>
-											
-														<div class="form-group">
-															<label for="state">State:</label>
-															<input type="text" class="form-control" id="state" name="state" value="<%= address.state %>" placeholder="Enter state" required>
-														</div>
-										
-														  <div class="form-group">
-															<label for="landmark">Landmark:</label>
-															<input type="text" class="form-control" id="landmark" name="landmark" value="<%= address.landmark %>" placeholder="Enter landmark" >
-														 </div>
-														
-														<div class="form-group">
-															<label for="alternatePhone">Alternate Phone:</label>
-															<input type="text" class="form-control" id="alternatePhone" name="alternatePhone" value="<%= address.alternatePhone %>" placeholder="Enter alternate phone" >
-														</div>
-											
-														<button type="submit" class="btn btn-success">Save</button>
-													</form>
-												</div>
-											</div>
-										</div>
-											
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
 
-										<% }); %>
-									<% } else { %>
-										<p>No addresses found.</p>
-									<% } %>
-								
-									
-								
-									<!-- Order notes textarea -->
-									<label>Order notes (optional)</label>
-									<textarea class="form-control" cols="30" rows="4" placeholder="Notes about your order, e.g. special notes for delivery"></textarea>
-								</div>
-								
+
+<div class="collapse" id="collapseHistory">
+    <div class="card card-body">
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Amount</th>
+            </tr>
+            
+        </table>
+    </div>
+</div>
 
 
 
-		                		<aside class="col-lg-4" >
-		                			<div class="summary">
-		                				<h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
-
-		                				<table class="table table-summary">
-		                					<thead>
-		                						<tr>
-		                							<th>Product</th>
-													<th></th>
-		                							<th>Total</th>
-		                						</tr>
-		                					</thead>
-
-		                					<tbody>
-												<% carts.forEach((cart, cartIndex) => { %>
-													<% cart.products.forEach((product, productIndex) => { %>
-														<tr>
-															<td>
-																<figure class="product-media" style="background-color: transparent;">
-																	<a href="/productDetails?id=<%= product.productId._id %>">
-																		<!-- Use product image here -->
-																		<img class="product-image" src="/uploads/<%= product.productId.image[0] %>" alt="Product image">
-																	</a>
-																</figure>
-															</td>
-															<td>
-																<a href="/productDetails?id=<%= product.productId._id %>">
-																	<%= product.productId.name %>
-																</a>
-															</td>
-															<td>₹<%= product.productId.offerPrice * product.quantity %></td>
-															
-														</tr>
-													<% }) %>
-												<% }) %>
-		                						
-		                						
-		                						<tr>
-		                							<td>Shipping:</td>
-													<td></td>
-		                							<td>Free shipping</td>
-		                						</tr>
-											</tbody>
-
-
-											<tbody>
-												<% let cartTotal = 0; %>
-												<% let offer= 0 %>
-												
-												<% carts.forEach(cart => { %>
-													<% cart.products.forEach(product => { %>
-														<% let totalProductPrice = product.productId.offerPrice * product.quantity; %>
-														<tr>
-															<!-- Display individual product details -->
-															<!-- Add other product details here as needed -->
-															<!-- <td class="total-col">₹<%= totalProductPrice.toFixed(2) %></td> -->
-														</tr>
-														
-														<% offer+=(product.productId.offerApplied?product.productId.price*product.productId.offerApplied/100:0 )*product.quantity %>
-														<% cartTotal += totalProductPrice; %>
-
-														
-													<% }) %>
-												<% }) %>
-												<tr class="summary-discount">
-													
-													<td>Discount</td>
-													<td>-₹ <%= offer %></td>
-													
-												</tr>
-												<!-- Row for total cart price -->
-												<tr id="totalRow" class="summary-total">
-													<td>Total:</td>
-													<td></td>
-													<td >₹<div id="totalPrice"><%= totalAmount=cartTotal.toFixed(2) %></div></td>
-												</tr>
-											</tbody>
-		                				</table><!-- End .table table-summary -->
-
-
-										
-										
-										<!-- payment options -->
-										
-										
-										
-									<form id="orderForm">
-		                				<div class="accordion-summary" id="accordion-payment">
-											
-											<!-- wallet div -->
-										    <div class="card">
-										        <div class="card-header" id="heading-2">
-										            <h2 class="card-title">
-														<input type="radio" id="wallet" value="wallet" class="peyment" name="payment">
-										                <label for="wallet" class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-										                     Wallet
-														</label>
-										            </h2>
-										        </div>
-												<div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
-										           
-										        </div>
-										    </div>
-
-
-											<!-- cod div -->
-										    <div class="card">
-										        <div class="card-header" id="heading-3">
-										            <h2 class="card-title">
-														<input type="radio" id="cod" value="cod" class="peyment" name="payment">
-										                <label for="cod" class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-										                    Cash on delivery
-										               </label>
-										            </h2>
-										        </div>
-										        <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
-										           
-										        </div>
-										    </div>
-
-
-										 <!-- Razorpay div -->
-											<div class="card">
-												<div class="card-header" id="heading-4">
-													<h2 class="card-title">
-														<input type="radio" id="Razorpay" value="online" class="payment" name="payment">
-														<label for="Razorpay" class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-															Razorpay 
-														</label>
-													</h2>
-												</div>
-												<div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-												</div>
-											</div>
 
 
 
-										    <div class="card">
-										        <div class="card-header" id="heading-5">
-										            <h2 class="card-title">
-														<!-- <input type="radio" id="card" class="peyment" name="payment"> -->
-										                <label class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-										                    <!-- Credit Card (Stripe) -->
-										                    <img src="/user/assets/images/default/payments.png" alt="payments cards">
-														</label>
-										            </h2>
-										        </div> 
-										        <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
-													
-										        </div>
-										    </div>
-											
 
-											
-										</div>
 
-										<button type="submit" class="btn btn-outline-primary-2 btn-order btn-block">
-											<span class="btn-text">Place Order</span>
-											<span class="btn-hover-text">Proceed to Checkout</span>
-										</button>
-									</form>
-
-		                			</div>	
-		                		</aside><!-- End .col-lg-3 -->
-		                	</div><!-- End .row -->
-	                </div><!-- End .container -->
-                </div><!-- End .checkout -->
-            </div><!-- End .page-content -->
-        </main><!-- End .main -->
-
-    </div><!-- End .page-wrapper -->
+<!-- profileList end div        -->
+</div>
+</div>
+ <!-- profileList end div        -->
 
 
 
-<%- include('../layouts/footer')  %>
-<%- include('../layouts/footerNav')  %>
+ <br>
+<br>
+<%- include("../layouts/mobileNav") %>
+<%- include("../layouts/footer")  %>
+<%- include("../layouts/footerNav")  %>
 
-
-<!-- <script></script> -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-<!-- Razorpay -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-
-
-
-	<!-- order place function -->
+<!-- wallet history collapse -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
- const orderForm = document.getElementById("orderForm");
+    const toggleButton = document.getElementById('toggleCollapse');
+    const collapseContent = document.getElementById('collapseContent');
 
- orderForm.addEventListener("submit", function (event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const selectedPaymentMethod = document.querySelector('input[name="payment"]:checked');
-    const address = document.querySelector('input[name="selectedAddress"]:checked');
-
-    if (!selectedPaymentMethod.value) {
-      Swal.fire("Error", "Please select a payment method.", "error");
-      return;
-    }
-
-	if (!address) {
-      Swal.fire("Error", "Please select an address.", "error");
-      return;
-    }
-
-    console.log(document.getElementById("totalPrice").innerText);
-    const totalAmount = Number(document.getElementById("totalPrice").innerText);
-    const formData = {
-      userId: "<%= userData._id %>",
-      address: address.value,
-      paymentMethod: selectedPaymentMethod.value,
-      totalAmount: totalAmount
-    };
-
-    // Check if totalAmount is above 1000 and if COD is selected, show an error
-    if (totalAmount > 1000 && selectedPaymentMethod.value === 'cod') {
-      Swal.fire("Error", "Orders with a total amount above 1000 Rs cannot choose Cash on Delivery.", "error");
-      return;
-    }
-
-	axios.post("/place-order", formData, {
-    headers: {
-        "Content-Type": "application/json",
-    }
-})
-.then((response) => {
-	let data = response.data
-    console.log(response.data, 'araaaaaaaaa');
-    if (!response.data.status) {
-        Swal.fire({
-			title : " Balance Unavailable",
-			icon : "warning",
-
-		})
-    }
-    // Handle successful response
-    console.log(response.data);
-
-
-   
-      console.log(data);
-	  if(selectedPaymentMethod.value !== 'online'){
-
-      Swal.fire({
-        icon: "success",
-        title: "Order Placed Successfully!",
-        text: "Thank you for your order.",
-        showConfirmButton: true,
-      }).then((result) => {
-       
-        if (result.isConfirmed) {
-          window.location.href = "/profile/myorders"; // Adjust the URL as necessary
+    toggleButton.addEventListener('click', function() {
+        if (collapseContent.style.display === 'none') {
+            collapseContent.style.display = 'block'; 
+        } else {
+            collapseContent.style.display = 'none'; 
         }
-      });
-	}
-      if (selectedPaymentMethod.value === 'online') {
-        // Initialize Razorpay payment
-        var options = {
-          "key": "rzp_test_2gWPLmDC73KBec", 
-          "amount": totalAmount * 100, 
-          "currency": "INR",
-          "name": "Victor Shop",
-          "description": "Test Transaction",
-          "image": "/user/assets/images/new/Victor-Logo.png",
-          "order_id": data.id,
-          "handler": function (response) {
-            console.log(response);
-            fetch('/verify-razo', {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                receipt: data.receipt,
-                order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-              })
-            })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Failed to verify payment");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              console.log(data.message); 
-              const orderId = data.orderId;
-              const paidAmount = data.totalAmount;
+    });
+</script>
 
-              // Display SweetAlert with order ID and paid amount
-              Swal.fire({
-                title: "Payment Verified",
-                text: `Your payment has been successfully verified.\nOrder ID: ${orderId}\nPaid Amount: ${paidAmount}`,
-                icon: "success",
-                showConfirmButton: true,
-              }).then((result) => {
-                // Redirect to the "My Orders" page when the user clicks the "OK" button
-                if (result.isConfirmed) {
-                 window.location.href = "/profile/myorders"; // Adjust the URL as necessary
-                }
-              });
-            })
-            .catch((error) => {
-              console.error(error.message);
-              Swal.fire("Error", "An error occurred while verifying payment. Please try again later.", "error");
-            });
-          },
-          "prefill": {
-              "name": "Gaurav Kumar",
-              "email": "gaurav.kumar@example.com",
-              "contact": "9999999999"
-          },
-          "notes": {
-              "address": "Razorpay Corporate Office"
-          },
-          "theme": {
-              "color": "#F37254"
-          }
-        };
-        var rzp1 = new Razorpay(options);
-		rzp1.on('payment.failed' , function (){
-			window.location.href='/checkout/paymentFailed'
-		})
-        rzp1.open();
-      } else {
-        // Handle other payment methods
-      }
+
+<script>
+document.getElementById('addMoneyForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the form from submitting normally
+
+    const amount = document.getElementById('amountInput').value;
+    if (isNaN(amount) || amount <= 0) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Please enter a valid amount.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    fetch('/wallet/add-money', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: amount }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        window.location.reload()
+    })
+    .then(data => {
+        Swal.fire({
+            title: 'Success!',
+            text: 'Money has been successfully added to your wallet.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
     })
     .catch((error) => {
-      console.error(error.message);
-	  console.log(error);
-      Swal.fire({
-			title : error.response.data.message,
-			icon : "warning",
-			
-		})
-    });
- });
-});
-</script>
-
-
-
-
-<!-- add address vaidation -->
-<script>
-    document.getElementById("addressForm").addEventListener("submit", function(event) {
-        var inputs = this.querySelectorAll("input");
-        for (var i = 0; i < inputs.length; i++) {
-            var value = inputs[i].value.trim();
-            inputs[i].value = value; // Update value with trimmed one
-            if (!value && inputs[i].name !== "landmark" && inputs[i].name !== "number") {
-                Swal.fire('Error!', 'Please fill in all fields.', 'error');
-                event.preventDefault();
-                return;
-            }
-        }
-
-        var pincodeInput = document.getElementById("pincode");
-        var pincodeValue = pincodeInput.value;
-        var pincodeRegex = /^[1-9][0-9]{5}$/;
-        if (!pincodeRegex.test(pincodeValue)) {
-            Swal.fire('Error!', 'Please enter a valid pincode.', 'error');
-            event.preventDefault();
-            return;
-        }
-
-        var phoneInput = document.getElementById("phone");
-        var phoneValue = phoneInput.value;
-        var phoneRegex = /^[0-9]{10,15}$/;
-        if (!phoneRegex.test(phoneValue)) {
-            Swal.fire('Error!', 'Please enter a valid phone number.', 'error');
-            event.preventDefault();
-            return;
-        }
-    });
-</script>
-
-
-
-
-
-<!-- get coupon from databse -->
-<script>
-	  document.addEventListener('DOMContentLoaded', function () {
-            const checkCouponsBtn = document.getElementById('checkCouponsBtn');
-            const modal = document.getElementById('couponModal');
-            const couponListContent = document.getElementById('couponListContent');
-
-            checkCouponsBtn.addEventListener('click', function () {
-
-                fetch('/couponGet')
-                    .then(response => response.json())
-                    .then(coupons => {
-
-                        couponListContent.innerHTML = '';
-
-                        coupons.forEach(coupon => {
-                            const couponItem = document.createElement('div');
-                            couponItem.classList.add('coupon-item');
-                            couponItem.innerHTML = `
-                        <div class="coupon-info">
-                            <p style="color: black;">Name: ${coupon.name}</p>
-							<p style="color: black;">Description: ${coupon.description}</p>
-							<p style="color: black;">Discount Amount: ${coupon.discountAmount}</p>
-							<p style="color: black;">Expire Date: ${new Date(coupon.expireDate).toLocaleDateString()}</p>
-
-
-                        </div>
-                        <button class="btn btn-outline-dark copy-coupon-btn" data-coupon-code="${coupon.code}"  data-tippy-content="Copy the code">Copy</button>
-                    `;
-
-                            couponListContent.appendChild(couponItem);
-                        });
-
-                        $(modal).modal('show');
-                        tippy('.copy-coupon-btn', {
-                            placement: 'top', 
-                            theme: 'light', 
-                            arrow: true,
-                            delay: [500, 0], 
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error fetching coupons:', error);
-                    });
-            });
-
-			// copy option
-            couponListContent.addEventListener('click', function (event) {
-                if (event.target.classList.contains('copy-coupon-btn')) {
-                    const couponCode = event.target.getAttribute('data-coupon-code');
-                    copyToClipboard(couponCode);
-                    showCopiedAlert()
-                }
-            });
-
-            modal.querySelector('.close').addEventListener('click', function () {
-                $(modal).modal('hide');
-            });
-
-
-            function copyToClipboard(text) {
-                const input = document.createElement('input');
-                input.value = text;
-                document.body.appendChild(input);
-                input.select();
-                document.execCommand('copy');
-                document.body.removeChild(input);
-            }
-
-
-            function showCopiedAlert() {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer;
-                        toast.onmouseleave = Swal.resumeTimer;
-                    }
-                });
-                Toast.fire({
-                    icon: "success",
-                    title: "Code copied"
-                });
-            }
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while adding money to your wallet.',
+            icon: 'error',
+            confirmButtonText: 'OK'
         });
-</script>
-
-	
-
-<script>
-	document.addEventListener('DOMContentLoaded',()=>{
-	const checkCouponsBtn=document.getElementById('checkCouponsBtn');
-	const modal=document.getElementById('couponModal')
-	const couponListContent=document.getElementById('couponListContent')
-	const applyCouponBtn=document.getElementById('applyCouponBtn')
-
-	const applyCoupon=async(couponCode)=>{
-		try {
-			console.log('its here in apply coupon ');
-			const response= await fetch('/applyCoupon',{
-				method:'POST',
-				headers:{
-					'Content-Type':'application/json'
-				},
-				body:JSON.stringify({couponCode})
-			})
-			const data=await response.json()
-			console.log(data,'data in daat');
-			if(data.success){
-				console.log(data,'data in applu coupon in checkoute pagea')
-				Swal.fire({
-					title:'Coupon Applied',
-					text:`Discount applied: ₹${data.discountAmount}`,
-					icon:'success'
-				}).then(()=>{
-					console.log('its agian herer');
-					const discountRow=document.querySelector('.summary-discount')
-					discountRow.innerHTML=`
-						<td>Discount</td>
-						<td>₹${data.discountAmount}</td>
-					`;
-					const totalAmount=document.getElementById('totalPrice')
-					console.log(totalAmount , 'aaaaaaaaaaaa');
-					const newTotal=parseFloat(totalAmount.innerText.replace('₹', '').trim())-parseFloat(data.discountAmount)
-					totalAmount.innerText=`${newTotal}`
-
-					document.getElementById('couponCode').disabled = true;
-					applyCouponBtn.disabled = true;
-
-				})
-			}else{
-				Swal.fire({
-				title: 'Coupon Error',
-				text: 'Invalid coupon code',
-				icon: 'error'
-		});
-			}
-		} catch (error) {
-			console.error('Error applying coupon:', error);
-			Swal.fire({
-				title: 'Coupon Error',
-				text: 'Failed to apply coupon. Please try again later.',
-				icon: 'error'
-			});
-		}
-	};
-	applyCouponBtn.addEventListener('click',(event)=>{
-		event.preventDefault();
-		const couponCode = document.getElementById('couponCode').value;
-		applyCoupon(couponCode);
-	})
-})
+    });
+});
 </script>

@@ -41,7 +41,9 @@ const orderSchema = new mongoose.Schema({
           type:'String'
         },
         refundMode: {
-          type: String
+          type: String,
+          enum: ['wallet', 'No refund'],
+          default: 'No refund'
          }, 
         
         status: {
@@ -50,6 +52,12 @@ const orderSchema = new mongoose.Schema({
             default: 'Pending'
 
         },
+        paymentMethod: {
+          type: String,
+          enum: ['wallet', 'Cash on Delivery', 'razorpay'],
+          required: true
+  
+      },
         orderDate: {
             type: Date,
             default: Date.now()
@@ -73,6 +81,7 @@ const orderSchema = new mongoose.Schema({
             type:Number,
             default:0
          }
+         
         
     }],
     orderQuantity: {
@@ -83,9 +92,7 @@ const orderSchema = new mongoose.Schema({
     returnReason: {
         type: String
     },
-    refundMode: {
-        type: String
-       },  
+   
       orderPrice: {    // this what the order price that means price of all product in a order
           type: Number ,
           default:0
@@ -139,9 +146,6 @@ const orderSchema = new mongoose.Schema({
     returnReason: {
         type: String
     },
-    refundMode: {
-      type: String
-     }, 
     
     couponApplied: {
         type: mongoose.Schema.Types.ObjectId,

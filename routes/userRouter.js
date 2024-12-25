@@ -10,6 +10,7 @@ const wishlistController = require('../controllers/wishlistController');
 const cartController = require('../controllers/cartController');
 const checkoutController = require('../controllers/checkoutController');
 const orderController = require('../controllers/orderController');
+const walletController = require('../controllers/walletController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -84,8 +85,17 @@ router.post('/wishlist/remove',userAuth.isLogin,userAuth.isBlocked, wishlistCont
 router.get('/wishlist',userAuth.isLogin,userAuth.isBlocked, wishlistController.getWishlist);
  
 // razorpay 
+router.post('/createOrder',userAuth.isLogin,userAuth.isBlocked, checkoutController.createOrder);
 router.post('/verifyPayment',userAuth.isLogin,userAuth.isBlocked, checkoutController.verifyRazorpay);
-router.get('/paymentFailed',userAuth.isLogin,userAuth.isBlocked, checkoutController.paymentFailed);
+// router.get('/paymentFailed', checkoutController.paymentFailed);
+
+//wallet
+router.get('/wallet',userAuth.isLogin,userAuth.isBlocked,walletController.walletPage);
+
+
+
+
+
 
 
 

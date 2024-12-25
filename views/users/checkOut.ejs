@@ -118,8 +118,11 @@ input[type="radio"]:checked {
                 <div class="container">
                  <div class="breadcrumb" style="display: flex; justify-content: center; font-size: 24px; color: black;">Checkout Details</div>
                 </div><!-- End .container -->
+               
             </nav><!-- End .breadcrumb-nav -->
-
+            <div style="margin-left: 50px; margin-bottom: 20px ;" class="breadcrumb"> <a href="/cart" class="btn" style="border: 1px solid #1cc0a0;color: #1cc0a0; ">
+                Back to cart
+              </a></div>
             <div class="page-content">
             	<div class="checkout">
 	                <div class="container">
@@ -534,6 +537,9 @@ input[type="radio"]:checked {
        </div>
     </div>
 </div>
+
+<!-- modal for the payment error -->
+
 <script>
     
 document.addEventListener("DOMContentLoaded", function() {
@@ -624,13 +630,13 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // For razorpay
-    document.getElementById('proceed-btn').addEventListener('click', async () => {
+    document.getElementById('proceed-btn').addEventListener('click', async (event) => {
         event.preventDefault(); 
 
-        console.log('in the event');
-console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
-console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
-console.log('hello darling')
+                    console.log('in the event');
+            console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
+            console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
+            console.log('hello darling')
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
 
@@ -643,13 +649,14 @@ console.log('hello darling')
 
             if (response.ok) {
                 const { orderId } = await response.json();
+                console.log('orderid',orderId)
                 window.location.href = `/orderConfirmation/${orderId}`;
             } else {
                 alert('Failed to place order. Please try again.');
             }
         } else if (selectedPaymentMethod === 'razorpay') {
             try {
-                const response = await fetch('/checkout/placeOrder', {
+                const response = await fetch('/createOrder', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ selectedAddress, paymentMethod: 'razorpay' }),
@@ -694,7 +701,6 @@ console.log('hello darling')
 
                 rzp.on('payment.failed', (response) => {
                     console.error('Payment failed:', response.error);
-                  window.location.href = '/paymentFailed';
                 });
             } catch (error) {
                 console.error('Error:', error);

@@ -91,7 +91,7 @@
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
-        }
+        }   
 
         .submit-btn:hover {
             background-color: white;
@@ -149,7 +149,7 @@
                     <label>Refund Modes:</label>
                     
                     <label>
-                        <input type="radio" id="cod" name="refundMode" value="Cash On Delivery" required checked />
+                        <input type="radio" id="No refund" name="refundMode" value="No refund" required checked />
                         No valid refund
                     </label>
                     <div id="refundInfo" style="color: rgb(126, 126, 126); font-size: 11px;" class="mb-1">
@@ -159,19 +159,157 @@
         
                 <div>
                     <label>
-                        <input type="radio" id="online" name="refundMode" value="Online Payment" />
-                        Online Payment
+                        <input type="radio" id="wallet" name="refundMode" value='wallet' />
+                     Wallet
                     </label>
                 </div>
         
                 <div>
-                    <button type="submit" class="submit-btn">Submit Cancellation</button>
+                    <button type="submit" id="cancelOrderForm" class="submit-btn">Submit Cancellation</button>
                 </div>
             </form>
         </div>
     </div>
   </main>
-   
+<!--        
+  <script>
+    document.addEventListener('DOMContentLoaded',function(event){
+        event.preventDefault();
+          console.log('hwlo')
+        document.getElementById('wallet').addEventListener('click',function(){
+            const refundMode = document.querySelector('input[name="refundMode"]:checked').value;
+            console.log(refundMode)
+            // const paymentStatus = "{{paymentStatus}}";
+            console.log(paymentStatus)
+            if (paymentStatus !== "Paid") {
+                console.log('hwlo')
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Unpaid Order',
+            text: 'This product is not paid for. No refund is applicable.',
+        });
+        return;
+    }
+            if (refundMode === 'wallet') {
+        // Handle wallet refund
+        Swal.fire({
+            icon: 'success',
+            title: 'Refund Processed',
+            text: 'The amount has been added to your wallet.',
+        });
+        document.getElementById('cancelForm').submit();
+    } else {
+        Swal.fire({
+            icon: 'info',
+            title: 'No Refund',
+            text: 'No refund is applicable for Cash on Delivery orders.',
+        });
+    }
+       
+        
+        });
+       
+      
+    })              
+  </script> -->
+  <!-- <script>
+ document.querySelector('.submit-btn').addEventListener('click', async (event) => {
+    event.preventDefault();
+
+    console.log('in event')
+    
+
+    const refundMode = document.querySelector('input[name="refundMode"]:checked')?.value;
+
+    console.log({ orderId, orderItemId,  refundMode });
+    console.log('refundMode:', document.querySelector('input[name="refundMode"]:checked').value);
+    try {
+        const response = await fetch(`/cancelOrder/${orderId}/${orderItemId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refundMode }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: result.message,
+            }).then(() => {
+                window.location.href = `/orderDetail/${orderId}/${orderItemId}`;
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message,
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong while processing your request.',
+        });
+    }
+});
+
+  </script> -->
+ 
+    <script>
+  document.getElementById('cancelOrderForm').addEventListener('click', async (event) => {
+    event.preventDefault();
+    console.log('1. event.preventDefault() called');
+    const orderId = "<%= orderId %>";
+    console.log('2. orderId:', orderId);
+    const orderItemId = "<%= orderItemId %>";
+    console.log('3. orderItemId:', orderItemId);
+    const cancelReason = document.getElementById('cancelReason').value;
+    console.log('4. cancelReason:', cancelReason);
+    const cancellationComments = document.getElementById('comments').value;
+    console.log('5. cancellationComments:', cancellationComments);
+    const refundMode = document.querySelector('input[name="refundMode"]:checked').id;
+    console.log('6. refundMode:', refundMode);
+
+    try {
+        console.log('7. try block started');
+        const response = await fetch(`/cancelOrder/${orderId}/${orderItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cancelReason, cancellationComments, refundMode }),
+        });
+        console.log('8. fetch completed');
+        const result = await response.json();
+        console.log('9. result:', result);
+
+        if (!result.success) {
+            console.log('10. result.success is false');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message,
+            });
+        } else {
+            console.log('11. result.success is true');
+            // Proceed without showing SweetAlert on success
+            window.location.href = `/orderDetail/${orderId}/${orderItemId}`;
+        }
+    } catch (error) {
+        console.error('12. error caught:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Server Error',
+            text: 'Something went wrong. Please try again later.',
+        });
+    }
+});
+</script>
+
 <%- include('../layouts/footer') %>
 
 </body>

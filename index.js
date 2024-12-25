@@ -13,11 +13,13 @@ const flash = require('connect-flash');
 
 const app = express();
 
-
-app.use('/',session({
+app.use('/', session({
   secret: process.env.SECRET_KEY,
   resave: false,
-  saveUninitialized: true, 
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 3600000 // 1 hour in milliseconds
+  }
 }));
 app.use(flash());
 
@@ -47,7 +49,6 @@ app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 app.use('/static', express.static(path.join(__dirname, 'public/assets')));
-
 
 
 

@@ -3,12 +3,13 @@ const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const User = require('../models/userSchema');
 const {log} = require('console');
+const Wallet = require('../models/walletSchema');
 
 
 // ================================= order cofirmation page  in user side =========================
    const orderConfirmation = async (req, res) => {
     try {
-        const { orderId } = req.params;  // productId isn't needed here, since you're dealing with all items in the order
+        const { orderId } = req.params;  
         log('order', orderId);
 
         const [order, categories] = await Promise.all([
@@ -28,6 +29,7 @@ const {log} = require('console');
             log('order not found');
             return res.redirect('/serverError');
         }
+        log('hwllo')
 
         res.render('users/orderConfirmation', { title: 'Order Confirmation - Feather', order, categories });
     } catch (error) {
@@ -65,7 +67,10 @@ const cancelPage = async (req, res) => {
             order,
             categories,
             orderItem,
-            title: 'Order Detail - Feather'  
+            paymentStatus: order.paymentStatus,
+            title: 'Order Detail - Feather'  ,
+            orderId,
+            orderItemId
         });
     } catch (error) {
         console.error("Error fetching order details:", error);
@@ -74,21 +79,18 @@ const cancelPage = async (req, res) => {
 };
 
 // ================================= order cancellation in user side =========================
+
 const cancelOrder = async (req, res) => {
     try {
         const { orderId, orderItemId } = req.params;
         const { cancelReason, cancellationComments, refundMode } = req.body;
 
-        const order = await Order.findById(orderId);
+        const [order, user] = await Promise.all([
+            Order.findById(orderId),
+            User.findById(req.session.user),
+        ]);
+
         const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
-
-        if (!orderItem) {
-            return res.status(404).send('Order item not found.');
-        }
-
-        if (orderItem.status === 'Cancelled') {
-            return res.status(400).send('Order item is already cancelled.');
-        }
 
         orderItem.status = 'Cancelled';
         orderItem.cancelReason = cancelReason;
@@ -96,16 +98,69 @@ const cancelOrder = async (req, res) => {
         orderItem.refundMode = refundMode;
         orderItem.cancelDate = new Date();
 
-        order. orderPrice-= orderItem.productPrice * orderItem.originalQuantity;
+        const refundAmount = orderItem.productPrice * orderItem.originalQuantity;
+
+        order.orderPrice -= refundAmount;
 
         const product = await Product.findById(orderItem.productId);
         product.quantity += orderItem.originalQuantity;
-        log(product.quantity)
-        await product.save();
+        console.log('Refund Mode:', refundMode);
 
-        await order.save();
+        if (order.paymentStatus === 'Paid' && refundMode === 'wallet') {
+            let wallet = await Wallet.findOne({ userId: user._id });
 
-        res.redirect(`/orderDetail/${order._id}/${orderItemId}`);
+            if (!wallet) {
+                console.log('Wallet not found, creating a new one.');
+                wallet = new Wallet({
+                    userId: user._id,
+                    balance: 0,
+                    transactions: [],
+                });
+            }
+
+            // Ensure transactions is an array
+            if (!Array.isArray(wallet.transactions)) {
+                console.error('Wallet transactions is not an array, initializing.');
+                wallet.transactions = [];
+            }
+
+            // Add the refund transaction
+            wallet.transactions.push({
+                type: 'credit',
+                amount: refundAmount,
+                description: `Refund for order item ${orderId.slice(-4)}`,
+            });
+
+            // Update the wallet balance
+            wallet.balance += refundAmount;
+
+            await wallet.save();
+            console.log('Wallet updated successfully');
+            await Promise.all([product.save(), order.save()]);
+
+            return res.json({
+                success: true,
+                message: 'Order item cancelled and wallet updated successfully.',
+            });
+        }else if (order.paymentStatus !== 'Paid' && refundMode === 'wallet') {
+                return res.json({
+                    success: false,
+                    message: 'No refund is applicable for Cash on Delivery orders.',
+                });
+            } else if (order.paymentStatus === 'Paid' && refundMode === 'No refund') {
+                return res.json({
+                    success: false,
+                    message: 'No refund is applicable for Paid orders.',
+                });
+            }else{
+            await Promise.all([product.save(), order.save()]);
+
+            return res.json({
+                success: true,
+                message: 'Order item cancelled successfully.',
+            });
+        }
+      
     } catch (error) {
         console.error('Error cancelling order:', error);
         res.redirect('/serverError');
@@ -114,7 +169,7 @@ const cancelOrder = async (req, res) => {
 
 // ================================= order detail page in user side =========================
 
-// 
+
 const orderDetail = async (req, res) => {
     try {
         const { orderId, orderItemId } = req.params;
@@ -152,6 +207,7 @@ const orderDetail = async (req, res) => {
 };
 
 
+
 // ================================= ordered product page in user side =========================
 const orderPage = async (req, res) => {
     try {
@@ -173,7 +229,18 @@ const orderPage = async (req, res) => {
         res.redirect('/pageNotFound');
     }
 };
-                                                            //~~~admin side~~\\
+
+                                               
+
+
+
+
+
+
+
+
+
+//~~~admin side~~\\
 // ================================= order list page=========================
 
 const orderList = async (req, res) => {
@@ -243,6 +310,7 @@ const changeStatus = async (req, res) => {
         orderItem.status = status;
 
         if (status === 'Delivered') {
+            order.paymentStatus = 'Paid';
             orderItem.deliveryDate = new Date();
         } else if (status === 'Shipped') {
             orderItem.shippedDate = new Date();
@@ -252,6 +320,8 @@ const changeStatus = async (req, res) => {
             orderItem.cancelDate = new Date();
         } else if (status === 'Returned') {
             orderItem.returnDate = new Date();
+            order.paymentStatus = 'Refunded';
+
         }
 
         await order.save(); 
@@ -265,10 +335,12 @@ const changeStatus = async (req, res) => {
         }
         else if (allStatuses.includes('Delivered')) {
             order.status = 'Delivered';
+            order.paymentStatus = 'Paid';
             order.deliveredDate = new Date();
         }
         else if (allStatuses.every(status => status === 'Returned')) {
             order.status = 'Retunrned';
+            order.paymentStatus = 'Refunded';
             order.returnDate = new Date();
         }
         else if (allStatuses.some(status => status === 'Shipped')) {
@@ -294,10 +366,6 @@ const changeStatus = async (req, res) => {
         res.redirect('/serverError');
     }
 };
-
-
-
-
 
 //=========== order item  ==============
 
@@ -329,6 +397,7 @@ const orderItem = async(req,res)=>{
         res.status(500).json({success:false,message:'Failed to get order item'});
     }
 };
+
 
 module.exports={
     orderConfirmation,

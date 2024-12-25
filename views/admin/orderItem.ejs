@@ -162,10 +162,11 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">Payment Method</h5>
+                        <h5 class="mb-0">Payment Details</h5>
                     </div>
                     <div class="card-body">
-                        <p class="mb-0"><%=order.paymentMethod%></p>
+                        <p class="mb-0"> Payment Method :<%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
+                        <p class="mb-0">Payment Status :<%= order.paymentStatus%></p>
                     </div>
                 </div>
             </div>

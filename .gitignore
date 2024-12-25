@@ -10,6 +10,9 @@ test2.js
 test.ejs
 orderthings.ejs
 hello.js
+test.js
+.wallet.js
+.orderthings.ejs
 # # Logs
 # logs
 # *.log
