@@ -208,11 +208,7 @@
                   </div>
 
                   <div class="row form-section">
-                    <div class="col-lg-4 mb-4">
-                      <label class="form-label"> Price</label>
-                      <input placeholder="₹" name="price" type="text" class="form-control border" value="<%= product.price %>">
-                      <div id="regularPrice-error" class="error-message"></div>
-                    </div>
+                  
       
                     <div class="col-lg-4 mb-4">
                       <label class="form-label"> Sales Price</label>
@@ -221,8 +217,8 @@
                     </div>
                     
                     <div class="col-lg-4 mb-4">
-                      <label class="form-label">Offer Price</label>
-                      <input placeholder="₹" name="offerprice" type="text" class="form-control border" value="<%= product.offerprice %>">
+                      <label class="form-label">Offer percentage</label>
+                      <input  name="offerPercentage" type="text" class="form-control border" value="<%= product.offerPercentage %>">
                       <div id="offerPrice-error" class="error-message"></div>
                     </div>
                   </div>
@@ -337,27 +333,27 @@
           }
       
           // Validate Regular Price
-          const regularPrice = document.querySelector('input[name="price"]').value.trim();
-          if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
-            document.getElementById('regularPrice-error').textContent = 'Price is required.';
-            document.getElementById('regularPrice-error').style.display = 'block';
-            isValid = false;
-          }
+          // const regularPrice = document.querySelector('input[name="price"]').value.trim();
+          // if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
+          //   document.getElementById('regularPrice-error').textContent = 'Price is required.';
+          //   document.getElementById('regularPrice-error').style.display = 'block';
+          //   isValid = false;
+          // }
       
           // Validate Sale Price
           const salesPrice = document.querySelector('input[name="salesPrice"]').value.trim();
-          if (salesPrice === '' || isNaN(salePrice) || parseFloat(salePrice) < 0) {
+          if (salesPrice === '' || isNaN(salesPrice) || parseFloat(salesPrice) < 0) {
             document.getElementById('salesPrice-error').textContent = 'sales price is required.';
             document.getElementById('salesPrice-error').style.display = 'block';
             isValid = false;
           }
-       // Validate Offer Price
-       const offerPrice = document.querySelector('input[name="offerprice"]').value.trim();
-          if (offerPrice === '' || isNaN(offerPrice) || parseFloat(offerPrice) < 0) {
-            document.getElementById('offerPrice-error').textContent = 'Offer price is required.';
-            document.getElementById('offerPrice-error').style.display = 'block';
-            isValid = false;
-          }
+      //  // Validate Offer Price
+      //  const offerPrice = document.querySelector('input[name="offerpercentage"]').value.trim();
+      //     if (offerPrice === '' || isNaN(offerPrice) || parseFloat(offerPrice) < 0) {
+      //       document.getElementById('offerPrice-error').textContent = 'Offer price is required.';
+      //       document.getElementById('offerPrice-error').style.display = 'block';
+      //       isValid = false;
+      //     }
           // Validate Quantity
           const quantity = document.getElementById('quantity').value.trim();
           if (quantity === '' || isNaN(quantity) || parseInt(quantity) <= 0) {

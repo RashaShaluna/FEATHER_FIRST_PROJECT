@@ -70,7 +70,7 @@ const productAdding = async (req, res) => {
    log('Request Body:', req.body);
    log('Uploaded Files:', req.files);
    
-    const { name, price, description,salesPrice, category, quantity, offerprice, color } = req.body;
+    const { name, price, description,salesPrice, category, quantity,offerPercentage, color } = req.body;
     // const images = req.files.map(file => `uploads/${file.filename}`); 
     const images = req.files.map(file => `${file.filename}`); 
 
@@ -81,7 +81,10 @@ const productAdding = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Product already exists' });
     }
     log('in add')
-    console.log('name price offerprice images:',name, price, offerprice, images);
+    console.log('name price offerPercentage images:',name,salesPrice, offerPercentage, images);
+
+    const offerPrice = parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100;
+    console.log('offerPrice',offerPrice);
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -91,7 +94,8 @@ const productAdding = async (req, res) => {
       quantity,
       price,
       salesPrice,
-      offerprice,
+      offerPrice,
+      offerPercentage,
       color: capitalizeFirstLetter(color),
       images, 
     });
@@ -111,7 +115,6 @@ const productAdding = async (req, res) => {
     res.status(400).json({ success: false, message: 'Server error' });
   }
 };
-
 
 // ===================================== Stock ===============================================
 
@@ -306,14 +309,19 @@ const softDeleteProduct = async (req, res) => {
         }
 
         product.name = req.body.name;
-        product.price = req.body.price;
         product.salesPrice = req.body.salesPrice;
-        product.offerprice = req.body.offerprice;
+        product.offerPercentage = req.body. offerPercentage;
         product.description = req.body.description;
         product.quantity = req.body.quantity;
         product.color = req.body.color;
         product.category = categoryId;
+        
+        if (req.body.offerPercentage) {
+          const offerPrice = Math.floor((product.salesPrice * (100 - req.body.offerPercentage)) / 100);
+          log(offerPrice)
 
+          product.offerPrice = offerPrice;
+      }
         const images = [
             files['image1'] ? files['image1'][0].filename : product.images[0] || null,
             files['image2'] ? files['image2'][0].filename : product.images[1] || null,
@@ -323,7 +331,8 @@ const softDeleteProduct = async (req, res) => {
         
         product.images = images.filter(image => image !== null); 
 
-        await product.save();
+       const result = await product.save();
+       log(result); 
 
         res.redirect('/admin/product');
     } catch (error) {

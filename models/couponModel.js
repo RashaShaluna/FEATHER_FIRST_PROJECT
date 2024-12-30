@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const couponSchema = new mongoose.Schema({
-    name: {
+    couponName: {
         type: String,
         required: true
     },
@@ -10,8 +10,11 @@ const couponSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    description: {
-        type: String
+    // description: {
+    //     type: String
+    // }, 
+    startDate:{
+        type: Date
     },
     expireDate: {
         type: Date
@@ -33,7 +36,10 @@ const couponSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         
-    },
+    },isDeleted: { 
+        type: Boolean,
+         default: false 
+},
 
 });
 

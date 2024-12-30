@@ -1,5 +1,64 @@
 <%- include('../layouts/checkouttopbar')  %>
 <style>
+    /* Modal Styles */
+.modalCoupon {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modalCoupon-dialog {
+    position: relative;
+    margin: 10% auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    width: 60%;
+}
+
+.modalCoupon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalCoupon-body {
+    padding: 10px;
+}
+
+.coupon-item {
+    padding: 10px;
+    background-color: #f8f8f8;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.coupon-item:hover {
+    background-color: #ddd;
+}
+
+/* Close button */
+.close {
+    font-size: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
        .icon-three-dots-vertical::before {
         content: '\22EE';
         font-size: 1.5rem;
@@ -120,18 +179,49 @@ input[type="radio"]:checked {
                 </div><!-- End .container -->
                
             </nav><!-- End .breadcrumb-nav -->
-            <div style="margin-left: 50px; margin-bottom: 20px ;" class="breadcrumb"> <a href="/cart" class="btn" style="border: 1px solid #1cc0a0;color: #1cc0a0; ">
+            <div style="margin-left: 50px; margin-bottom: 20px ;" class="breadcrumb"> <a href="/cart" class="btn" style="border: 1px solid #ffffff;background-color: #1cc0a0; color: white;">
                 Back to cart
               </a></div>
             <div class="page-content">
             	<div class="checkout">
 	                <div class="container">
             			<div class="checkout-discount">
-            				<form action="#">
-        						<input type="text" class="form-control" required id="checkout-discount-input">
-            					<label for="checkout-discount-input" class="text-truncate">Have a coupon? <span>Click here to enter your code</span></label>
-            				</form>
-            			</div><!-- End .checkout-discount -->
+                            
+                                    <span id="checkCouponsBtn" style="color: #1cc0a0; cursor: pointer;">Click here search coupon </span>
+                                        <form id="manualCouponForm" action="#">
+                                <input type="text" class="form-control" id="manualCouponCode" placeholder="Enter coupon code here">
+                                <button type="submit" class="btn rounded" style="color: #1cc0a0; border-color: #1cc0a0;" id="applyManualCouponBtn">Apply Manual Code</button>
+                            </form>
+                        </div>
+                        <!-- Modal for Available Coupons -->
+            <div class="modalCoupon" id="couponModal">
+                <div class="modalCoupon-dialog">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="modalCoupon-content" style="width: 50%;">
+
+                        <div class="modalCoupon-header">
+                            <h5 class="modalCoupon-title">Available Coupons</h5>
+                        </div>
+                        <div class="modalCoupon-body">
+
+                            <ul class="list-group" id="couponListContent">
+                                <% for (const coupon of coupons) { %>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span><%= coupon.couponName%> </span>
+                                        <span>₹<%= coupon.discountAmount %>off</span>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </div>
+                        <div class="modalCoupon-footer">
+                            <button type="button" class="btn btn-primary" id="applyCouponBtn">Apply Coupon</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
 <form action="/checkout/placeOrder" method="post"> <!-- Set action to your checkout route -->
     <div class="row">
         <div class="col-lg-9">
@@ -327,9 +417,13 @@ input[type="radio"]:checked {
                             <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => { %>
                                 <tr>
                                     <td><a href="#"><%= item.productId.name %></a></td>
-                                    <td>₹<%= item.quantity * item.productId.salesPrice ? (item.quantity * item.productId.salesPrice).toFixed(2) : '0.00' %></td> <!-- Retrieve salesPrice from cart database -->
+                                    <% const effectivePrice = item.productId.isOfferActive && item.productId.offerPrice 
+                                    ? item.productId.offerPrice 
+                                    : item.productId.salesPrice; %>
+                                <td>₹<%= (item.quantity * effectivePrice).toFixed(2) %></td>
+                                 <!-- Ensure effectivePrice calculation is correct -->
                                 </tr>
-                                <% subtotal += item.quantity * item.productId.salesPrice || 0; %> <!-- Ensure subtotal addition is safe -->
+                                <% subtotal += item.quantity * effectivePrice || 0; %> <!-- Ensure subtotal addition is safe -->
                             <tr class="summary-subtotal">
                                 <td>Subtotal:</td>
                                 <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
@@ -710,6 +804,73 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+document.getElementById('checkCouponsBtn').addEventListener('click', function() {
+    document.getElementById('couponModal').style.display = 'block';
+    fetch('/api/coupons')
+
+        .then(response => response.json())
+        .then(data => {
+            const couponList = data.coupons; 
+            const couponContent = document.getElementById('couponListContent');
+            couponContent.innerHTML = ''; 
+
+            couponList.forEach(coupon => {
+                const couponItem = document.createElement('div');
+                couponItem.classList.add('coupon-item');
+                couponItem.textContent = `${coupon.code} - ${coupon.discountAmount} off`;
+                couponItem.setAttribute('data-coupon-id', coupon._id); 
+                couponContent.appendChild(couponItem);
+            });
+        });
+});
+
+document.querySelector('.modalCoupon .close').addEventListener('click', function() {
+    document.getElementById('couponModal').style.display = 'none';
+});
+
+// Handle coupon selection
+document.getElementById('couponListContent').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('coupon-item')) {
+        // Mark the selected coupon
+        const selectedCouponCode = e.target.textContent.split(' - ')[0]; // Extract coupon code
+        const couponId = e.target.getAttribute('data-coupon-id');
+
+        // Set the selected coupon code in the input field
+        document.getElementById('checkout-discount-input').value = selectedCouponCode;
+
+        // Store the selected coupon id for later use
+        document.getElementById('couponForm').setAttribute('data-selected-coupon-id', couponId);
+        
+        // Close the modal
+        document.getElementById('couponModal').style.display = 'none';
+    }
+});
+
+// Apply the coupon when the "Apply Coupon" button is clicked
+document.getElementById('applyCouponBtn').addEventListener('click', function() {
+    const couponId = document.getElementById('couponForm').getAttribute('data-selected-coupon-id');
+    if (!couponId) {
+        alert('Please select a coupon.');
+        return;
+    }
+
+    const couponCode = document.getElementById('checkout-discount-input').value;
+
+    // Send the coupon code to the server for validation
+    fetch('/apply-coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couponId, couponCode })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Coupon applied! ${data.discountAmount}% off`);
+        } else {
+            alert(data.message); // Show error message if invalid coupon
+        }
+    });
+});
 
 </script>
 

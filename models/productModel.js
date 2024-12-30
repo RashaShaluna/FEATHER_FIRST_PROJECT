@@ -7,10 +7,7 @@ const productSchema = new Schema ({
         type:String,
         required:true
     },
-    price:{
-        type:Number,
-        required : true
-    },
+   
     images : {
         type:Array,
         required:true,
@@ -42,11 +39,21 @@ const productSchema = new Schema ({
         type:Number,
         required:true
     },
-    offerprice: {
-        type: Number,
-        required: true
-    },
-    isBlocked: {
+    offerPercentage: {
+        type: Number, 
+        default: null, 
+        set: (value) => (value === '' ? null : value),
+      },
+      isOfferActive: {
+        type: Boolean,
+        default: false,
+      },
+      offerPrice:{
+        type:Number,
+        default:null,
+        set: (value) => (value === '' ? null : value),
+      },
+        isBlocked: {
         type: Boolean,
         default: false
     },

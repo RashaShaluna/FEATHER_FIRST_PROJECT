@@ -34,6 +34,7 @@
                               <th>Category Name</th>
                               <th>Description</th>
                               <th>Status</th>
+                              <!-- <th>Offer Active</th> -->
                               <th>Action</th> 
                             </tr>
                           </thead>
@@ -57,12 +58,19 @@
                                 <% } %>
                                 
                                 </td>
+                                <!-- <td>
+                                  <% if (category.isOfferActive === true) { %>
+                                  <button class="btn" style="white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/offerdeactive?id=<%= category._id %>','offerdeactive')">Offer Active</button>
+                                  <% } else { %>
+                                  <button class="btn " style="white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/offeractive?id=<%= category._id %>','offeractive')">Offer Deactive</button>
+                                  <% } %>
+                                </td> -->
                                 <td class="text-start">
-                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>"><i class="fas fa-edit"></i>
+                                  <a href="#" class= "edit-category" category-category-id="<%= category._id %>" category-category-name="<%= category.name %>" category-category-description="<%= category.description %>"><i class="fas fa-edit"></i>
                                   </a>
                                 </a>
                                 <!-- delete option -->
-                                <a href="#" class="delete-category" data-category-id="<%=category._id%> " >
+                                <a href="#" class="delete-category" category-category-id="<%=category._id%> " >
                                   <i class="fas fa-trash-alt"></i>
                               </a>
                                 </td>
@@ -173,7 +181,6 @@
 });
 
 
-
 // delete
 
   document.addEventListener("DOMContentLoaded", function() {
@@ -232,9 +239,9 @@
   });
 
 
-// pop for list and unlist
+// pop for list and unlist , offer active and deactive
 function confirmAction(url, action) {
-        const actionText = action === 'unlist' ? 'unlist' : 'list';
+        const actionText = action === 'unlist' ? 'unlist' : action === 'offeractive' ? 'activate offer' : ' deactivate offer ';
         Swal.fire({
             title: `Are you sure you want to ${actionText} this category?`,
             // text: "This action cannot be undone!",
@@ -251,6 +258,18 @@ function confirmAction(url, action) {
         });
     }
 
+
+  //   const urlParams = new URLSearchParams(window.location.search);
+  // if (urlParams.has('error') && urlParams.get('error') === 'missing-percentage') {
+  //     Swal.fire({
+  //         title: 'Error!',
+  //         text: 'This category does not have a valid offer percentage. Please add a valid offer percentage.',
+  //         icon: 'error',
+  //         confirmButtonColor: '#1cc0a0',
+  //     }).then(() => {
+  //        window.location.href='/admin/category';
+  //     });
+  // }
   </script>
 
   <%- include('../adminlayouts/footer')  %>

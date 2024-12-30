@@ -3,6 +3,7 @@
 <% } else { %>
     <%- include('../layouts/homeheader', { categories: categories }) %>
 <% } %>
+
 <body>
     
 <div class="page-content pt-5" >
@@ -46,9 +47,17 @@
                             <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
                         </div><!-- End .ratings-container -->
 
-                        <div class="product-price">
-                            ₹<%= product.salesPrice %>
-                        </div><!-- End .product-price -->
+                        <div class="product-price ">
+                            <% if (product.isOfferActive ===true  &&(product.quantity !== 0 || product.status !== 'Out of stock' )) { %>
+                                <!-- <span class="old-price"><%= '₹' + product.salesPrice %></span> -->
+                                <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.offerPercentage %>%</span>
+                             
+                                <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                <% } else { %>
+
+                                <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                            <% } %>                    
+                             </div><!-- End .product-price -->
 
                         <div class="product-nav product-nav-thumbs">
                             <% if(product.quantity > 0 && product.status == 'In stock') {%>

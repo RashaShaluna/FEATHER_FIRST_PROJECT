@@ -14,6 +14,8 @@ const customerController = require('../controllers/customerController');
 const categoryController = require('../controllers/catergoryController');
 const productController = require('../controllers/productController');
 const orderController = require('../controllers/orderController');
+const offerController = require('../controllers/offerController');
+const couponController = require('../controllers/couponController');
 const adminAuth = require('../middleware/adminAuth');
 const uploads = require('../uplaods');
 
@@ -81,10 +83,16 @@ adminRouter.get('/orderList',adminAuth.isAdmin, orderController. orderList)
 adminRouter.post('/changeStatus',adminAuth.isAdmin,orderController.changeStatus)
 adminRouter.get('/orderItem/:orderId',adminAuth.isAdmin,orderController.orderItem)
 
+//offer managemnt
+adminRouter.get('/offerdeactive',adminAuth.isAdmin,offerController.offerDeactive);
+adminRouter.get('/offeractive',adminAuth.isAdmin,offerController.offerActive);
 
-
-
-
+//coupon mangement
+adminRouter.get('/coupon',adminAuth.isAdmin,couponController.couponPage);
+adminRouter.post('/addCoupon',adminAuth.isAdmin,couponController.addCoupon);
+adminRouter.patch('/coupon/delete/:id',adminAuth.isAdmin,couponController.deleteCoupon);
+adminRouter.get('/coupon/deactivate',adminAuth.isAdmin,couponController.deactivateCoupon);
+adminRouter.get('/coupon/activate',adminAuth.isAdmin,couponController.activeCoupon );
 
 
 

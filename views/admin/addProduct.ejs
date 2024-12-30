@@ -185,7 +185,9 @@ input[type="file"]::-webkit-file-upload-text {
 }
 
 
-
+.image-card{
+  height: 100%;
+}
 </style>
 <body>
   
@@ -223,22 +225,18 @@ input[type="file"]::-webkit-file-upload-text {
               </div>
 
             <div class="row form-section">
-              <div class="col-lg-4 mb-4">
-                <label class="form-label"> Price</label>
-                <input placeholder="₹" name="price" type="text" class="form-control border">
-                <div id="regularPrice-error" class="error-message"></div>
-              </div>
+             
 
               <div class="col-lg-4 mb-4">
                 <label class="form-label"> Sales Price</label>
                 <input placeholder="₹" name="salesPrice" type="text" class="form-control border">
-                <div id="SalesPrice-error"  class="error-message"></div>
+                <div id="salesPrice-error"  class="error-message"></div>
               </div>
               
               <div class="col-lg-4 mb-4">
-                <label class="form-label">Offer Price</label>
-                <input placeholder="₹" name="offerprice" type="text" class="form-control border">
-                <div id="salePrice-error" class="error-message"></div>
+                <label class="form-label">Offer Percentage</label>
+                <input  name="offerPercentage" type="text" class="form-control border">
+                <div id="offerPrice-error" class="error-message"></div>
               </div>
             </div>
 
@@ -262,14 +260,14 @@ input[type="file"]::-webkit-file-upload-text {
               </div>
             </div>
 
-            <div class="card mb-2">
+            <div class="card mb-2 image-card">
               <div class="card-header">
                   <h4>Choose images</h4>
               </div>
               <!-- <div class="border row">
                   <div id="addedImagesContainer" class="thumbnails-container"></div>
               </div> -->
-                  <div class="col-12 col-md-6 mb-3">
+                  <div class="col-12 col-md-6 mb-3" >
                     <div class="card-body">
                       <label for="input">Upload Image 1:</label>
                       <div class="text-center">
@@ -290,7 +288,7 @@ input[type="file"]::-webkit-file-upload-text {
 
 
                   <!-- Image 2 -->
-                  <div class="col-12 col-md-6 mb-3">
+                  <div class="col-12 col-md-6 ">
                     <div class="card-body">
                       <label for="input">Upload Image 2:</label>
                       <div class="text-center">
@@ -378,19 +376,19 @@ document.addEventListener("DOMContentLoaded", function() {
       isValid = false;
     }
 
-    // Validate Regular Price
-    const regularPrice = document.querySelector('input[name="price"]').value.trim();
-    if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
-      document.getElementById('regularPrice-error').textContent = 'Price is required.';
-      document.getElementById('regularPrice-error').style.display = 'block';
-      isValid = false;
-    }
+    // // Validate Regular Price
+    // const regularPrice = document.querySelector('input[name="price"]').value.trim();
+    // if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
+    //   document.getElementById('regularPrice-error').textContent = 'Price is required.';
+    //   document.getElementById('regularPrice-error').style.display = 'block';
+    //   isValid = false;
+    // }
 
     // Validate Sale Price
-    const salePrice = document.querySelector('input[name="offerprice"]').value.trim();
-    if (salePrice === '' || isNaN(salePrice) || parseFloat(salePrice) < 0) {
-      document.getElementById('salePrice-error').textContent = 'Offer price is required.';
-      document.getElementById('salePrice-error').style.display = 'block';
+    const salesPrice = document.querySelector('input[name="salesPrice"]').value.trim();
+    if (salesPrice === '' || isNaN(salesPrice) || parseFloat(salesPrice) < 0) {
+      document.getElementById('salesPrice-error').textContent = 'Offer price is required.';
+      document.getElementById('salesPrice-error').style.display = 'block';
       isValid = false;
     }
 
@@ -547,7 +545,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
  </script>
- <%- include('../adminlayouts/footer') %>
 </div>
+ <%- include('../adminlayouts/footer') %>
 
 </body>

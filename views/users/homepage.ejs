@@ -38,6 +38,7 @@
                                     <figure class="product-media">
                                         <a href="/product/<%= product._id %>">
                                             <img src="/uploads/<%= product.images[0] %>" alt="Product image" class="product-image">
+                                            
                                         </a>
     
                                         <div class="product-action-vertical">
@@ -66,10 +67,13 @@
                                     <div class="product-body">
                                         <h3 class="product-title"><a href="/product/<%= product._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                         <div class="product-price">
+                                          <% if (product.isOfferActive ===true  &&(product.quantity !== 0 || product.status !== 'Out of stock' )) { %>
+                                            <span class="old-price"><%= '₹' + product.salesPrice %></span>
+                                            <span class="new-price"><%= '₹' + Math.floor(product.offerPrice) %></span>
+                                        <% } else { %>
+
                                             <span class="new-price"><%= '₹' + product.salesPrice %></span>
-                                            <span class="old-price"><%= '₹' + product.price %></span>
-                                           
-                                            
+                                        <% } %>
                                         </div><!-- End .product-price -->
                                         <div class="ratings-container">
                                             <div class="ratings">

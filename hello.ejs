@@ -243,3 +243,132 @@ document.getElementById('addMoneyForm').addEventListener('submit', function(even
     });
 });
 </script>
+
+<section class="content-main"> 
+ <div class="content-header">
+   <div>
+     <h2 class="content-title card-title">Coupons</h2>
+   </div>
+ </div>
+ <div class="card card-top">
+   <div class="card">
+     <div class=" row row-top">
+       <div class="col-md-3">
+         <form method="post" action="">
+           <body onload=""></body>
+             <div class="mb-4">
+               <label for="coupon-name" class="form-label">Coupon Name</label>
+               <input
+                 type="text"
+                 id="coupon-name"
+                 name="couponName"
+                 placeholder="Type here"
+                 class="form-control"
+               />
+               <div id="error-coupon-name" class="error-message"></div>
+             </div>
+
+
+             <div>
+               <label for="startingDate" class="form-label">Start Date</label>
+               <input
+                 type="date"
+                 name="startDate"
+                 class="form-control"
+                 required="true"
+                 id="startingDate"
+               />
+               <div id="error-start-date" class="error-message"></div>
+             </div>
+
+
+             <div>
+               <label for="expiringDate" class="form-label">End Date</label>
+               <input
+                 type="date"
+                 name="endDate"
+                 class="form-control"
+                 id="expiringDate"
+                 required="true"
+               />
+               <div id="error-end-date" class="error-message"></div>
+             </div>
+
+
+             <div>
+               <label for="offer-price" class="form-label">Offer Price</label>
+               <input
+                 type="text"
+                 name="offerPrice"
+                 placeholder="Type here"
+                 class="form-control"
+               />
+               <div id="error-offer-price" class="error-message"></div>
+             </div>
+
+
+             <div>
+               <label for="minimum-price" class="form-label"
+                 >Minimum Price</label
+               >
+               <input
+                 type="text"
+                 name="minimumPrice"
+                 placeholder="Type here"
+                 class="form-control"
+               />
+               <div id="error-minimum-price" class="error-message"></div>
+             </div>
+
+
+             <div class="d-grid">
+               <button
+                 class="btn btn-primary mt-20"
+                 onclick=""
+                 type="submit"
+               >
+                 Add Coupon
+               </button>
+             </div>
+             <div id="err-msg" class="error-message"></div>
+           </body>
+         </form>
+       </div>
+       <div class="col-md-7 ml-105">
+         <div class="table-responsive">
+             <table class="table table-hover">
+                 <thead>
+                     <tr>
+                         <th>Name</th>
+                         <th>Created On</th>
+                         <th>Expire On</th>
+                         <th>Offer Price</th>
+                         <th>Minimum Price</th>
+                         <th>Status</th>
+                         <th>Edit/Delete</th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                    
+                     <tr>
+                         <td class="text-start"></td>
+                         <td class="text-start"></td>
+                         <td class="text-start"></td>
+                         <td class="text-start"></td>
+                         <td class="text-start"></td>
+                         <td class="text-start"></td>
+                         <td class="text-start">
+                             <a href="#" class="btn btn-primary btn-sm" >Edit</a>
+
+
+                        <a href="#" onclick="" class="btn btn-danger btn-sm" style="height: 35px;width: 105px;"">Delete</a>
+                         </td>
+                     </tr>
+                 </tbody>
+             </table>
+         </div>
+     </div>
+     </div>
+   </div>
+ </div>
+</section>

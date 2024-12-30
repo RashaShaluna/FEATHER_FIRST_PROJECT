@@ -142,6 +142,55 @@ const addToCart = async (req, res) => {
 //   }
 // }
 
+
+// const updateQuantity = async (req, res) => {
+//   try {
+//     const { productId } = req.params;
+//     const quantity = parseInt(req.body.quantity); 
+//     const userId = req.session.user; 
+//     console.log(productId, 'Product ID in updateQuantity');
+//     console.log('Quantity in updateQuantity', quantity);
+//     console.log('User ID:', userId);
+
+//     const product = await Product.findById(productId);
+//     const salesPrice = product.salesPrice; 
+
+//     const totalPrice = quantity * salesPrice; 
+//     const cart = await Cart.findOneAndUpdate(
+//       { userId: userId, 'items.productId': productId },
+//       { 
+//         $set: { 
+//           'items.$.quantity': quantity,
+//           'items.$.totalPrice': totalPrice 
+//         } 
+//       },
+//       { new: true } 
+//     );
+
+//     if (!cart) {
+//       return res.status(404).json({ success: false, message: 'Cart not found' });
+//     }
+
+//     let  grandTotal= 0;
+
+//     cart.items.forEach(item => {
+//       const itemTotalPrice = Number(item.totalPrice); 
+//       if (!isNaN(itemTotalPrice)) {
+//          grandTotal+= itemTotalPrice; 
+//       }
+//     });
+
+//     console.log('Grand Total Price:',  grandTotal);
+//     cart. grandTotal=  grandTotal;
+//     await cart.save();
+//     return res.status(200).json({ success: true, cart,  grandTotal}); 
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ success: false, message: 'Server error' });
+//   }
+// };
+  
 const updateQuantity = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -151,10 +200,19 @@ const updateQuantity = async (req, res) => {
     console.log('Quantity in updateQuantity', quantity);
     console.log('User ID:', userId);
 
+    // Find the product
     const product = await Product.findById(productId);
-    const salesPrice = product.salesPrice; 
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
 
-    const totalPrice = quantity * salesPrice; 
+    const effectivePrice = product.isOfferActive=== 'true' ? product.offerPrice : product.salesPrice;
+    log(effectivePrice)
+
+    const totalPrice = quantity * effectivePrice; 
+    log(totalPrice, 'total price');
+
+    // Update the cart
     const cart = await Cart.findOneAndUpdate(
       { userId: userId, 'items.productId': productId },
       { 
@@ -170,26 +228,30 @@ const updateQuantity = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Cart not found' });
     }
 
-    let  grandTotal= 0;
-
+    // Calculate the grand total for the cart
+    let grandTotal = 0;
     cart.items.forEach(item => {
       const itemTotalPrice = Number(item.totalPrice); 
       if (!isNaN(itemTotalPrice)) {
-         grandTotal+= itemTotalPrice; 
+        grandTotal += itemTotalPrice; 
       }
     });
 
-    console.log('Grand Total Price:',  grandTotal);
-    cart. grandTotal=  grandTotal;
-    await cart.save();
-    return res.status(200).json({ success: true, cart,  grandTotal}); 
+    console.log('Grand Total Price:', grandTotal);
+    cart.grandTotal = grandTotal;
+
+    // Save the updated cart
+    const result = await cart.save();
+    log(result, 'updated cart');
+
+    // Respond with success
+    return res.status(200).json({ success: true, cart, grandTotal });
 
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-  
 
 // ================ Remove product from the cart ==================
 const removeFromCart = async (req, res) => {

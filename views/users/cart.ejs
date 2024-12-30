@@ -112,23 +112,36 @@
                                                 <td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
                                                 <td></td>
                                                 <% }else{ %>
-                                                    <td class="price-col">₹<%= item.productId.salesPrice %></td>
-                                                    <td class="quantity-col">
-                                                        <div class="cart-product-quantity">
-                                                            <input 
-                                                                type="number" 
-                                                                class="form-control" 
-                                                                value="<%= item.quantity %>" 
-                                                                min="1" 
-                                                                max="<%= Math.min(item.productId.quantity, 10) %>" 
-                                                                step="1" 
-                                                                data-product-id="<%= item.productId._id %>"
-                                                                data-salesPrice="<%= item.productId.salesPrice %>"
-                                                                data-available-stock="<%= item.productId.quantity %>"
-                                                                onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>')">
-                                                            </div>
-                                                    </td>                                                   
-                                                    <td class="total-col" id="total-<%= item.productId._id %>">₹<%= (item.productId.salesPrice * item.quantity).toFixed(2) %></td>
+                                                    <% if(item.productId.isOfferActive==='true' && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
+                                                    <!-- Show offer price -->
+                                                    <td class="price-col">₹<%= item.productId.offerPrice %></td>
+                                                <% } else { %>
+                                                    <!-- Show regular price -->
+                                                       <td class="price-col">₹<%= item.productId.salesPrice %></td>
+                                                <% } %>
+                                                <td class="quantity-col">
+                                                    <div class="cart-product-quantity">
+                                                        <input 
+                                                            type="number" 
+                                                            class="form-control" 
+                                                            value="<%= item.quantity %>" 
+                                                            min="1" 
+                                                            max="<%= Math.min(item.productId.quantity, 10) %>" 
+                                                            step="1" 
+                                                            data-product-id="<%= item.productId._id %>"
+                                                            data-price="<%= item.productId.isOfferActive==="true" ? item.productId.offerPrice : item.productId.salesPrice %>"
+                                                            data-available-stock="<%= item.productId.quantity %>"
+                                                            onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>', '<%= item.productId.isOfferActive %>', '<%= item.productId.offerPrice %>')">
+                                                    </div>
+                                                </td>
+                                                <td class="total-col" id="total-<%= item.productId._id %>">
+                                                    <% if (item.productId.isOfferActive && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
+                                                        ₹<%= (Math.floor(item.productId.offerPrice) * item.quantity).toFixed(2) %>
+                                                    <% } else { %>
+                                                        ₹<%= (item.productId.salesPrice * item.quantity).toFixed(2) %>
+                                                    <% } %>
+                                                </td>
+                                                
 											<% } %>
 											<td class="remove-col"><button class="btn-remove" onclick="removeFromCart('<%= item.productId._id %>')"><i class="icon-close"></i></button></td>
 										</tr>
@@ -139,16 +152,16 @@
 								</table><!-- End .table table-wishlist -->
 
 	                			<div class="cart-bottom">
-			            			<div class="cart-discount">
+			            			<!-- <div class="cart-discount">
 			            				<form action="#">
 			            					<div class="input-group">
 				        						<input type="text" class="form-control" required placeholder="coupon code">
 				        						<div class="input-group-append">
 													<button class="btn btn-outline-primary-2" type="submit"><i class="icon-long-arrow-right"></i></button>
-												</div><!-- .End .input-group-append -->
-			        						</div><!-- End .input-group -->
+												</div>
+			        						</div>
 			            				</form>
-			            			</div><!-- End .cart-discount -->
+			            			</div>End .cart-discount -->
 
 		            			</div><!-- End .cart-bottom -->
 	                		</div><!-- End .col-lg-9 -->
@@ -160,6 +173,7 @@
 	                					<tbody>
 
 	                						<tr class="summary-total">
+
 	                							<td>Total:</td>
                                               <td id="grand-total"></td> 	                						
                                             </tr><!-- End .summary-total -->
@@ -211,8 +225,8 @@
         </main><!-- End .main -->
 
      
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="path/to/your/script.js"></script>
 
 <script>
@@ -261,6 +275,8 @@ async function removeFromCart(productId) {
 }
 
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // Select all quantity inputs
     const quantityInputs = document.querySelectorAll('.form-control[type="number"]');
@@ -277,10 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function updateTotalPrice(quantityInput, salesPrice) {
+function updateTotalPrice(quantityInput, salesPrice, offerPrice, isOfferActive) {
     const quantity = parseInt(quantityInput.value);
     const productId = quantityInput.dataset.productId;
-    const total = quantity * salesPrice;
+    const price = isOfferActive === 'true' ? offerPrice : salesPrice;
+    const total = quantity * price;
     const totalCell = document.getElementById(`total-${productId}`);
 
     if (totalCell) {
@@ -289,6 +306,7 @@ function updateTotalPrice(quantityInput, salesPrice) {
         console.error(`Total price cell for product ID ${productId} not found`);
     }
 }
+
 function updateGrandTotal() {
     const totalElements = document.querySelectorAll('.total-col');
     console.log('Total elements:', totalElements);  // Check if the total elements are found
@@ -321,13 +339,15 @@ window.onload = function() {
 };
 
 
-
-
-function updateQuantity(quantityInput, productId, salesPrice, availableStock, productName) {
+function updateQuantity(quantityInput, productId, salesPrice, availableStock, productName, isOfferActive, offerPrice) {
   const quantity = parseInt(quantityInput.value);
   salesPrice = parseFloat(salesPrice);
   availableStock = parseInt(availableStock);
-  const maxLimit = Math.min(availableStock, 10); 
+  offerPrice = parseFloat(offerPrice);
+  const maxLimit = Math.min(availableStock, 10);
+
+  console.log('Input value:', quantityInput.value);
+  console.log('Parsed quantity:', quantity);
 
   // Ensure valid input
   if (isNaN(quantity) || quantity < 1) {
@@ -338,27 +358,28 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock, pr
 
   if (quantity > maxLimit) {
     alert(`You cannot select more than ${maxLimit} items.`);
-    quantityInput.value = maxLimit; 
+    quantityInput.value = maxLimit;
     return;
   }
 
   if (quantity > availableStock) {
     alert(`Sorry, you cannot select more than ${availableStock} units for "${productName}".`);
-    quantityInput.value = availableStock; 
+    quantityInput.value = availableStock;
     return;
   }
 
+  const effectivePrice = isOfferActive ==='true' ? offerPrice : salesPrice;
+
   const totalPriceElement = document.querySelector(`#total-${productId}`);
-  const newTotalPrice = quantity * salesPrice;
+  const newTotalPrice = quantity * effectivePrice;
 
   if (totalPriceElement) {
-    totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;   
+    totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;
   } else {
     console.error(`Element with ID #total-${productId} not found`);
   }
 
-  updateTotalPrice(quantityInput, salesPrice);
-  updateGrandTotal(totalPriceElement);
+  updateGrandTotal();
 
   fetch(`/cart/update-quantity/${productId}`, {
     method: 'POST',
@@ -367,20 +388,21 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock, pr
     },
     body: JSON.stringify({ quantity }),
   })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      console.log('Quantity updated successfully:', data);
-      showToast(`Quantity updated successfully for ${productName}`);
-    } else {
-      alert('Failed to update quantity');
-      console.error(data.message);
-    }
-  })
-  .catch(error => {
-    console.error('Error updating quantity:', error);
-  });
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('Quantity updated successfully:', data);
+        showToast(`Quantity updated successfully for ${productName}`);
+      } else {
+        alert('Failed to update quantity');
+        console.error(data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error updating quantity:', error);
+    });
 }
+
         
 
 

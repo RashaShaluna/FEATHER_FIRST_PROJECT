@@ -52,10 +52,11 @@
                             <th style="white-space: nowrap;">Product Name</th>
                             <th>Category</th>
                             <th>Color</th>
-                            <th>Price</th>
+                            <!-- <th>Price</th> -->
                             <th style="white-space: nowrap;">Sales Price</th>
-                            <th style="white-space: nowrap;">Offer Price</th>
                             <th>Quantity</th>
+                            <th style="white-space: nowrap;">Offer Percent</th>
+                            <th>Offer Active</th>
                             <th>Status</th>
                             <th>Action</th>
                           </tr>
@@ -67,10 +68,16 @@
                             <td style="white-space: nowrap;"><%= data.name %></td>
                             <td  style="white-space: nowrap;"><%= data.category ? data.category.name : 'N/A' %></td> 
                             <td><%= data.color %></td>
-                            <td><%= data.price %></td>
                             <td><%= data.salesPrice %></td>
-                            <td><%= data.offerprice %></td>
                             <td><%= data.quantity %></td>
+                            <td><%= data.offerPercentage %></td>
+                            <td>
+                              <% if (data.isOfferActive === true) { %>
+                              <button class="btn" style="white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/offerdeactive?id=<%= data._id %>','offerdeactive')">Offer Active</button>
+                              <% } else { %>
+                              <button class="btn " style="white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/offeractive?id=<%= data._id %>','offeractive')">Offer Deactive</button>
+                              <% } %>
+                            </td>
                             <td class="text-start">
                               <div>
                                 <% if (data.status === 'In stock') { %>
@@ -126,9 +133,11 @@
     <script>
       // pop for block and unblock
  function confirmAction(url, action) {
-        const actionText = action === 'block' ? 'block' : 'unblock';
+  console.log("URL: ", url, "Action: ", action);
+
+        const actionText = action === 'block' ? 'block' : action === 'offeractive' ? 'activate offer' : ' deactivate offer ';
         Swal.fire({
-            title: `Are you sure you want to ${actionText} this  product ?`,
+            title: `Are you sure you want to "${actionText}" this  product ?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#1cc0a0',
@@ -215,11 +224,23 @@ document.addEventListener("DOMContentLoaded", function() {
 // edit product
 
 
-    </script>
 
 
 
 
+  // Check for error in the query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('error') && urlParams.get('error') === 'missing-percentage') {
+      Swal.fire({
+          title: 'Error!',
+          text: 'This product does not have a valid offer percentage. Please add a valid offer percentage.',
+          icon: 'error',
+          confirmButtonColor: '#1cc0a0',
+      }).then(() => {
+         window.location.href='/admin/product';
+      });
+  }
+</script>
 
 
 

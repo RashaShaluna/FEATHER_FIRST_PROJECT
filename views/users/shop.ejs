@@ -130,6 +130,9 @@
                                                     <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
                                                         <span class="product-label label-out">Out of stock</span>
                                                     <% } %>
+                                                   <%  if(product.isOfferActive===true && product.offerPercentage >= 1 && (product.quantity !== 0 || product.status !== 'Out of stock') ){%>
+                                                      <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
+                                                      <% } %>
                                                 </a>   
                                                 <div class="product-action-vertical">
                                                   <% if (user) { %>
@@ -154,9 +157,15 @@
                                                 </div><!-- End .product-cat -->
                                                 <h3 class="product-title"><a href="/product/<%= product._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                                 <div class="product-price">
-                                                    <span class="new-price"><%= '₹' + product.salesPrice %></span>
-                                                    <span class="old-price"><%= '₹' + product.price %></span>
-                                                </div><!-- End .product-price -->
+                                                  <% if (product.isOfferActive === true  &&(product.quantity !== 0 || product.status !== 'Out of stock' )) { %>
+                                                      <span class="old-price"><%= '₹' + product.salesPrice %></span>
+                                                      <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                                      <% } else { %>
+
+                                                      <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                                  <% } %>
+                                              </div>
+                                              
                                                 <div class="ratings-container">
                                                     <div class="ratings">
                                                         <div class="ratings-val" style="width: 20%;"></div><!-- End .ratings-val -->
