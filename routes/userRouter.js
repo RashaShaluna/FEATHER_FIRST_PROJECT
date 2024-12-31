@@ -11,6 +11,7 @@ const cartController = require('../controllers/cartController');
 const checkoutController = require('../controllers/checkoutController');
 const orderController = require('../controllers/orderController');
 const walletController = require('../controllers/walletController');
+const couponController = require('../controllers/couponController');
 
 router.use('/shop/assets', express.static(path.join(__dirname, 'public/shop/assets')));
 
@@ -92,7 +93,9 @@ router.post('/verifyPayment',userAuth.isLogin,userAuth.isBlocked, checkoutContro
 //wallet
 router.get('/wallet',userAuth.isLogin,userAuth.isBlocked,walletController.walletPage);
 
-
+//coupon
+router.get('/getCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.getCoupon);
+router.post('/applyCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.applyCoupon);
 
 
 

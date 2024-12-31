@@ -23,7 +23,7 @@ const isLogin =(req, res, next) => {
 const logout= async (req, res, next) => {
     try {
         if (req.session.user) {     
-            res.redirect('/')
+            res.redirect('/login')
         }
        next();
     } catch (error) {
@@ -50,24 +50,6 @@ const isBlocked = async (req, res, next) => {
 
 
   
-// const logout = async (req, res, next) => {
-//     try {
-//         req.session.destroy((err) => {
-//             if (err) {
-//                 console.log('Error destroying session:', err);
-//                 res.redirect('/serverError');
-//             } else {
-//                 res.clearCookie('connect.sid');
-//                 res.redirect('/');
-//             }
-//         });
-//     } catch (error) {
-//         console.log('Error logging out:', error);
-//         res.redirect('/serverError');
-//     }
-// };
-
-
 
 
 

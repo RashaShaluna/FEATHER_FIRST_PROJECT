@@ -321,9 +321,7 @@ const loadLogin = async (req, res) => {
 const loginVerify = async (req, res) => {
   log('verifyinh it')
   const categories = await Category.find({ islisted: true, isDeleted: false });
-  // console.log('Categories:', categories);
   const products = await Product.find({ isBlocked: false, isDeleted: false }).limit(4);
-  // console.log('Products:', products);
 
 
   try {

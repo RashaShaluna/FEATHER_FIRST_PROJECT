@@ -163,12 +163,18 @@ const checkCategory = async (req, res) => {
 
 
 // =================================================== Soft Delete Category ========================================================================================
-
-
 const softDeleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
-    console.log(" delete category with ID:", categoryId);
+
+    // Validate categoryId
+    if (!categoryId || categoryId === 'null') {
+      return res.status(400).json({ success: false, message: 'Invalid category ID' });
+    }
+
+    
+
+    console.log("Delete category with ID:", categoryId);
 
     const updateResult = await Category.updateOne(
       { _id: categoryId },
@@ -182,12 +188,12 @@ const softDeleteCategory = async (req, res) => {
     } else {
       res.json({ success: false, message: 'Category not found or already deleted' });
     }
-    console.log('deleted');
   } catch (error) {
     console.error("Error deleting category:", error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
 
 
 

@@ -1,0 +1,44 @@
+
+// Handle coupon selection
+document.getElementById('couponListContent').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('coupon-item')) {
+        // Mark the selected coupon
+        const selectedCouponCode = e.target.textContent.split(' - ')[0]; // Extract coupon code
+        const couponId = e.target.getAttribute('data-coupon-id');
+
+        // Set the selected coupon code in the input field
+        document.getElementById('checkout-discount-input').value = selectedCouponCode;
+
+        // Store the selected coupon id for later use
+        document.getElementById('couponForm').setAttribute('data-selected-coupon-id', couponId);
+        
+        // Close the modal
+        document.getElementById('couponModal').style.display = 'none';
+    }
+});
+
+// Apply the coupon when the "Apply Coupon" button is clicked
+// document.getElementById('applyCouponBtn').addEventListener('click', function() {
+//     const couponId = document.getElementById('couponForm').getAttribute('data-selected-coupon-id');
+//     if (!couponId) {
+//         alert('Please select a coupon.');
+//         return;
+//     }
+
+//     const couponCode = document.getElementById('checkout-discount-input').value;
+
+//     // Send the coupon code to the server for validation
+//     fetch('/apply-coupon', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ couponId, couponCode })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert(`Coupon applied! ${data.discountAmount}% off`);
+//         } else {
+//             alert(data.message); // Show error message if invalid coupon
+//         }
+//     });
+// });

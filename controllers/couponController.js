@@ -5,7 +5,7 @@ const Product = require('../models/productModel');
 //couponpage
 const couponPage = async (req,res)=>{ 
     try {
-        const coupons = await Coupon.find({isDeleted: false});
+        const coupons = await Coupon.find({isDeleted: false}).sort({ createdAt: -1 });
         res.render('admin/coupon', { coupons ,title:'Coupon - Feather'});
       } catch (error) {
         console.error('Error fetching coupons:', error);
@@ -64,7 +64,7 @@ const deleteCoupon = async (req,res)=>{
       }
 }
 
-// activecoupon
+// deactivecoupon
  const deactivateCoupon = async (req, res) => {
   const couponId = req.query.id;
 
@@ -81,6 +81,7 @@ const deleteCoupon = async (req,res)=>{
   }
 }
 
+//active
 const activeCoupon = async (req, res) => {
   const couponId = req.query.id;
 
@@ -98,11 +99,49 @@ const activeCoupon = async (req, res) => {
   }
 }
 
+//Getcoupon
+const getCoupon = async (req,res) => {
+  try {
+    const coupons = await Coupon.find({ isDeleted: false, active: true });
+    // log(coupons)
+    res.json({coupons});
+  } catch (error) {
+    console.error('Error fetching coupon:', error);
+    res.status(500).redirect('/serverError')}
+}
+
+//applycoupon
+const applyCoupon = async(req,res)=>{
+  try{
+    log('1')
+     const {couponCode} = req.body;
+     log(couponCode)
+     const coupon = await Coupon.findOne({isDeleted:false,active:true,code:couponCode})
+     log(coupon)
+
+     //checking if the code is expired
+     if (coupon.expireDate && new Date() > coupon.expireDate) {
+      return res.json({ success: false, message: 'Coupon has expired' });
+    }
+
+    const discountAmount = coupon.discountAmount || 0;
+    const minPurchaseAmount = coupon.minPurchaseAmount || 0;
+  log(discountAmount, 'discount amount in apply code');
+
+    res.json({ success: true, message: 'Coupon applied', discountAmount, minPurchaseAmount });
+  }catch(err){
+    log(err)
+    res.status(500).redirect('/serverError') 
+  }
+}
 module.exports={
     couponPage,
     addCoupon,
     deleteCoupon,
     deactivateCoupon,
-    activeCoupon 
+    activeCoupon,
+    getCoupon,
+    applyCoupon
+
 
 }

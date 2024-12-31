@@ -308,6 +308,7 @@
     
     <script>
       document.addEventListener("DOMContentLoaded", function() {
+        event.preventDefault();     
         const croppers = [];
 
       
@@ -332,13 +333,7 @@
             isValid = false;
           }
       
-          // Validate Regular Price
-          // const regularPrice = document.querySelector('input[name="price"]').value.trim();
-          // if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
-          //   document.getElementById('regularPrice-error').textContent = 'Price is required.';
-          //   document.getElementById('regularPrice-error').style.display = 'block';
-          //   isValid = false;
-          // }
+       
       
           // Validate Sale Price
           const salesPrice = document.querySelector('input[name="salesPrice"]').value.trim();
@@ -347,13 +342,7 @@
             document.getElementById('salesPrice-error').style.display = 'block';
             isValid = false;
           }
-      //  // Validate Offer Price
-      //  const offerPrice = document.querySelector('input[name="offerpercentage"]').value.trim();
-      //     if (offerPrice === '' || isNaN(offerPrice) || parseFloat(offerPrice) < 0) {
-      //       document.getElementById('offerPrice-error').textContent = 'Offer price is required.';
-      //       document.getElementById('offerPrice-error').style.display = 'block';
-      //       isValid = false;
-      //     }
+     
           // Validate Quantity
           const quantity = document.getElementById('quantity').value.trim();
           if (quantity === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
@@ -558,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
-
+ 
 
 
 </script>
@@ -568,8 +557,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-      
-    </script>
 
 
     </div>

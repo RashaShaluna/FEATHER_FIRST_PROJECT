@@ -83,8 +83,11 @@ const productAdding = async (req, res) => {
     log('in add')
     console.log('name price offerPercentage images:',name,salesPrice, offerPercentage, images);
 
-    const offerPrice = parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100;
-    console.log('offerPrice',offerPrice);
+    const offerPrice =
+    salesPrice && offerPercentage
+      ? parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100
+      : null;
+      console.log('offerPrice',offerPrice);
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -95,7 +98,7 @@ const productAdding = async (req, res) => {
       price,
       salesPrice,
       offerPrice,
-      offerPercentage,
+      offerPercentage:offerPercentage || null,
       color: capitalizeFirstLetter(color),
       images, 
     });

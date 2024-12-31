@@ -295,7 +295,7 @@ input[type="file"]::-webkit-file-upload-text {
                         <img src=""  id="imgView2" class="img-fluid mb-2">
                       </div>
                       <input class="form-control" type="file"  id="input2"  name="images"accept="image/png, image/jpeg, image/jpg">
-                      <div id="images-error1" class="error-message mt-2"></div>
+                      <div id="images-error2" class="error-message mt-2"></div>
                     </div>
                     <!-- Image Cropper -->
                     <div class="image-cropper d-flex flex-column align-items-center">
@@ -376,13 +376,7 @@ document.addEventListener("DOMContentLoaded", function() {
       isValid = false;
     }
 
-    // // Validate Regular Price
-    // const regularPrice = document.querySelector('input[name="price"]').value.trim();
-    // if (regularPrice === '' || isNaN(regularPrice) || parseFloat(regularPrice) <= 0) {
-    //   document.getElementById('regularPrice-error').textContent = 'Price is required.';
-    //   document.getElementById('regularPrice-error').style.display = 'block';
-    //   isValid = false;
-    // }
+   
 
     // Validate Sale Price
     const salesPrice = document.querySelector('input[name="salesPrice"]').value.trim();
@@ -416,23 +410,41 @@ document.addEventListener("DOMContentLoaded", function() {
       isValid = false;
     }
 
-    // Validate Images
-    const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
-    let imageValid = false;
-    imageInputs.forEach(input => {
-      if (input.files.length > 0) {
-        imageValid = true;
-      }
-    });
-    if (!imageValid) {
-      document.getElementById('images-error').textContent = 'Image is required';
-      document.getElementById('images-error').style.display = 'block';
-      isValid = false;
-    }
 
-    return isValid;
+    const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+const validTypes = ['image/jpeg', 'image/png', 'image/jpg']; // Allowed MIME types
+
+imageInputs.forEach((input, index) => {
+  const errorElement = document.getElementById(`images-error${index + 1}`); // Select the error element for the current input
+
+  if (input.files.length > 0) {
+    const file = input.files[0]; // Get the uploaded file
+
+    // Check file type
+    if (!validTypes.includes(file.type)) {
+      errorElement.textContent = `Invalid file type. Only JPG, JPEG, and PNG are allowed .`;
+      errorElement.style.display = 'block';
+      isValid = false;
+    } else {
+      errorElement.textContent = ''; // Clear the error if file type is valid
+      errorElement.style.display = 'none';
+    }
+  } else {
+    errorElement.textContent = `Image ${index + 1} is required.`;
+    errorElement.style.display = 'block';
+    isValid = false;
+  }
+});
+
+return isValid;
+
+
   }
 
+
+
+
+  
   function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
     const inputElement = document.getElementById(inputId);
     const imgView = document.getElementById(imgViewId);
