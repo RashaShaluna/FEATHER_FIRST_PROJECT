@@ -96,6 +96,7 @@ router.get('/wallet',userAuth.isLogin,userAuth.isBlocked,walletController.wallet
 //coupon
 router.get('/getCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.getCoupon);
 router.post('/applyCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.applyCoupon);
+router.post('/removeCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.removeCoupon);
 
 
 

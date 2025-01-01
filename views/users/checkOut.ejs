@@ -119,6 +119,11 @@
     .address-details {
         font-size: 1.3rem;
     }
+    .apply-btn-custom {
+    height: 41px;
+    margin-left: 1px;
+    display: inline-block;
+}
 
 /* Change the color of the selected radio button */
 input[type="radio"]:checked {
@@ -188,18 +193,22 @@ input[type="radio"]:checked {
             	<div class="checkout">
 	                <div class="container">
             			<div class="checkout-discount">
-                            
                                     <span id="checkCouponsBtn" style="color: #1cc0a0; cursor: pointer;">Click here search coupon </span>
                                         <form id="manualCouponForm" action="#">
-                                <div class="input-group" style="width: 194px;">
+                                <div class="input-group" style="width: 23rem;">
                                     <input type="text" class="form-control" id="manualCouponCode" placeholder="Enter coupon code here">
-                                    <div class="input-group-append" style="width: 1px; height: 41px;   ">
-                                        <button type="submit" class="btn rounded" style="color: #1cc0a0; border-color: #1cc0a0; font-size: 12px;" id="applyManualCouponBtn"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                    <div class="input-group-append" id="apply-btn" style="height: 41px;">
+                                        <button type="submit"  style="color: #1cc0a0; border-color: #1cc0a0; font-size: 12px; background-color: white;" id="applyManualCouponBtn"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                       
                                     </div>
+                                    <span id="deleteCouponBtn" style="display: none;  cursor: pointer; color: #858585; margin-left: 10px; margin-top: 10px;">
+                                        <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px;"></i> 
+                                    </span>
                                 </div>
+                               
                             </form>
                         </div>
-                     
+                        
                         <!-- Modal for Available Coupons -->
                         <div class="modalCoupon" id="couponModal" style="display: none;">
                             <div class="modalCoupon-dialog">
@@ -422,29 +431,30 @@ input[type="radio"]:checked {
                                  <!-- Ensure effectivePrice calculation is correct -->
                                 </tr>
                                 <%subtotal += item.quantity * effectivePrice || 0; %> <!-- Ensure subtotal addition is safe -->
-                           <!-- <tr class="summary-total">
-                            <td style="font-size: 15px;color: rgb(159, 157, 157);">total:</td>
-                            <td style="font-size: 15px;color: rgb(142, 140, 140);">₹<%= subtotal.toFixed(2) %></td>
-                           </tr>
-                            -->
+                         
                            <!-- coupon diocunt -->
-                           <% if (couponDiscount > 0) { %>
-                            <tr class="summary-coupon-discount">
-                                <td>Coupon Discount:</td>
-                                <td>-₹<%= couponDiscount.toFixed(2) %></td>
-                            </tr>
-                            <% total -= couponDiscount; %> <!-- Subtract coupon discount from total -->
-                        <% } else { %>
-                            <tr class="summary-coupon-discount">
-                                <td>Coupon Discount:</td>
-                                <td>-₹0.00</td> <!-- No coupon applied -->
-                            </tr>
-                        <% } %>
-                                <tr class="summary-subtotal">
-                                    <td>Subtotal:</td>
-                                <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
-                            </tr><!-- End .summary-subtotal -->
+                          
+                               
                             <% }); %>                
+                            <tr class="summary-subtotal">
+                                <td>Subtotal:</td>
+                            <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
+                        </tr><!-- End .summary-subtotal -->
+
+                            <% if (couponDiscount > 0) { %>
+                                <tr class="summary-coupon-discount">
+                                    <td>Coupon Discount:</td>
+                                    <td>-₹<%= couponDiscount.toFixed(2) %></td>
+                                </tr>
+                                <% total -= couponDiscount; %> <!-- Subtract coupon discount from total -->
+                            <% } else { %>
+                                <tr class="summary-coupon-discount">
+                                    <td>Coupon Discount:</td>
+                                    <td>-₹0.00</td> <!-- No coupon applied -->
+                                </tr>
+                            <% } %>
+
+                          
 
                     </tbody>
                 </table><!-- End .table table-summary -->
@@ -523,7 +533,7 @@ input[type="radio"]:checked {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.1.9/sweetalert2.min.css" integrity="sha512-cyIc54u5RXujmHkxPyOp5L04e6vjRNR9GWR3aTRkbT8P4n9Ka9SO0lU9L1+uoKaRfYLeuFi7pEJRDXbjg1DWmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.1.9/sweetalert2.min.css" integrity="sha512-cyIc54u5RXujmHkxPyOp5L04e6vjRNR9GWR3aTRkbT8P4n9Ka9SO0lU9L1+uoKaRfYLeuFi7pEJRDXbjg1DWmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
 <!-- razorpay  -->
 
 <!-- address modal -->
@@ -720,21 +730,50 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
 
     //FORM SUBMITION
     document.getElementById('manualCouponForm').addEventListener('submit', function (e) {
-        e.preventDefault(); 
-        const couponCode = document.getElementById('manualCouponCode').value;
-        let couponDiscount = 0;
-        if (couponCode) {
-            fetch('/applyCoupon', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ couponCode: couponCode }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        couponDiscount = data.discountAmount
+    e.preventDefault();
+    const couponCode = document.getElementById('manualCouponCode').value;
+    const applyCouponBtn = document.getElementById('apply-btn');
+    const subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim()) || 0;
+    console.log('subtotal',subtotal);
+
+    if (couponCode) {
+        fetch('/applyCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ couponCode: couponCode }),
+        })
+        .then(response => {
+            console.log('1'); 
+            return response.json();
+        })
+        .then(data => {
+            console.log('Data from server:', data);
+            if (data.message === 'Coupon already applied') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Coupon Already Applied',
+                    text: 'This coupon has already been applied to your checkout.',
+                });
+                return;
+            }
+            if (data.success) {
+                const minPurchaseAmount = data.minPurchaseAmount || 0;
+                console.log('minPurchaseAmount:', minPurchaseAmount);
+                if (subtotal < minPurchaseAmount) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot apply coupon',
+                        text: 'Minimum purchase amount not met!',
+                    }).then(() => {
+                        document.getElementById('manualCouponCode').value = '';
+                    });
+                    return;
+                }
+
+                const couponDiscount = data.discountAmount || 0;
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Coupon Applied',
@@ -743,22 +782,18 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     const discountRow = document.querySelector('.summary-coupon-discount');
                     discountRow.innerHTML = `
                         <td>Coupon Discount:</td>
-                        <td>-₹${data.discountAmount}</td>
+                        <td>-₹${couponDiscount}</td>
                     `;
-
-                    const subtotalRow = document.querySelector('.summary-subtotal');
-                    const subtotal = parseFloat(document.querySelector('.summary-total td:nth-child(2)').innerText.replace('₹', '').trim());
-                    const newSubtotal = subtotal - couponDiscount;
-                    subtotalRow.querySelector('td:nth-child(2)').innerText = `₹${newSubtotal.toFixed(2)}`;
-
+                    const orderPrice = subtotal - couponDiscount;
                     const amountPayableRow = document.querySelector('.summary-payable');
-                    const freeDelivery = 0;
-                    const orderPrice = newSubtotal;
                     amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
 
-                    document.getElementById('couponCode').disabled = true;
+                    document.getElementById('checkCouponsBtn').innerText = 'Coupon Applied';
+                    document.getElementById('deleteCouponBtn').style.display = 'inline';
+                    document.getElementById('manualCouponCode').disabled = true;
                     applyCouponBtn.disabled = true;
-                    })
+                    applyCouponBtn.style.display = 'none';
+                });
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -766,22 +801,143 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     text: 'Invalid coupon code!',
                 });
             }
-                })
-                .catch(error => {
-                    console.error('Error applying coupon:', error);
-                    alert('Error applying coupon');
-                });
+        })
+        .catch(error => {
+            console.error('Error applying coupon:', error);
+            alert('Error applying coupon');
+        });
+    } else {
+        alert('Please enter a coupon code');
+    }
+});
+
+
+//Coupon removing
+// document.getElementById('deleteCouponBtn').addEventListener('click', function () {
+//     console.log('Delete coupon button clicked');
+//     const couponCode = document.getElementById('manualCouponCode').value;
+//     const applyCouponBtn = document.getElementById('apply-btn');
+    
+
+
+//     console.log('Coupon code to be removed:', couponCode);
+
+//     fetch('/removeCoupon', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ couponCode: couponCode }),
+//     })
+//     .then(response => {
+//         console.log('Response from removeCoupon API:', response);
+//         return response.json();
+//     })
+//     .then(data => {
+//         console.log('Response data from removeCoupon API:', data);
+//         if (data.success) {
+             
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Coupon Removed',
+//                 text: 'Coupon has been removed from your checkout.',
+//             }).then(()=>{
+//             applyCouponBtn.style.display = 'inline-block';   
+//             document.getElementById('manualCouponCode').value = '';
+//             document.getElementById('deleteCouponBtn').style.display = 'none';
+//             document.getElementById('checkCouponsBtn').innerText = 'Click here search coupon';
+//             document.getElementById('couponCode').disabled = false;
+   
+//             applyCouponBtn.disabled = false;
+//             // applyCouponBtn.style.height = '41px !important';
+//             // applyCouponBtn.style.marginLeft = '1px !important';
+            
+
+//            const discountRow = document.querySelector('.summary-coupon-discount');
+//                 discountRow.innerHTML = `
+//                     <td>Coupon Discount:</td>
+//                     <td>-₹0.00</td>
+//                 `;
+
+//                 // Recalculate the subtotal and total (order price)
+//                 const subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim());
+//                 const orderPrice = subtotal;  // After removing the coupon
+//                 const amountPayableRow = document.querySelector('.summary-payable');
+//                 amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
+            
+          
+
+//             })
+//         } else {
+//             console.error('Error removing coupon:', data.message);
+//             alert('Error removing coupon');
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error removing coupon:', error);
+//         alert('Error removing coupon');
+//     });
+// });
+
+
+
+document.getElementById('deleteCouponBtn').addEventListener('click', function () {
+    console.log('Delete coupon button clicked');
+    const couponCode = document.getElementById('manualCouponCode').value;
+    const applyCouponBtn = document.getElementById('apply-btn');
+
+    console.log('Coupon code to be removed:', couponCode);
+
+    fetch('/removeCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ couponCode: couponCode }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response data from removeCoupon API:', data);
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Removed',
+                text: 'Coupon has been removed from your checkout.',
+            }).then(() => {
+                applyCouponBtn.style.display = 'inline-block';
+                document.getElementById('manualCouponCode').value = '';
+                document.getElementById('deleteCouponBtn').style.display = 'none';
+                document.getElementById('checkCouponsBtn').innerText = 'Click here to search for a coupon';
+                applyCouponBtn.disabled = false;
+
+
+                // Update the summary with the removed coupon
+                const discountRow = document.querySelector('.summary-coupon-discount');
+                discountRow.innerHTML = `
+                    <td>Coupon Discount:</td>
+                    <td>-₹0.00</td>
+                `;
+
+                const subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim());
+                console.log(subtotal);
+                const discountAmount = 0;  
+                const orderPrice = subtotal - discountAmount;
+
+                const amountPayableRow = document.querySelector('.summary-payable');
+                amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
+                // document.getElementById('couponCode').disabled = false;  THIS LINE IS NOT WORKING
+
+            })
         } else {
-            alert('Please enter a coupon code');
+            console.error('Error removing coupon:', data.message);
+            alert('Error removing coupon');
         }
+    })
+    .catch(error => {
+        console.error('Error removing coupon:', error);
+        alert('Error removing coupon');
     });
-
-
-
-
-
-
-
+});
 
 
 
@@ -930,12 +1086,14 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
             console.log('hello darling')
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+        const orderPrice = parseFloat(document.querySelector('.summary-payable td:nth-child(2)').innerText.replace('₹', '').trim());
+        console.log('orderprice',orderPrice);
 
         if (selectedPaymentMethod === 'Cash on Delivery') {
             const response = await fetch('/checkout/placeOrder', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery' }),
+                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery', orderPrice: orderPrice  }),
             });
 
             if (response.ok) {

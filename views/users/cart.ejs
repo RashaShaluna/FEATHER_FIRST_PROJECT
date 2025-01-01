@@ -112,7 +112,7 @@
                                                 <td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
                                                 <td></td>
                                                 <% }else{ %>
-                                                    <% if(item.productId.isOfferActive==='true' && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
+                                                    <% if(item.productId.isOfferActive=== true && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
                                                     <!-- Show offer price -->
                                                     <td class="price-col">₹<%= item.productId.offerPrice %></td>
                                                 <% } else { %>
