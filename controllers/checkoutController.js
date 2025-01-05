@@ -40,7 +40,7 @@ const checkout = async (req, res) => {
         ]);
        
         const totalPrice=cart.items.reduce((total,item)=>total+item.totalPrice,0);
-        res.render('users/checkOut', { title: 'Feather - Checkout', userId:user, products, categories, addresses, cart, totalPrice, coupons });
+        res.render('users/checkOut', { title: 'Feather - Checkout', userId:user, products, categories, addresses,totalPrice, cart,  coupons });
     } catch (error) {
        log(error);
        res.redirect('/pageNotFound');
@@ -142,13 +142,102 @@ const editAddress = async (req, res) => {
 
 
 // =================== order placing ====================
+// const placeOrder = async (req, res) => {
+//     try {
+//         log('placing order')
+//         const userId = req.session.user;
+//         const { selectedAddress, paymentMethod } = req.body;
+//         // log('selected address',selectedAddress)
+
+//         const [address, cart] = await Promise.all([ 
+//             Address.findById(selectedAddress),  
+//             Cart.findOne({ userId }).populate({
+//                 path: 'items.productId',
+//                 model: Product
+//             }),
+//         ]);
+
+//         if (!address) {
+//             return res.status(400).send("Invalid address selected.");
+//         }
+
+//         if (!cart || cart.items.length === 0) {
+//             log('cart is empty')
+//             return res.redirect('/serverError');
+//         }
+      
+//         if (paymentMethod !== 'Cash on Delivery') {
+//             log('cod is available')
+//             return res.redirect('/serverError');
+//         }
+
+//         const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity), 0);
+
+//         const discountAmount = cart.discountamount || 0; 
+//         const additionalCharges = 0; 
+//         const  orderPrice = totalAmount - discountAmount + additionalCharges;       
+//         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
+//         const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+//         const orderItems = cart.items.map(item => ({
+//             productId: item.productId._id,
+//             quantity: item.quantity,
+//             originalQuantity: item.quantity,
+//             orderPrice: item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity,
+//             productPrice: (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity, 
+//             paymentMethod: 'Cash on Delivery',
+//             paymetnStatus: 'pending',
+//             refundMode: 'No refund',
+//         }));
+
+//         const newOrder = new Order({
+//             userId, 
+//             orderUserDetails: userId, 
+//             orderitems: orderItems,
+//             totalAmount,
+//             orderPrice,
+//             paymentMethod: paymentMethod === 'Cash on Delivery' ? 'Cash on Delivery' : 'razorpay',
+//             paymentStatus:'pending',
+//             status: 'Pending',
+//             orderDate: new Date(),
+//             address: selectedAddress, 
+//             estimatedDeliveryDate,
+//             orderQuantity
+//         });
+
+//         await Promise.all([
+//             newOrder.save(),
+//             ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
+//                 $inc:{quantity:-item.quantity}
+//             })),
+//             ...orderItems.map(item => Product.findByIdAndUpdate(
+//                 item.productId,
+//                 {$inc:{orderCount:item.quantity}}
+//             )),
+//             Cart.findOneAndDelete({ userId }),
+//         ]);
+//          console.log('checkoutcontroller completteed')
+//          console.log('Order placed successfully');
+//          res.json({ orderId: newOrder._id });
+//     } catch (error) {
+// console.error("Error placing order:", error);
+// res.redirect('/serverError');
+// }
+// }
+
+
 const placeOrder = async (req, res) => {
     try {
         log('placing order')
         const userId = req.session.user;
-        const { selectedAddress, paymentMethod } = req.body;
-        // log('selected address',selectedAddress)
+        console.log('Request Body:', req.body);
 
+        const { selectedAddress, paymentMethod,products} = req.body;
+        log(products)
+        
+        const orderPrice = parseFloat(req.body.orderPrice);
+        log(orderPrice)
+     
         const [address, cart] = await Promise.all([ 
             Address.findById(selectedAddress),  
             Cart.findOne({ userId }).populate({
@@ -161,40 +250,30 @@ const placeOrder = async (req, res) => {
             return res.status(400).send("Invalid address selected.");
         }
 
-        if (!cart || cart.items.length === 0) {
-            log('cart is empty')
-            return res.redirect('/serverError');
-        }
       
         if (paymentMethod !== 'Cash on Delivery') {
             log('cod is available')
             return res.redirect('/serverError');
         }
 
-        const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity), 0);
-
-        const discountAmount = cart.discountamount || 0; 
-        const additionalCharges = 0; 
-        const  orderPrice = totalAmount - discountAmount + additionalCharges;       
+               
         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-        const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        // const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
-        const orderItems = cart.items.map(item => ({
-            productId: item.productId._id,
-            quantity: item.quantity,
-            originalQuantity: item.quantity,
-            orderPrice: item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity,
-            productPrice: (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity, 
+        const orderItems = products.map(product=> ({
+            productId: product.productId,
+            originalQuantity: parseInt(product.quantity, 10),
+            productPrice: parseFloat(product.productPrice),
             paymentMethod: 'Cash on Delivery',
-            paymetnStatus: 'pending',
+            paymentStatus: 'pending',
             refundMode: 'No refund',
         }));
+        console.log('Order Items:', orderItems);
 
         const newOrder = new Order({
             userId, 
             orderUserDetails: userId, 
             orderitems: orderItems,
-            totalAmount,
             orderPrice,
             paymentMethod: paymentMethod === 'Cash on Delivery' ? 'Cash on Delivery' : 'razorpay',
             paymentStatus:'pending',
@@ -202,41 +281,48 @@ const placeOrder = async (req, res) => {
             orderDate: new Date(),
             address: selectedAddress, 
             estimatedDeliveryDate,
-            orderQuantity
+            orderQuantity: orderItems.reduce((sum, item) => sum + item.originalQuantity, 0),
         });
+        log(newOrder)
 
         await Promise.all([
             newOrder.save(),
             ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
-                $inc:{quantity:-item.quantity}
+                $inc:{quantity:-item.originalQuantity}
             })),
             ...orderItems.map(item => Product.findByIdAndUpdate(
                 item.productId,
-                {$inc:{orderCount:item.quantity}}
+                {$inc:{orderCount:item.originalQuantity}}
             )),
             Cart.findOneAndDelete({ userId }),
         ]);
-         console.log('checkoutcontroller completteed')
+            console.log('checkoutcontroller completteed')
          console.log('Order placed successfully');
          res.json({ orderId: newOrder._id });
     } catch (error) {
-console.error("Error placing order:", error);
-res.redirect('/serverError');
+        console.log("Error placing order:", error);
+    res.redirect('/serverError');
+    }
 }
-}
+
+
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_ID_KEY ,
     key_secret: process.env.RAZORPAY_SECRET_KEY
 });
 
+
+
+
+
 //order placing using razorpay
 const createOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { selectedAddress } = req.body;
+        const { selectedAddress,orderPrice } = req.body;
 
         console.log("User ID:", userId);
-        console.log("Selected Address:", selectedAddress);
+        console.log("req,body",req.body);
 
         if (!userId) {
             return res.status(400).send("User ID is missing.");
@@ -260,15 +346,15 @@ const createOrder = async (req, res) => {
             return res.redirect('/serverError');
         }
 
-        const totalAmount = cart.items.reduce(
-            (sum, item) =>
-                sum + (item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity),
-            0
-        );
+        // const totalAmount = cart.items.reduce(
+        //     (sum, item) =>
+        //         sum + (item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity),
+        //     0
+        // );
 
-        const discountAmount = cart.discountamount || 0;
-        const additionalCharges = 0;
-        const orderPrice = totalAmount - discountAmount + additionalCharges;
+        // const discountAmount = cart.discountamount || 0;
+        // const additionalCharges = 0;
+        // const orderPrice = totalAmount - discountAmount + additionalCharges;
 
         const razorpayOrder = await razorpay.orders.create({
             amount: orderPrice * 100, 
@@ -290,9 +376,10 @@ log('done')
 // verifying the razorpay and saving the order
 const verifyRazorpay = async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, selectedAddress } = req.body;
-        const userId = req.session.user;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, selectedAddress,orderPrice,products } = req.body;
 
+        const userId = req.session.user;
+       log(products)
        log("Razorpay Order ID:", razorpay_order_id);
        log("Payment ID:", razorpay_payment_id);
        log("Signature:", razorpay_signature);
@@ -313,40 +400,38 @@ const verifyRazorpay = async (req, res) => {
             return res.status(400).send("Payment verification failed.");
         }
 
-        const cart = await Cart.findOne({ userId }).populate({
-            path: 'items.productId',
-            model: Product,
-        });
+        // const cart = await Cart.findOne({ userId }).populate({
+        //     path: 'items.productId',
+        //     model: Product,
+        // });
 
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).send("Cart is empty.");
-        }
+        // if (!cart || cart.items.length === 0) {
+        //     return res.status(400).send("Cart is empty.");
+        // }
 log('going')
-const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || (item.productId.isOfferActive ===true ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity), 0);
+// const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || (item.productId.isOfferActive ===true ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity), 0);
 
 
-        const discountAmount = cart.discountamount || 0;
-        const additionalCharges = 0;
-        const orderPrice = totalAmount - discountAmount + additionalCharges;
+        // const discountAmount = cart.discountamount || 0;
+        // const additionalCharges = 0;
+        // const orderPrice = totalAmount - discountAmount + additionalCharges;
         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-        const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+     // const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
-        const orderItems = cart.items.map((item) => ({
-            productId: item.productId._id,
-            quantity: item.quantity,
-            originalQuantity: item.quantity,
-            orderPrice: item.totalPrice || (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity,
-            productPrice: (item.productId.isOfferActive ? item.productId.offerPrice : item.productId.salesPrice) * item.quantity, 
+        const orderItems = products.map((product) => ({
+            productId: product.productId,
+            originalQuantity: parseInt(product.quantity, 10),
+            productPrice: parseFloat(product.productPrice),
              paymentMethod: 'razorpay',
              paymetnStatus: 'Paid',
              refundMode: 'wallet',
         }));
+        console.log('Order Items:', orderItems);
 
         const newOrder = new Order({
             userId,
             orderUserDetails: userId,
             orderitems: orderItems,
-            totalAmount,
             orderPrice,
             paymentMethod: 'razorpay',
             paymentStatus: 'Paid',
@@ -354,21 +439,18 @@ const totalAmount = cart.items.reduce((sum, item) => sum + (item.totalPrice || (
             orderDate: new Date(),
             address: selectedAddress,
             estimatedDeliveryDate,
-            orderQuantity
+            orderQuantity: orderItems.reduce((sum, item) => sum + item.originalQuantity, 0),
         });
 
         await Promise.all([
             newOrder.save(),
-            ...orderItems.map((item) =>
-                Product.findByIdAndUpdate(item.productId, {
-                    $inc: { quantity: -item.quantity },
-                })
-            ),
-            ...orderItems.map((item) =>
-                Product.findByIdAndUpdate(item.productId, {
-                    $inc: { orderCount: item.quantity },
-                })
-            ),
+            ...orderItems.map(item => Product.findByIdAndUpdate(item.productId,{
+                $inc:{quantity:-item.originalQuantity}
+            })),
+            ...orderItems.map(item => Product.findByIdAndUpdate(
+                item.productId,
+                {$inc:{orderCount:item.originalQuantity}}
+            )),
             Cart.findOneAndDelete({ userId }),
         ]);
 log('donee')

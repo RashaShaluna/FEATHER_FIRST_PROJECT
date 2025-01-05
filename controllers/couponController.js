@@ -13,38 +13,64 @@ const couponPage = async (req,res)=>{
       }
 }
 
-//addcoupon
-const addCoupon = async (req,res)=>{
-    try {
-        const {
-          couponName,
-          code,
-          description,
-          startDate,
-          endDate,
-          offerPrice,
-          minimumPrice,
-        } = req.body;
-    
-        const newCoupon = new Coupon({
-          couponName: couponName,
-          code: couponName.toUpperCase().replace(/\s+/g, '') + Math.floor(10 + Math.random() * 90), 
-          description,
-          startDate:startDate,
-          expireDate: endDate,
-          discountAmount: offerPrice,
-          minPurchaseAmount: minimumPrice,
-          maxDiscountLimit: null,
-        });
-    
-       const result=  await newCoupon.save();
-       console.log(result)
-        res.redirect('/admin/coupon');
-      } catch (error) {
-        console.error('Error adding coupon:', error);
-        res.status(500).redirect('/serverError')
-      }
-}
+// addcoupon 
+const addCoupon = async (req, res) => {
+  try {
+    const {
+      couponName,
+      code,
+      description,
+      startDate,
+      endDate,
+      offerPrice,
+      minimumPrice,
+    } = req.body;
+
+    // Check for existing coupon
+    const existingCoupon = await Coupon.findOne({
+      $or: [
+        { couponName: couponName },
+        { code: code },
+      ],
+    });
+
+    if (existingCoupon) {
+      return res.status(400).json({
+        success: false,
+        message: 'A coupon with this name or code already exists.',
+      });
+    }
+
+    // Create new coupon
+    const newCoupon = new Coupon({
+      couponName: couponName,
+      code: couponName.toUpperCase().replace(/\s+/g, '') + Math.floor(10 + Math.random() * 90),
+      description,
+      startDate,
+      expireDate: endDate,
+      discountAmount: offerPrice,
+      minPurchaseAmount: minimumPrice,
+      maxDiscountLimit: null,
+    });
+
+    const result = await newCoupon.save();
+    console.log('Coupon saved:', result);
+
+    // Send success response
+    res.status(200).json({
+      success: true,
+      message: 'Coupon added successfully!',
+    });
+  } catch (error) {
+    console.error('Error adding coupon:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while adding the coupon. Please try again later.',
+    });
+  }
+} 
+
 
 //deletecoupon
 const deleteCoupon = async (req,res)=>{
@@ -182,14 +208,12 @@ const removeCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;
 
-    // Fetch coupon from the database to verify its existence
     const coupon = await Coupon.findOne({ code: couponCode, isDeleted: false, active: true });
 
     if (!coupon) {
       return res.json({ success: false, message: 'No such coupon applied' });
     }
 
-    // Check if the coupon was applied in the session
     req.session.appliedCoupons = req.session.appliedCoupons || [];
     const couponIndex = req.session.appliedCoupons.indexOf(couponCode);
 
@@ -197,13 +221,11 @@ const removeCoupon = async (req, res) => {
       return res.json({ success: false, message: 'Coupon not applied to the cart' });
     }
 
-    // Remove coupon from the appliedCoupons array
     req.session.appliedCoupons.splice(couponIndex, 1);
 
-    // Optionally, you can update the order price here if needed
-    // Assume you have the subtotal and discount in your session or database
-    const subtotal = req.session.subtotal || 0; // Adjust with the actual subtotal logic
-    const discountAmount = 0;  // No coupon applied
+
+    const subtotal = req.session.subtotal || 0; 
+    const discountAmount = 0;
     const orderPrice = subtotal - discountAmount;
 
     res.json({ success: true, message: 'Coupon removed successfully', orderPrice: orderPrice });

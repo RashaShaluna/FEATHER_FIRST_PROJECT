@@ -151,6 +151,7 @@
                           <button
                             class="btn btn-primary mt-20"
                             onclick=""
+                            id="couponForm"
                             type="submit"style="background-color: #1cc0a0; color: white; border"
                           >
                             Add Coupon
@@ -225,6 +226,67 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+const formElement = document.getElementById('couponForm');
+
+formElement.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  console.log('Form is being submitted');
+
+  const formData = new FormData(formElement);
+
+  try {
+    const response = await fetch('/admin/addCoupon', {
+      method: 'POST',
+      body: formData,
+    });
+
+    // Check for non-JSON response (e.g., redirects)
+    if (!response.headers.get('content-type')?.includes('application/json')) {
+      console.error('Unexpected response format');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Unexpected server response. Please try again.',
+        confirmButtonColor: '#1cc0a0',
+      });
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: result.message,
+        confirmButtonColor: '#1cc0a0',
+      }).then(() => {
+        window.location.reload(); // Reload the page after success
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: result.message,
+        confirmButtonColor: '#1cc0a0',
+      });
+    }
+  } catch (error) {
+    console.error('Error submitting the form:', error);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: 'An unexpected error occurred. Please try again.',
+      confirmButtonColor: '#1cc0a0',
+    });
+  }
+});
+1
+
+
+
+
   //active and unactive
   function confirmAction(url, action) {
         const actionText = action === 'active' ? 'active' : 'deactive';
@@ -298,7 +360,6 @@
     deleteBtn.addEventListener('click', function (e) {
       e.preventDefault();
 
-      // Get coupon ID from data-id attribute
       const couponId = this.getAttribute('data-id');
 
       // Confirm deletion action
@@ -312,9 +373,8 @@
         confirmButtonText: 'Yes, delete it!'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Send a fetch request to the back-end for soft delete
           fetch(`/admin/coupon/delete/${couponId}`, {
-            method: 'PATCH',  // Use PATCH for partial updates
+            method: 'PATCH',  
             headers: {
               'Content-Type': 'application/json',
             },
@@ -327,7 +387,7 @@
                   'Your coupon has been deleted.',
                   'success'
                 ).then(() => {
-                  location.reload();  // Reload the page to reflect changes
+                  location.reload();  
                 });
               } else {
                 Swal.fire(

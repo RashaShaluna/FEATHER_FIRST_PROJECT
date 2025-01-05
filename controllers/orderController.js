@@ -9,6 +9,7 @@ const Wallet = require('../models/walletSchema');
 // ================================= order cofirmation page  in user side =========================
    const orderConfirmation = async (req, res) => {
     try {
+        log('on cofirm')
         const { orderId } = req.params;  
         log('order', orderId);
 
@@ -25,15 +26,12 @@ const Wallet = require('../models/walletSchema');
             Category.find({ islisted: true, isDeleted: false }),
         ]);
 
-        if (!order) {
-            log('order not found');
-            return res.redirect('/serverError');
-        }
+        
         log('hwllo')
 
         res.render('users/orderConfirmation', { title: 'Order Confirmation - Feather', order, categories });
     } catch (error) {
-        console.error(error);
+        console.log(error)
         res.redirect('/pageNotFound');
     }
 };
