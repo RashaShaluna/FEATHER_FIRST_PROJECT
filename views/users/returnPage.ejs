@@ -1,0 +1,212 @@
+<%- include('../layouts/header') %>
+
+    <style>
+        .cancel-order-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            padding : 0px 70px 0px 0px ;
+            border-radius: 4px;
+            box-shadow: 0px 2px 4px rgba(12, 11, 11, 0.1);
+            width: 60%;
+            margin: 20px auto;
+            height: 40rem;
+        }
+
+        .product-card {
+            width: 30%;
+            padding: 10px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+        }
+
+        .product-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .product-card h4 {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+            text-align: center;
+        }
+
+        .product-card p {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        .cancel-form {
+            width: 60%;
+            padding-left: 10px;
+        }
+
+        .cancel-form label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .cancel-form select,
+        .cancel-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .cancel-form textarea {
+            height: 50px;
+        }
+
+        .payment-methods {
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .payment-methods label {
+            margin-right: 5px;
+        }
+
+        .submit-btn {
+            margin-top: 10px;
+                padding: 5px 10px;
+            background-color:#1cc0a0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }   
+
+        .submit-btn:hover {
+            background-color: white;
+            color: #1cc0a0;
+            border: 1px solid #1cc0a0;
+        }
+
+        #comments {
+            height: 140px;
+        }
+    </style>
+</head>
+<body class="mb-5" >
+  <main>
+    <div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">Order Return </h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/orderDetail/:orderId/:orderItemId">Order</a></li>
+
+                <li class="breadcrumb-item active" aria-current="page">Order Return</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
+
+    <div class="cancel-order-container">
+        <% if (orderItem) { %>
+            <div class="product-card">
+                <img src="/uploads/<%= orderItem.productId.images[0] %>" alt="Product Image">
+                <h4><%= orderItem.productId.name %></h4>
+                <p>Price: ₹<%= orderItem.productId.salesPrice %></p>
+            </div>
+        <% } else { %>
+            <p>No product found for cancellation.</p>
+        <% } %>
+        
+        <div class="cancel-form">
+            <form action="/return/<%= order._id %>/<%= orderItem._id %>" method="POST">
+              
+               
+        
+                <label for="returnReason">Return Reason</label>
+                <textarea name="returnReason" id="reason" placeholder="Explain why you want to return"></textarea>
+                                    
+                <div>
+                  
+                    <div class="refund-note" style="font-size: 12px; color: grey;">
+                        Note: Refund will be credited to your wallet.
+                    </div>
+                </div>
+        
+                <div>
+                    <button type="submit" id="returnBtn" class="submit-btn">Submit Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+  </main>
+
+
+    <script>
+  document.getElementById('returnBtn').addEventListener('click', async (event) => {
+    event.preventDefault();
+    console.log('1. event.preventDefault() called');
+    const orderId = "<%= orderId %>";
+    console.log('2. orderId:', orderId);
+    const orderItemId = "<%= orderItemId %>";
+    console.log('3. orderItemId:', orderItemId);
+    const reason = document.getElementById('reason').value;
+    console.log('4. reason:', reason);
+   
+
+
+    try {
+        console.log('7. try block started');
+        const response = await fetch(`/returnOrder/${orderId}/${orderItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId, orderItemId, reason }),
+        });
+        console.log('8. fetch completed');
+        const result = await response.json();
+        console.log('9. result:', result);
+
+        if (!result.success) {
+            console.log('10. result.success is false');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message,
+            });
+        } else {
+            console.log('11. result.success is true');
+            // Proceed without showing SweetAlert on success
+            window.location.href = `/orderDetail/${orderId}/${orderItemId}`;
+        }
+    } catch (error) {
+        console.error('12. error caught:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Server Error',
+            text: 'Something went wrong. Please try again later.',
+        });
+    }
+});
+</script>
+
+<%- include('../layouts/footer') %>
+
+</body>
+</html>

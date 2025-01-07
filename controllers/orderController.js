@@ -55,6 +55,7 @@ const cancelPage = async (req, res) => {
         ]);
 
         const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
+        log('order item product price', orderItem.productPrice);
 
         if (!orderItem) {
             return res.status(404).send('Order item not found');
@@ -96,17 +97,16 @@ const cancelOrder = async (req, res) => {
         orderItem.refundMode = refundMode;
         orderItem.cancelDate = new Date();
 
-        const refundAmount = orderItem.productPrice * orderItem.originalQuantity;
+        const refundAmount = orderItem.productPrice;
 
-        order.orderPrice -= refundAmount;
 
-        const product = await Product.findById(orderItem.productId);
+const product = await Product.findById(orderItem.productId);
         product.quantity += orderItem.originalQuantity;
         console.log('Refund Mode:', refundMode);
 
         if (order.paymentStatus === 'Paid' && refundMode === 'wallet') {
             let wallet = await Wallet.findOne({ userId: user._id });
-
+            orderItem.paymentStatus = 'Refunded';
             if (!wallet) {
                 console.log('Wallet not found, creating a new one.');
                 wallet = new Wallet({
@@ -228,7 +228,129 @@ const orderPage = async (req, res) => {
     }
 };
 
-                                               
+// return order page
+const returnPage= async (req,res)=>{
+    try {
+        log('return order')
+        // console.log('Query Parameters:', req.query)
+        const{orderId,orderItemId} = req.params;
+        
+          const [userData, order, categories] = await Promise.all([
+            User.findOne({ _id: req.session.user }), 
+            Order.findById(orderId)
+                .populate('address')  
+                .populate({
+                    path: 'orderitems.productId',  
+                    model: Product
+                }),
+            Category.find({ islisted: true, isDeleted: false })  
+        ]);
+
+        const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
+
+        res.render('users/returnPage', { 
+            title: 'Return - Feather', 
+           userData,
+            order,
+            categories,
+            orderItem,
+            paymentStatus: order.paymentStatus, 
+            orderId,
+            orderItemId
+        });
+    } catch (error) {
+        log(error)
+        res.status(404).redirect('/pageNotFound');
+    }
+}
+
+//return proccess
+const returnOrder = async (req,res)=>{
+    try {
+        log('proccesing')
+        log(req.body)
+        const { orderId, orderItemId,reason } = req.body; // Extract orderId and orderItemId from the POST request body
+
+    
+        const [order, user] = await Promise.all([
+            Order.findById(orderId),
+            User.findById(req.session.user),
+        ]);
+
+       log('1')
+
+        const orderItem = order.orderitems.find(item => item._id.toString() === orderItemId);
+
+        if (!orderItem) {
+            console.error('Order item not found.');
+            return res.status(404).send('Order item not found.');
+        }
+
+        // Update order item status to "returned"
+        orderItem.status = 'Returned';
+        orderItem.returnReason = reason;
+        orderItem.paymentStatus = 'Refunded';
+        orderItem.returnDate = new Date();
+        orderItem.refundMode = 'wallet';
+        const refundAmount = orderItem.productPrice;
+
+        const [product, wallet] = await Promise.all([
+            Product.findById(orderItem.productId),
+            Wallet.findOne({ userId: user._id })
+        ]);
+
+        product.quantity += orderItem.originalQuantity;
+
+        if (!wallet) {
+            console.log('Wallet not found, creating a new one.');
+            wallet = new Wallet({
+                userId: user._id,
+                balance: 0,
+                transactions: [],
+            });
+        }
+        if (!Array.isArray(wallet.transactions)) {
+            console.error('Wallet transactions is not an array, initializing.');
+            wallet.transactions = [];
+        }
+
+        // Add the refund transaction
+        wallet.transactions.push({
+            type: 'credit',
+            amount: refundAmount,
+            description: `Refund for order item ${orderId.slice(-4)}`,
+        });
+
+        // Update the wallet balance
+        wallet.balance += refundAmount;
+
+        await wallet.save();
+        console.log('Wallet updated successfully');
+        await Promise.all([product.save(), order.save()]);
+        log('done   ')
+
+        return res.json({
+            success: true,
+            message: 'Order item returned and wallet updated successfully.',
+        });        
+    } catch (error) {
+        console.error('Error processing return:', error);
+        res.status(500).send('An error occurred while processing the return request.');
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -405,5 +527,7 @@ module.exports={
     orderPage,
     orderList,
     changeStatus,
-    orderItem
+    orderItem,
+    returnPage,
+    returnOrder
 }

@@ -48,7 +48,7 @@ const orderSchema = new mongoose.Schema({
         
         status: {
             type: String,
-            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned','Refunded','Failed'],
+            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Returned','Failed'],
             default: 'Pending'
 
         },
@@ -89,9 +89,7 @@ const orderSchema = new mongoose.Schema({
       required: true,
      
   },
-    returnReason: {
-        type: String
-    },
+   
    
       orderPrice: {    // this what the order price that means price of all product in a order
           type: Number ,

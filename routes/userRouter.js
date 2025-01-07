@@ -79,6 +79,9 @@ router.get('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBloc
 router.post('/cancelOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.cancelOrder);
 router.get('/orders',userAuth.isLogin,userAuth.isBlocked,orderController.orderPage);
 router.get('/orderDetail/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.orderDetail);
+router.get('/returnPage/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.returnPage);
+router.post('/returnOrder/:orderId/:orderItemId',userAuth.isLogin,userAuth.isBlocked,orderController.returnOrder);
+
 
 // whislist
 router.post('/wishlist/add',userAuth.isLogin,userAuth.isBlocked, wishlistController.addToWishlist);
@@ -97,6 +100,7 @@ router.get('/wallet',userAuth.isLogin,userAuth.isBlocked,walletController.wallet
 router.get('/getCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.getCoupon);
 router.post('/applyCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.applyCoupon);
 router.post('/removeCoupon',userAuth.isLogin,userAuth.isBlocked,couponController.removeCoupon);
+
 
 
 

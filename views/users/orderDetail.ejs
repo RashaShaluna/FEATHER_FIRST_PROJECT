@@ -197,7 +197,7 @@
                                 <p>Price: ₹<%= orderItem.productPrice %></p> <!-- Assuming you have a productPrice in the order item -->
                                 <p>Quantity: <%= orderItem.originalQuantity %></p>
                                 <p class="paymet">Payment Method: <%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
-                                <p class="paymet">Payment Status: <%= order.paymentStatus %></p>
+                                <p class="paymet">Payment Status: <%= orderItem.paymentStatus %></p>
                             </div>
                         </div>
                         
@@ -232,9 +232,12 @@
                                     <span class="d-none d-sm-block">Cancel</span>
                                 </a>
                             <% } else if (orderItem.status === 'Delivered') { %>
-                                <a href="#">
+                                <a href="/returnPage/<%= order._id %>/<%= orderItem._id %>" id="returnBtn">
                                     <span class="d-none d-sm-block text-danger" style="margin-left: 300px;">Return</span>
                                 </a>
+                                
+                                <% console.log(order._id, orderItem._id); %>
+                                
                             <% } %>
                         </div>
                         <div class="estimated-delivery">
@@ -272,10 +275,24 @@
                 }
             });
         });
+
+
         //return order
-
-
-    });
+    // document.getElementById('returnBtn').addEventListener('click', function (event) {
+    //     event.preventDefault();
+    //     console.log('1')
+    //     const orderId = this.getAttribute('data-order-id');
+    //     const orderItemId = this.getAttribute('data-order-item-id');
+    //     console.log(`Order ID: ${orderId}, Order Item ID: ${orderItemId}`);
+    //     if (orderId && orderItemId) {
+    //     const returnUrl = `/returnPage?orderId=${orderId}&orderItemId=${orderItemId}`;
+    //     console.log('Navigating to:', returnUrl); 
+    //     window.location.href = returnUrl;
+    // } else {
+    //     console.error("Order ID or Order Item ID is missing.");
+    // }
+    // })
+});
     </script>
     
     <%- include('../layouts/footer') %>

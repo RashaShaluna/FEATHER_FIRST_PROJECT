@@ -423,7 +423,7 @@ log('going')
             originalQuantity: parseInt(product.quantity, 10),
             productPrice: parseFloat(product.productPrice),
              paymentMethod: 'razorpay',
-             paymetnStatus: 'Paid',
+             paymentStatus: 'Paid',
              refundMode: 'wallet',
         }));
         console.log('Order Items:', orderItems);
