@@ -44,7 +44,9 @@ adminRouter.get('/adminLogout',adminController.adminLogout);
 //dashboard
 adminRouter.get('/dashboard',adminAuth.isAdmin,adminController.dashboard);
 adminRouter.get('/salesReport',adminAuth.isAdmin,adminController.salesReport);
-adminRouter.get('/sales/download-pdf',adminAuth.isAdmin,adminController.downloadPDF);
+adminRouter.get('/download-pdf',adminAuth.isAdmin,adminController.downloadPdf);
+adminRouter.get('/download-excel',adminAuth.isAdmin,adminController.downloadExcel);
+
 // customer management
 adminRouter.get('/users',adminAuth.isAdmin,customerController.customerInfo);
 adminRouter.get('/blockCustomer',adminAuth.isAdmin,customerController.customerBlocked);
