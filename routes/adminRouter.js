@@ -40,8 +40,11 @@ adminRouter.get('/pageerror',adminController.pageerror);
 adminRouter.get('/log', adminController.Login);
 adminRouter.post('/log',adminController.admincheck);
 adminRouter.get('/adminLogout',adminController.adminLogout);
-adminRouter.get('/dashboard',adminAuth.isAdmin,adminController.dashboard);
 
+//dashboard
+adminRouter.get('/dashboard',adminAuth.isAdmin,adminController.dashboard);
+adminRouter.get('/salesReport',adminAuth.isAdmin,adminController.salesReport);
+adminRouter.get('/sales/download-pdf',adminAuth.isAdmin,adminController.downloadPDF);
 // customer management
 adminRouter.get('/users',adminAuth.isAdmin,customerController.customerInfo);
 adminRouter.get('/blockCustomer',adminAuth.isAdmin,customerController.customerBlocked);

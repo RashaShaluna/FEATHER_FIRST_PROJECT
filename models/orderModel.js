@@ -9,7 +9,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderId:{
         type:String,
-        default:()=>uuidv4(),
+        default:()=>uuidv4(), 
         unique:true
     },
     orderitems: [{
@@ -22,6 +22,10 @@ const orderSchema = new mongoose.Schema({
         originalQuantity: {
             type: Number, 
             required: true
+        },
+        unitPrice:{
+          type:Number,
+          required:true
         },
         cancelReason: {
             type: String
@@ -89,8 +93,7 @@ const orderSchema = new mongoose.Schema({
       required: true,
      
   },
-   
-   
+
       orderPrice: {    // this what the order price that means price of all product in a order
           type: Number ,
           default:0

@@ -1,6 +1,19 @@
 <%- include('../adminlayouts/header') %>
+<style>
+.btn-sales {
+    border: 1px solid #1cc0a0;
+    color: #1cc0a0;
+}
+.btn-sales:hover {
+  color: #1cc0a0;
+}
+</style>
       <div class="main-panel">
         <h4 class="font-weight-bold text-dark">Dashboard</h4>
+
+        <div class="d-flex justify-content-end">
+          <a href="/admin/salesreport" class="btn  btn-sales mb-3">Get Sales Report</a>
+        </div>
 
         <!-- <div class="content-wrapper">
           <div class="row">

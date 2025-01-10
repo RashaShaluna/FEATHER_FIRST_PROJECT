@@ -1,0 +1,102 @@
+<script>
+  
+
+// razorpay payment
+const createOrder = async (req, res) => {
+    try {
+        log('razor')
+        const { amount } = req.body;
+        const options = {
+            amount: amount * 100, // amount in the smallest currency unit
+            currency: 'INR',
+            receipt: `receipt#${Math.floor(Math.random() * 10000)}`
+        };
+        log('doinggg')
+        const order = await razorpay.orders.create(options);
+        console.log('done')
+        res.status(200).json(order);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(error);
+    }
+};
+
+
+const verifyRazorpay = async(req,res)=>{
+     try{
+        log('in verifying payment')
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_SECRET_KEY)
+            .update(body.toString())
+            .digest('hex');
+    
+        const isAuthentic = expectedSignature === razorpay_signature;
+    
+        if (isAuthentic) {
+            res.json({ success: true, message: 'Payment verified successfully' });
+        } else {
+            res.status(400).json({ success: false, message: 'Payment verification failed' });
+        }
+     }catch(error){
+        log('payment error',error)
+      res.redirect('/serverError')
+     }
+}
+
+
+
+document.getElementById('procced-btn').onclick = async function() {
+            const response = await fetch('/createOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const order = await response.json();
+
+            const options = {
+                key: 'RAZORPAY_ID_KEY ', 
+                amount: order.amount,
+                currency: order.currency,
+                name: "Feather",
+                description: "Test Transaction",
+                order_id: order.id,
+                handler: async function (response) {
+                    try {
+                        const verificationResponse = await fetch('/verifyPayment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(response)
+                        });
+                        const data = await verificationResponse.json();
+                        
+                        if (data.success) {
+                            alert('Payment successful!');
+                        } else {
+                            alert('Payment verification failed.');
+                        }
+                    } catch (error) {
+                        alert('Error verifying payment');
+                        console.error(error);
+                    }
+                },
+                prefill: {
+                    name: "Test Customer",
+                    email: "test@example.com",
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#3399cc"
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        };
+
+</script>

@@ -230,11 +230,10 @@ const placeOrder = async (req, res) => {
     try {
         log('placing order')
         const userId = req.session.user;
-        console.log('Request Body:', req.body);
+        log('Request Body:', req.body);
 
         const { selectedAddress, paymentMethod,products} = req.body;
         log(products)
-        
         const orderPrice = parseFloat(req.body.orderPrice);
         log(orderPrice)
      
@@ -258,7 +257,6 @@ const placeOrder = async (req, res) => {
 
                
         const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-        // const orderQuantity = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
         const orderItems = products.map(product=> ({
             productId: product.productId,
@@ -267,7 +265,9 @@ const placeOrder = async (req, res) => {
             paymentMethod: 'Cash on Delivery',
             paymentStatus: 'pending',
             refundMode: 'No refund',
+            unitPrice: parseFloat(product.effectivePrice),
         }));
+
         console.log('Order Items:', orderItems);
 
         const newOrder = new Order({
@@ -425,6 +425,7 @@ log('going')
              paymentMethod: 'razorpay',
              paymentStatus: 'Paid',
              refundMode: 'wallet',
+             unitPrice:parseFloat(product.effectivePrice),
         }));
         console.log('Order Items:', orderItems);
 

@@ -430,7 +430,6 @@ input[type="radio"]:checked {
                                     ? item.productId.offerPrice 
                                     : item.productId.salesPrice; %>
                                     <% productPrice = item.quantity * effectivePrice %>
-
                                     <td class="price">₹<%=productPrice.toFixed(2) %></td>
                                   
                                 </tr>
@@ -464,7 +463,9 @@ input[type="radio"]:checked {
                             <% products.forEach((product, index) => { %>
                                 <input type="hidden" name="products[<%= index %>][productId]" value="<%= product.productId %>">
                                 <input type="hidden" name="products[<%= index %>][quantity]" value="<%= product.quantity %>">
-                                <input type="hidden" name="products[<%= index %>][productPrice]" value="<%= product.productPrice %>"> <!-- Send total price for product (after multiplying by quantity) -->
+                                <input type="hidden" name="products[<%= index %>][productPrice]" value="<%= product.productPrice %>"> 
+                                <input type="hidden" name="products[<%= index %>][effectivePrice]" value="<%= product.productPrice / product.quantity %>">
+
                             <% }); %>
 
                     </tbody>
@@ -745,6 +746,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
     //FORM SUBMITION
     document.getElementById('manualCouponForm').addEventListener('submit', function (e) {
     e.preventDefault();
+
     let couponCode = document.getElementById('manualCouponCode').value;
     let applyCouponBtn = document.getElementById('apply-btn');
     let subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim()) || 0;
@@ -1134,12 +1136,13 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
     document.getElementById('proceed-btn').addEventListener('click', async (event) => {
         event.preventDefault(); 
 
-                    console.log('in the event');
+             console.log('in the event');
             console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
             console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
             console.log('hello darling')
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+
         const orderPrice = parseFloat(document.querySelector('.summary-payable td:nth-child(2)').innerText.replace('₹', '').trim());
         console.log('orderprice',orderPrice);
 
