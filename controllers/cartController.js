@@ -21,6 +21,11 @@ const cart = async (req, res) => {
   
       const cartData = await Cart.findOne({ userId: user}).populate({
         path: 'items.productId',
+        model: Product,
+        populate: {
+          path: 'category',
+          model: Category
+        },
         model: Product
       });
       
@@ -196,6 +201,8 @@ const updateQuantity = async (req, res) => {
     const { productId } = req.params;
     const quantity = parseInt(req.body.quantity); 
     const userId = req.session.user; 
+    const cartPrice = req.body.cartPrice
+    log(req.body  )
     console.log(productId, 'Product ID in updateQuantity');
     console.log('Quantity in updateQuantity', quantity);
     console.log('User ID:', userId);
@@ -206,10 +213,10 @@ const updateQuantity = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    const effectivePrice = product.isOfferActive=== 'true' ? product.offerPrice : product.salesPrice;
-    log(effectivePrice)
+    // const effectivePrice =cartPrice
+    log('cart',cartPrice);
 
-    const totalPrice = quantity * effectivePrice; 
+    const totalPrice = quantity * cartPrice; 
     log(totalPrice, 'total price');
 
     // Update the cart

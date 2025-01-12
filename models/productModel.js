@@ -53,6 +53,12 @@ const productSchema = new Schema ({
         default:null,
         set: (value) => (value === '' ? null : value),
       },
+      activeOfferSource: {
+        type: String,
+        enum: ['product', 'category', ''],
+        default: null,
+    },
+    
         isBlocked: {
         type: Boolean,
         default: false

@@ -69,7 +69,7 @@
             <h3 class="card-title fs-5">Add Category </h3>
           </div>
           
-          <form id="categoryForm" class="add-box">
+          <form id="categoryForm" class="add-box" >
             <label for="categoryName">Category Name:</label><br>
             <input type="text" id="name" name="name" ><br>
             <span id="name-error" class="error-message" style="display:none;color:red;"></span><br>
@@ -77,6 +77,9 @@
             <label for="categoryDescription">Description:</label><br>
             <textarea id="description" name="description"></textarea><br>
             <span id="description-error" class="error-message" style="display:none;color:red;"></span><br>
+         
+            <label for="offerPercentage">Offer Percentage:</label><br>
+            <input type="text" id="offerPercentage" name="offerPercentage" ><br><br>
 
             <input type="submit" value="Submit" class="btn sub-btn">
           </form>
@@ -112,6 +115,7 @@
   
       const name = document.getElementById('name').value.trim();
       const description = document.getElementById('description').value.trim();
+      const offerPercentage = document.getElementById('offerPercentage').value.trim();
       let valid = true;
   
       if (!name) {
@@ -132,7 +136,8 @@
   
       const formData = {
           name: name,
-          description: description
+          description: description,
+          offerPercentage:offerPercentage
       };
   
       try {

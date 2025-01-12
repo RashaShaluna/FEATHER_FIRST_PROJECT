@@ -29,7 +29,7 @@ const checkout = async (req, res) => {
         log('in checkout')
         const [user, products, categories, addresses, cart,coupons] = await Promise.all([
             User.findById(req.session.user),
-            Product.find({ isBlocked: false, isDeleted: false }),
+            Product.find({ isBlocked: false, isDeleted: false }).populate(),
             Category.find({ islisted: true, isDeleted: false }),
             Address.find({ userId:req.session.user, isDeleted: false }),
             Cart.findOne({ userId: req.session.user }).populate({

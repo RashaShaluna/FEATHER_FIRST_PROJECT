@@ -34,7 +34,8 @@
                               <th>Category Name</th>
                               <th>Description</th>
                               <th>Status</th>
-                              <!-- <th>Offer Active</th> -->
+                              <th>Offer Percentage</th>
+                              <th>Offer Active</th>
                               <th>Action</th> 
                             </tr>
                           </thead>
@@ -45,7 +46,7 @@
                                 <td><%= index + 1 %></td>
                                 <td class="name"><%= category.name %></td>
                                 <td class="description"><%= category.description %></td>
-                            
+                                
                                 <td class="text-start">
                                   <% if(category.islisted){ %>
                                     <button class="btn btn-success" style="width: 70px" onclick="confirmAction('/admin/unlistCategory?id=<%=category._id%>','unlist')">
@@ -56,17 +57,19 @@
                                     unlist
                                   </button>
                                 <% } %>
-                                
+                                <td>
+                                  <%= category.offerPercentage %>
                                 </td>
-                                <!-- <td>
+                                </td>
+                                <td>
                                   <% if (category.isOfferActive === true) { %>
-                                  <button class="btn" style="white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/offerdeactive?id=<%= category._id %>','offerdeactive')">Offer Active</button>
+                                 <button class="btn" style="white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/offerCategoryDeactive?id=<%= category._id %>','offerdeactive')">Offer Active</button>
                                   <% } else { %>
-                                  <button class="btn " style="white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/offeractive?id=<%= category._id %>','offeractive')">Offer Deactive</button>
+                                  <button class="btn " style="white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/offerCategoryActive?id=<%= category._id %>', 'offeractive');">Offer Deactive</button>
                                   <% } %>
-                                </td> -->
+                                </td>
                                 <td class="text-start">
-                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>"><i class="fas fa-edit"></i>
+                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>" data-offer-percentage="<%= category.offerPercentage %>"><i class="fas fa-edit"></i>
                                   </a>
                                 </a>
                                 <!-- delete option -->
@@ -107,11 +110,13 @@
       const categoryId = button.getAttribute("data-category-id");
       const categoryName = button.getAttribute("data-category-name");
       const categoryDescription = button.getAttribute("data-category-description");
+      const offerPercentage = button.getAttribute("data-offer-percentage");
 
       Swal.fire({
         title: 'Edit Category',
         html: `
           <input type="text" id="categoryName" name="name" class="swal2-input" value="${categoryName}" placeholder="Category Name">
+          <input type='text' id='offerPercentage' name="offerPercentage" class= 'swal2-input' value="${offerPercentage}"placeholder="Offer Percentage">
           <textarea id="categoryDescription" name="description" class="swal2-textarea" placeholder="Category Description">${categoryDescription}</textarea>
         `,
         showCancelButton: true,
@@ -120,6 +125,7 @@
         preConfirm: async () => {
           const editedName = Swal.getPopup().querySelector('#categoryName').value.trim();
           const editedDescription = Swal.getPopup().querySelector('#categoryDescription').value.trim();
+          const editedOfferPercentage = Swal.getPopup().querySelector('#offerPercentage').value.trim();
 
           if (editedName === '' || editedDescription === '') {
             Swal.showValidationMessage('Please fill in all fields.');
@@ -134,7 +140,8 @@
               },
               body: JSON.stringify({
                 editedName: editedName,
-                categoryId: categoryId
+                categoryId: categoryId,
+                
               })
             });
 
@@ -152,7 +159,8 @@
               body: JSON.stringify({
                 categoryId: categoryId,
                 editedName: editedName,
-                editedDescription: editedDescription
+                editedDescription: editedDescription,
+                editedOfferPercentage:editedOfferPercentage
               })
             }).then(()=>{
               location.reload()
@@ -162,7 +170,8 @@
 
             return {
               categoryName: editedName,
-              categoryDescription: editedDescription
+              categoryDescription: editedDescription,
+              offerPercentage:editedOfferPercentage
             };
           } catch (error) {
             console.error('Error:', error);
@@ -174,6 +183,7 @@
         if (result.isConfirmed) {
           button.setAttribute("data-category-name", result.value.categoryName);
           button.setAttribute("data-category-description", result.value.categoryDescription);
+          button.setAttribute("data-offer-percentage", result.value.offerPercentage);
         }
       });
     });

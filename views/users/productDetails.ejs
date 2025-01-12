@@ -8,6 +8,7 @@
     
 <div class="page-content pt-5" >
     <div class="container">
+        
         <div class="product-details-top">
             <div class="row">
                 <div class="col-md-6">
@@ -48,16 +49,25 @@
                         </div><!-- End .ratings-container -->
 
                         <div class="product-price ">
-                            <% if (product.isOfferActive ===true  &&(product.quantity !== 0 || product.status !== 'Out of stock' )) { %>
-                                <!-- <span class="old-price"><%= '₹' + product.salesPrice %></span> -->
-                                <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.offerPercentage %>%</span>
-                             
-                                <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                            
+                            <% if (product.quantity > 0 && product.status !== 'Out of stock') { %>
+                                <% if (product.activeOfferSource === 'product' && product.isOfferActive === true) { %>
+                                    <!-- Product offer is active -->
+                                    <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.offerPercentage %>%</span>
+                                    <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                <% } else if (product.activeOfferSource === 'category' && product.category.isOfferActive === true) { %>
+                                    <!-- Category offer is active -->
+                                    <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.category.offerPercentage %>%</span>
+                                    <span class="new-price"><%= '₹' + product.offerPrice %></span>
                                 <% } else { %>
-
+                                    <!-- No active offer, show regular sales price -->
+                                    <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                <% } %>   
+                            <% } else { %>
+                                <!-- Product is out of stock, show regular sales price -->
                                 <span class="new-price"><%= '₹' + product.salesPrice %></span>
-                            <% } %>                    
-                             </div><!-- End .product-price -->
+                            <% } %>
+                        </div><!-- End .product-price -->
 
                         <div class="product-nav product-nav-thumbs">
                             <% if(product.quantity > 0 && product.status == 'In stock') {%>
@@ -271,6 +281,7 @@
                 <div class="product-body">
                     <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
                     <div class="product-price">
+                        
                         ₹<%= related.salesPrice %>
                     </div><!-- End .product-price -->
                     <div class="product-nav product-nav-thumbs">

@@ -29,7 +29,17 @@
     deletedAt:{
         type:Date,
         default:null,
-    }
+    },
+    offerPercentage: {
+        type: Number, 
+        default: null, 
+        set: (value) => (value === '' ? null : value),
+      },
+    isOfferActive: {
+        type: Boolean,
+        default: false,
+      },
+     
    })
 
    const Category = mongoose.model('Category',categorySchema);

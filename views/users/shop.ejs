@@ -129,10 +129,16 @@
                                                     <img src="/uploads/<%= product.images[0] %>" alt="Product image" class="product-image">
                                                     <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
                                                         <span class="product-label label-out">Out of stock</span>
-                                                    <% } %>
-                                                   <%  if(product.isOfferActive===true && product.offerPercentage >= 1 && (product.quantity !== 0 || product.status !== 'Out of stock') ){%>
+                                                    <% }else{ %>
+                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product')  { %>
                                                       <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
-                                                      <% } %>
+                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category'){ %>
+                                                        <span class="product-label label-disc">-<%= product.category.offerPercentage %>%</span>
+
+                                                        <% } %>
+                                                        <% } %>
+
+                                                   
                                                 </a>   
                                                 <div class="product-action-vertical">
                                                   <% if (user) { %>
@@ -157,13 +163,23 @@
                                                 </div><!-- End .product-cat -->
                                                 <h3 class="product-title"><a href="/product/<%= product._id %>"><%= product.name %></a></h3><!-- End .product-title -->
                                                 <div class="product-price">
-                                                  <% if (product.isOfferActive === true  &&(product.quantity !== 0 || product.status !== 'Out of stock' )) { %>
+                                                 
+                                                  
+                                                  <% if (product.quantity <=0 || product.status === 'Out of stock') { %>
+                                                    <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                                  <% } else { %>
+                                                    <% if (product.activeOfferSource === 'product') { %>
                                                       <span class="old-price"><%= '₹' + product.salesPrice %></span>
                                                       <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                                      <% } else { %>
-
-                                                      <span class="new-price"><%= '₹' + product.salesPrice %></span>
-                                                  <% } %>
+                                                    <% } else if (product.activeOfferSource === 'category' && product.category?.isOfferActive) { %>
+                                                      <span class="old-price"><%= '₹' + product.salesPrice %></span>
+                                                      <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                                    <% } else { %>
+                                                        <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                                    <% } %>                                                 
+                                                   <% } %>
+                                                  
+                                                  
                                               </div>
                                               
                                                 <div class="ratings-container">

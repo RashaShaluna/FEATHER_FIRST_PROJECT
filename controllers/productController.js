@@ -83,11 +83,11 @@ const productAdding = async (req, res) => {
     log('in add')
     console.log('name price offerPercentage images:',name,salesPrice, offerPercentage, images);
 
-    const offerPrice =
-    salesPrice && offerPercentage
-      ? parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100
-      : null;
-      console.log('offerPrice',offerPrice);
+    // const offerPrice =
+    // salesPrice && offerPercentage
+    //   ? parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100
+    //   : null;
+    //   console.log('offerPrice',offerPrice);
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -97,7 +97,7 @@ const productAdding = async (req, res) => {
       quantity,
       price,
       salesPrice,
-      offerPrice,
+      // offerPrice,
       offerPercentage:offerPercentage || null,
       color: capitalizeFirstLetter(color),
       images, 
@@ -319,12 +319,12 @@ const softDeleteProduct = async (req, res) => {
         product.color = req.body.color;
         product.category = categoryId;
         
-        if (req.body.offerPercentage) {
-          const offerPrice = Math.floor((product.salesPrice * (100 - req.body.offerPercentage)) / 100);
-          log(offerPrice)
+      //   if (req.body.offerPercentage) {
+      //     const offerPrice = Math.floor((product.salesPrice * (100 - req.body.offerPercentage)) / 100);
+      //     log(offerPrice)
 
-          product.offerPrice = offerPrice;
-      }
+      //     product.offerPrice = offerPrice;
+      // }
         const images = [
             files['image1'] ? files['image1'][0].filename : product.images[0] || null,
             files['image2'] ? files['image2'][0].filename : product.images[1] || null,

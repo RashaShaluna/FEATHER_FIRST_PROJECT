@@ -91,6 +91,8 @@ adminRouter.get('/orderItem/:orderId',adminAuth.isAdmin,orderController.orderIte
 //offer managemnt
 adminRouter.get('/offerdeactive',adminAuth.isAdmin,offerController.offerDeactive);
 adminRouter.get('/offeractive',adminAuth.isAdmin,offerController.offerActive);
+adminRouter.get('/offerCategoryDeactive',adminAuth.isAdmin,offerController.offerCategoryDeactive);
+adminRouter.get('/offerCategoryActive',adminAuth.isAdmin,offerController.offerCategoryActive);
 
 //coupon mangement
 adminRouter.get('/coupon',adminAuth.isAdmin,couponController.couponPage);

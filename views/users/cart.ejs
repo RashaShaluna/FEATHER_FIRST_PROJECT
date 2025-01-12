@@ -112,12 +112,23 @@
                                                 <td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
                                                 <td></td>
                                                 <% }else{ %>
-                                                    <% if(item.productId.isOfferActive=== true && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
-                                                    <!-- Show offer price -->
-                                                    <td class="price-col">₹<%= item.productId.offerPrice %></td>
+                                                    <% let cartPrice %>
+                                                    <% if(item.productId.activeOfferSource === 'product' && item.productId.isOfferActive) { %>
+                                                     <% cartPrice = item.productId.offerPrice %>
+                                                    <td class="price-col">
+                                                       <%= '₹' + cartPrice %>%>
+                                                    </td>
+                                                <% } else if(item.productId.activeOfferSource === 'category' && item.productId.category?.isOfferActive) { %>
+                                                    <% cartPrice = item.productId.offerPrice %>
+                                                    <td class="price-col">
+                                                        <%= '₹' + cartPrice %>%>
+                                                     </td>
                                                 <% } else { %>
-                                                    <!-- Show regular price -->
-                                                       <td class="price-col">₹<%= item.productId.salesPrice %></td>
+                                                    <!-- No active offer: Show regular sales price -->
+                                                     <%cartPrice = item.productId.salesPrice%>
+                                                    <td class="price-col">
+                                                       <%= '₹' + cartPrice %>
+                                                    </td>
                                                 <% } %>
                                                 <td class="quantity-col">
                                                     <div class="cart-product-quantity">
@@ -129,17 +140,17 @@
                                                             max="<%= Math.min(item.productId.quantity, 10) %>" 
                                                             step="1" 
                                                             data-product-id="<%= item.productId._id %>"
-                                                            data-price="<%= item.productId.isOfferActive==="true" ? item.productId.offerPrice : item.productId.salesPrice %>"
+                                                            data-cart-price="<%=cartPrice %>"
                                                             data-available-stock="<%= item.productId.quantity %>"
-                                                            onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.salesPrice %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>', '<%= item.productId.isOfferActive %>', '<%= item.productId.offerPrice %>')">
+                                                            onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>', '<%= cartPrice%>')">
+                                                      <%   console.log('Product ID:', item.productId._id, 'Quantity:', item.quantity,'Cart price:', cartPrice); %>
+                                                    
+                                                
                                                     </div>
                                                 </td>
                                                 <td class="total-col" id="total-<%= item.productId._id %>">
-                                                    <% if (item.productId.isOfferActive && item.productId.quantity > 0 && item.productId.status !== 'Out of stock') { %>
-                                                        ₹<%= (Math.floor(item.productId.offerPrice) * item.quantity).toFixed(2) %>
-                                                    <% } else { %>
-                                                        ₹<%= (item.productId.salesPrice * item.quantity).toFixed(2) %>
-                                                    <% } %>
+                                                    ₹<%= (cartPrice * item.quantity).toFixed(2) %>
+
                                                 </td>
                                                 
 											<% } %>
@@ -183,8 +194,7 @@
 	                				<a href="/checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
 	                			</div><!-- End .summary -->
 
-	                		</aside><!-- End .col-lg-3 -->
-	                	</div><!-- End .row -->
+
 	                </div><!-- End .container -->
                         <div id="toast" class="toast" style="display: none;">
                             <span class="toast-icon">&#10004;</span> <!-- Success Tick -->
@@ -276,39 +286,9 @@ async function removeFromCart(productId) {
 
 
 
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Select all quantity inputs
-    const quantityInputs = document.querySelectorAll('.form-control[type="number"]');
-
-    // Add event listeners to each input
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const productId = this.dataset.productId;
-            const salesPrice = parseFloat(this.dataset.salesPrice);
-            const availableStock = parseInt(this.dataset.availableStock);
-
-            updateQuantity(this, productId, price, availableStock);
-        });
-    });
-});
-
-function updateTotalPrice(quantityInput, salesPrice, offerPrice, isOfferActive) {
-    const quantity = parseInt(quantityInput.value);
-    const productId = quantityInput.dataset.productId;
-    const price = isOfferActive === 'true' ? offerPrice : salesPrice;
-    const total = quantity * price;
-    const totalCell = document.getElementById(`total-${productId}`);
-
-    if (totalCell) {
-        totalCell.innerHTML = `₹${total.toFixed(2)}`; // Format to two decimal places
-    } else {
-        console.error(`Total price cell for product ID ${productId} not found`);
-    }
-}
-
 function updateGrandTotal() {
     const totalElements = document.querySelectorAll('.total-col');
+    console.log('in upate gt')
     console.log('Total elements:', totalElements);  // Check if the total elements are found
 
     if (totalElements.length === 0) {
@@ -339,13 +319,52 @@ window.onload = function() {
 };
 
 
-function updateQuantity(quantityInput, productId, salesPrice, availableStock, productName, isOfferActive, offerPrice) {
-  const quantity = parseInt(quantityInput.value);
-  salesPrice = parseFloat(salesPrice);
-  availableStock = parseInt(availableStock);
-  offerPrice = parseFloat(offerPrice);
-  const maxLimit = Math.min(availableStock, 10);
+document.addEventListener('DOMContentLoaded', () => {
+    // Select all quantity inputs
+    const quantityInputs = document.querySelectorAll('.form-control[type="number"]');
 
+    // Add event listeners to each input
+    quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const productId = this.dataset.productId;
+            const availableStock = parseInt(this.dataset.availableStock);
+            const cartPrice = parseFloat(this.dataset.cartPrice);
+
+
+            console.log('Dataset:', this.dataset);
+           console.log('Quantity:', this.value, 'Product ID:', productId, 'Price:',cartprice, 'Available Stock:', availableStock);
+            updateQuantity(this, productId, availableStock,cartPrice);
+        });
+    });
+});
+
+function updateTotalPrice(quantityInput) {
+    const quantity = parseInt(quantityInput.value);
+    const productId = quantityInput.dataset.productId;
+    const cartPrice = parseFloat(quantityInput.dataset.cartPrice);
+    const total = quantity * cartPrice;
+    const totalCell = document.getElementById(`total-${productId}`);
+    console.log('in updatetta')
+console.log('cartprice',cartPrice)
+    if (totalCell) {
+        totalCell.innerHTML = `₹${total.toFixed(2)}`; // Format to two decimal places
+    } else {
+        console.error(`Total price cell for product ID ${productId} not found`);
+    }
+}
+
+
+
+
+
+function updateQuantity(quantityInput, productId, availableStock, productName,cartPrice) {
+  const quantity = parseInt(quantityInput.value);
+    availableStock = parseInt(availableStock);
+    cartPrice = parseFloat(cartPrice);
+
+  const maxLimit = Math.min(availableStock, 10);
+  console.log('in updatequqnty')
+console.log('cartprice',cartPrice)
   console.log('Input value:', quantityInput.value);
   console.log('Parsed quantity:', quantity);
 
@@ -368,10 +387,10 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock, pr
     return;
   }
 
-  const effectivePrice = isOfferActive ==='true' ? offerPrice : salesPrice;
+  console.log('1',cartPrice)
 
   const totalPriceElement = document.querySelector(`#total-${productId}`);
-  const newTotalPrice = quantity * effectivePrice;
+  const newTotalPrice = quantity * cartPrice;
 
   if (totalPriceElement) {
     totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;
@@ -386,7 +405,7 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock, pr
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ quantity }),
+    body: JSON.stringify({ quantity ,cartPrice}),
   })
     .then(response => response.json())
     .then(data => {

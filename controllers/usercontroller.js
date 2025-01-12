@@ -686,7 +686,10 @@ const shop = async (req, res) => {
         { $project: { name: 1, slug: 1, productCount: 1 } }
       ]),
       Product.countDocuments(productQuery),
-      Product.find(productQuery).sort(sortOptions).limit(limit).skip(skip),
+      Product.find(productQuery).populate({
+        path: 'category',
+        match: { isDeleted: false, islisted: true },
+      }).sort(sortOptions).limit(limit).skip(skip),
       Product.distinct('color', { ...productQuery, category: categoryId || undefined }),
       categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null,
       Wishlist.findOne({ userId: userId })

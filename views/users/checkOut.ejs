@@ -426,10 +426,8 @@ input[type="radio"]:checked {
                             <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => {     %>
                                 <tr class="price-tr">
                                     <td><a href="#"><%= item.productId.name %></a></td>
-                                    <% const effectivePrice = item.productId.isOfferActive && item.productId.offerPrice 
-                                    ? item.productId.offerPrice 
-                                    : item.productId.salesPrice; %>
-                                    <% productPrice = item.quantity * effectivePrice %>
+                                  
+                                    <% productPrice = item.totalPrice || 0;%>
                                     <td class="price">₹<%=productPrice.toFixed(2) %></td>
                                   
                                 </tr>

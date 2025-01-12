@@ -15,7 +15,6 @@ const categoryInfo = async(req,res)=>{
         isDeleted: false 
         }).sort({ name: -1 });
 
-        console.log("categories : ", categories);
         res.render('admin/category', { categories ,
           title:"Category - Feather",
            searchQuery:search   
@@ -44,8 +43,7 @@ const addCategoryPage = async(req,res)=>{
 const addCategory = async(req,res)=>{
     console.log('in add cat1')
 
-    const {name,description} =req.body;
-    console.log('req',req.body);
+    const {name,description,offerPercentage} =req.body;
     try {
       const lowerCaseName = name.toLowerCase();
 
@@ -62,15 +60,16 @@ const addCategory = async(req,res)=>{
             return res.status(400).json({message:'Category already exists'});
         }
         console.log('in add cat 5')
-        const newCategory = new Category({
+
+    
+            const newCategory = new Category({
             name,
-            description
+            description,
+            offerPercentage
         })
-        console.log('new cat',newCategory);
 
-        await newCategory.save();
+     const result =    await newCategory.save();
 
-        console.log('in add cat 5')
 
         console.log('saved');
         res.status(201).json({ success: true, message: 'Category added successfully!' });
@@ -114,29 +113,33 @@ const unListCategory = async(req,res) =>{
 }
 
 // ====================================== Edit Category  ========================================================================================================================
-const editCategory = async (req, res) => {
-  try {
-    const { categoryId, editedDescription, editedName } = req.body;
-
-    const lowerCaseEditedName = editedName.toLowerCase();
-
-    const existingCategory = await Category.findOne({ 
-      _id: { $ne: categoryId }, 
-      name: { $regex: new RegExp(`^${lowerCaseEditedName}$`, 'i') } 
-    });
-
-    if (existingCategory) {
-      return res.status(400).json({ success: false, message: 'Another category with this name already exists' });
+  const editCategory = async (req, res) => {
+    try {
+      const { categoryId, editedDescription, editedName, editedOfferPercentage } = req.body;
+  
+      const lowerCaseEditedName = editedName.toLowerCase();
+  
+      const existingCategory = await Category.findOne({ 
+        _id: { $ne: categoryId }, 
+        name: { $regex: new RegExp(`^${lowerCaseEditedName}$`, 'i') } 
+      });
+  
+      if (existingCategory) {
+        return res.status(400).json({ success: false, message: 'Another category with this name already exists' });
+      }
+  
+      await Category.updateOne(
+        { _id: categoryId },
+        { $set: { name: editedName, description: editedDescription, offerPercentage: editedOfferPercentage } }
+      );
+  
+      res.json({ success: true, message: 'Category updated successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Server error' });
     }
-
-    await Category.updateOne({ _id: categoryId }, { $set: { name: editedName, description: editedDescription } });
-    res.json({ success: true, message: 'Category updated successfully' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
+  };
+  
 // ====================================== Check Category  ========================================================================================================================
 
 const checkCategory = async (req, res) => {

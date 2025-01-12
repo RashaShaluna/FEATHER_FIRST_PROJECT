@@ -84,7 +84,11 @@ log('done')
         const [wishlist, categories, cart] = await Promise.all([
             Wishlist.findOne({ userId }).populate({ 
                 path: 'products.productsId',
-                model: Product
+                model: Product,
+                populate: {
+                  path: 'category',   
+                  model: Category
+              }
             }),
             Category.find({ islisted: true, isDeleted: false }),
             Cart.findOne({ userId }).populate({
@@ -94,7 +98,7 @@ log('done')
         ]);
 
         res.render('users/wishlist', { 
-            cart: cart || { items: [] },  // Provide empty items array if cart doesn't exist
+            cart: cart || { items: [] },
             categories,
             wishlist,
             title: 'Wishlist - Feather'
