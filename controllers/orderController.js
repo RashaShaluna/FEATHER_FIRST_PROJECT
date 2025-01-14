@@ -430,7 +430,7 @@ const changeStatus = async (req, res) => {
         orderItem.status = status;
 
         if (status === 'Delivered') {
-            order.paymentStatus = 'Paid';
+            orderItem.paymentStatus = 'Paid';
             orderItem.deliveryDate = new Date();
         } else if (status === 'Shipped') {
             orderItem.shippedDate = new Date();
@@ -440,7 +440,7 @@ const changeStatus = async (req, res) => {
             orderItem.cancelDate = new Date();
         } else if (status === 'Returned') {
             orderItem.returnDate = new Date();
-            order.paymentStatus = 'Refunded';
+            orderItem.paymentStatus = 'Refunded';
 
         }
 
@@ -455,12 +455,12 @@ const changeStatus = async (req, res) => {
         }
         else if (allStatuses.includes('Delivered')) {
             order.status = 'Delivered';
-            order.paymentStatus = 'Paid';
+            orderItem.paymentStatus = 'Paid';
             order.deliveredDate = new Date();
         }
         else if (allStatuses.every(status => status === 'Returned')) {
             order.status = 'Retunrned';
-            order.paymentStatus = 'Refunded';
+            orderItem.paymentStatus = 'Refunded';
             order.returnDate = new Date();
         }
         else if (allStatuses.some(status => status === 'Shipped')) {

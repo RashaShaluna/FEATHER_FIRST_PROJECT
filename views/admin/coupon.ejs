@@ -82,7 +82,7 @@
               <!-- <div class="card"> -->
                 <div class=" row row-top">
                   <div class="col-md-3" style="background-color: white;">
-                    <form method="post" action="/admin/addCoupon"  onsubmit="return validateForm()">
+                    <form method="post" action="/admin/addCoupon" class="form" >
                       <body onload="">
                         <div class="mb-4">
                           <label for="couponName" class="form-label">Coupon Name</label>
@@ -150,7 +150,6 @@
                         <div class="d-grid">
                           <button
                             class="btn btn-primary mt-20"
-                            onclick=""
                             id="couponForm"
                             type="submit"style="background-color: #1cc0a0; color: white; border"
                           >
@@ -222,69 +221,61 @@
               <!-- </div> -->
             </div>
 </div>
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-const formElement = document.getElementById('couponForm');
-
-formElement.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  console.log('Form is being submitted');
-
-  const formData = new FormData(formElement);
-
-  try {
-    const response = await fetch('/admin/addCoupon', {
-      method: 'POST',
-      body: formData,
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
     });
 
-    // Check for non-JSON response (e.g., redirects)
-    if (!response.headers.get('content-type')?.includes('application/json')) {
-      console.error('Unexpected response format');
+    try {
+      const response = await fetch('/admin/addCoupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Coupon added successfully',
+          confirmButtonColor: '#1cc0a0',
+          timer: 1000,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = '/admin/coupon';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: result.message,
+          confirmButtonColor: '#1cc0a0'
+        });
+      }
+    } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Error!',
-        text: 'Unexpected server response. Please try again.',
-        confirmButtonColor: '#1cc0a0',
-      });
-      return;
-    }
-
-    const result = await response.json();
-
-    if (response.ok) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Success!',
-        text: result.message,
-        confirmButtonColor: '#1cc0a0',
-      }).then(() => {
-        window.location.reload(); // Reload the page after success
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: result.message,
-        confirmButtonColor: '#1cc0a0',
+        title: 'Error',
+        text: 'An error occurred while adding the coupon',
+        confirmButtonColor: '#1cc0a0'
       });
     }
-  } catch (error) {
-    console.error('Error submitting the form:', error);
-
-    Swal.fire({
-      icon: 'error',
-      title: 'Error!',
-      text: 'An unexpected error occurred. Please try again.',
-      confirmButtonColor: '#1cc0a0',
-    });
-  }
+  });
 });
-1
-
-
 
 
   //active and unactive

@@ -424,15 +424,23 @@ input[type="radio"]:checked {
                         <% let couponDiscount =0 ; %>
                         <% if (cart && cart.items.length > 0) { %>
                             <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => {     %>
+                              <%  console.log('Product category:', item.productId.category);  %>
+
                                 <tr class="price-tr">
                                     <td><a href="#"><%= item.productId.name %></a></td>
-                                  
-                                    <% productPrice = item.totalPrice || 0;%>
-                                    <td class="price">₹<%=productPrice.toFixed(2) %></td>
-                                  
+                                    <% let effectivePrice = item.productId.salesPrice; %> 
+
+                                    <% if (item.productId.activeOfferSource === 'product' && item.productId.isOfferActive === true) { %>
+                                        <% effectivePrice = item.productId.offerPrice; %>
+                                    <% } else if (item.productId.activeOfferSource === 'category' && item.productId.category && item.productId.category.isOfferActive === true ) { %>
+                                        <% effectivePrice = item.productId.offerPrice; %>
+                                    <% } %>
+                        
+                                    <% let productPrice = item.quantity * effectivePrice; %>
+                                    <td class="price">₹<%= productPrice.toFixed(2) %></td>
                                 </tr>
                               
-                                <%subtotal +=productPrice|| 0; %> <!-- Ensure subtotal addition is safe -->
+                                <%subtotal +=productPrice|| 0; %> 
                          
                            <% products.push({ 
                             productId: item.productId._id, 
@@ -443,7 +451,7 @@ input[type="radio"]:checked {
                             <% }); %>                
                             <tr class="summary-subtotal">
                                 <td>Subtotal:</td>
-                            <td>₹<%= subtotal.toFixed(2) %></td> <!-- Display subtotal -->
+                            <td>₹<%= subtotal.toFixed(2) %></td> 
                         </tr><!-- End .summary-subtotal -->
 
                             <% if (couponDiscount > 0) { %>

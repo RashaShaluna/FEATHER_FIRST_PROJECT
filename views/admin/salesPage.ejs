@@ -116,48 +116,55 @@
                     <th>Order Id</th>
                     <th >Total</th>
                     <th >User name</th>
-                    <th >Coupon Applied</th>
+                    <!-- <th >Coupon Applied</th> -->
                     <th >Product</th>
                     <th >Price</th>
                     <th >Quantity</th>
-                    <th >Discount</th> 
+                    <!-- <th >Discount</th>  -->
                     <th >Status</th>
                     <th >Payment</th>
                     <th>Payment Method</th>
                   </tr>
                 </thead>
 
-                    <tbody >
-                        <% orders.forEach((order, index) => { %>
-                        <tr>
-                          <td class="text-center" rowspan="<%= order.orderitems.length %>"><%= index + 1 %></td> 
-                          <td style="word-wrap: none;" rowspan="<%= order.orderitems.length %>"><%= order.orderDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' , year:'numeric'}) %></td>
-                          <td style="word-wrap: none;" rowspan="<%= order.orderitems.length %>"><%= order._id %></td> 
-                          <td   style="word-wrap: none;" rowspan="<%= order.orderitems.length %>"><%= order.orderPrice || 'N/A' %></td>
-                          <td  style="word-wrap: none;"rowspan="<%= order.orderitems.length %>"><%= order.userId.name|| "N/A" %></td>
-                          <td  style="word-wrap: none;" rowspan="<%= order.orderitems.length %>"><%= order.couponDiscount || 'N/A' %></td>
-                          
-                          <% order.orderitems.forEach(orderitem => { %>
-                            <td><%= orderitem.productId.name %></td>
-                            <td>₹<%= orderitem.productPrice %></td>
-                            <td><%= orderitem.originalQuantity %></td>
-                            <td><%= orderitem.discountAmount ? `₹${orderitem.discountAmount}` : 'N/A' %></td>
-                            <td><%= orderitem.status %></td>
-                            <td><%= orderitem.paymentStatus %></td>
-                      
-                            <td>
+                <tbody>
+                  <% orders.forEach((order, index) => { %>
+                    <% const deliveredItems = order.orderitems.filter(item => item.status === 'Delivered'); %>
+                    <% if (deliveredItems.length > 0) { %>
+                      <tr>
+                        <td class="text-center" rowspan="<%= deliveredItems.length %>"><%= index + 1 %></td>
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>">
+                          <%= order.orderDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year:'numeric'}) %>
+                        </td>
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order._id %></td>
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.orderPrice || 'N/A' %></td>
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.userId.name || "N/A" %></td>
+                        <!-- <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.couponDiscount || 'N/A' %></td> -->
+                        
+                        <% deliveredItems.forEach((orderitem, itemIndex) => { %>
+                          <% if (itemIndex !== 0) { %>
+                            </tr><tr>
+                          <% } %>
+                          <td><%= orderitem.productId.name %></td>
+                          <td>₹<%= orderitem.productPrice %></td>
+                          <td><%= orderitem.originalQuantity %></td>
+                          <!-- <td><%= orderitem.discountAmount ? `₹${orderitem.discountAmount}` : 'N/A' %></td> -->
+                          <td><%= orderitem.status %></td>
+                          <td><%= orderitem.paymentStatus %></td>
+                          <td>
                             <% if(orderitem.paymentMethod === 'Cash on Delivery') { %>
-                                COD
+                              COD
                             <% } else if(orderitem.paymentMethod === 'razorpay') { %>
-                                Razorpay
+                              Razorpay
                             <% } else if(orderitem.paymentMethod === 'wallet') { %>
-                                Wallet
+                              Wallet
                             <% } %>
-                            </td>
-                        </tr>
+                          </td>
                         <% }); %>
-                        <% }); %>
-                      </tbody>
+                      </tr>
+                    <% } %>
+                  <% }); %>
+                </tbody>
                     <tr class="text-center">
                      
                     </tr>
@@ -166,7 +173,6 @@
                     <tr class="text-center">
                         <td colspan="13" >
                             <p>Total Orders: <%= orders.length %></p>
-                            <p>Total discount:  </p>
                             <p>Total Amount: <%=orders.reduce((total, order) => total + order.orderPrice, 0)%></p>
 
                         </td>

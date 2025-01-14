@@ -18,7 +18,6 @@ const addCoupon = async (req, res) => {
   try {
     const {
       couponName,
-      code,
       description,
       startDate,
       endDate,
@@ -26,25 +25,22 @@ const addCoupon = async (req, res) => {
       minimumPrice,
     } = req.body;
 
-    // Check for existing coupon
-    const existingCoupon = await Coupon.findOne({
-      $or: [
-        { couponName: couponName },
-        { code: code },
-      ],
+    // Check if coupon already exists
+    const existingCoupon = await Coupon.findOne({ 
+      couponName: { $regex: new RegExp(`^${couponName}$`, 'i') } 
     });
 
     if (existingCoupon) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
-        message: 'A coupon with this name or code already exists.',
+        message: 'A coupon with this name already exists'
       });
     }
-
+    
     // Create new coupon
     const newCoupon = new Coupon({
       couponName: couponName,
-      code: couponName.toUpperCase().replace(/\s+/g, '') + Math.floor(10 + Math.random() * 90),
+      code: couponName.toUpperCase(),
       description,
       startDate,
       expireDate: endDate,
@@ -53,23 +49,21 @@ const addCoupon = async (req, res) => {
       maxDiscountLimit: null,
     });
 
-    const result = await newCoupon.save();
-    console.log('Coupon saved:', result);
-
-    // Send success response
-    res.status(200).json({
+    await newCoupon.save();
+    
+    return res.status(200).json({
       success: true,
-      message: 'Coupon added successfully!',
+      message: 'Coupon added successfully'
     });
+
   } catch (error) {
     console.error('Error adding coupon:', error);
-
-    res.status(500).json({
+    return res.status(200).json({
       success: false,
-      message: 'An error occurred while adding the coupon. Please try again later.',
+      message: 'An error occurred while adding the coupon'
     });
   }
-} 
+}
 
 
 //deletecoupon

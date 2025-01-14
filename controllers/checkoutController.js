@@ -29,16 +29,22 @@ const checkout = async (req, res) => {
         log('in checkout')
         const [user, products, categories, addresses, cart,coupons] = await Promise.all([
             User.findById(req.session.user),
-            Product.find({ isBlocked: false, isDeleted: false }).populate(),
+            Product.find({ isBlocked: false, isDeleted: false }).populate({
+                path: 'category',
+                model: Category,
+            }),
             Category.find({ islisted: true, isDeleted: false }),
             Address.find({ userId:req.session.user, isDeleted: false }),
             Cart.findOne({ userId: req.session.user }).populate({
                 path: 'items.productId',
-                model: Product
+                model: Product,
+                populate: {
+                    path: 'category',  
+                    model: Category
+                }
             }),
             Coupon.find({active:true,isDeleted: false})
         ]);
-       
         const totalPrice=cart.items.reduce((total,item)=>total+item.totalPrice,0);
         res.render('users/checkOut', { title: 'Feather - Checkout', userId:user, products, categories, addresses,totalPrice, cart,  coupons });
     } catch (error) {

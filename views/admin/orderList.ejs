@@ -34,9 +34,9 @@
                 <th>
                   Order Price
                 </th>
-                <th style="white-space: nowrap;">
+                <!-- <th style="white-space: nowrap;">
                   Order Status
-                </th>
+                </th> -->
                 <th style="white-space: nowrap;">
                   Order Date
                 </th>
@@ -54,7 +54,7 @@
                       <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order._id %></td>
                       <td  onclick="window.location.href='/admin/orderItem/<%= order._id %>'" style="cursor: pointer;"><%= order.userId.name %></td>
                       <td><%= order.orderPrice %></td>
-                      <td><%= order.status %></td>
+                      <!-- <td><%= order.status %></td> -->
 
                       <td><%= order.orderDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' , year:'numeric' }) %></td>
                       <td><%= order.paymentMethod %></td>

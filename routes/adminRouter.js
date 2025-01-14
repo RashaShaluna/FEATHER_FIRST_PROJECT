@@ -18,6 +18,7 @@ const offerController = require('../controllers/offerController');
 const couponController = require('../controllers/couponController');
 const adminAuth = require('../middleware/adminAuth');
 const uploads = require('../uplaods');
+const utility = require('../helpers/utility');
 
 adminRouter.use(nocache());
 // adminRouter.use(express.static('public'));
@@ -43,9 +44,11 @@ adminRouter.get('/adminLogout',adminController.adminLogout);
 
 //dashboard
 adminRouter.get('/dashboard',adminAuth.isAdmin,adminController.dashboard);
+
+//salesreport
 adminRouter.get('/salesReport',adminAuth.isAdmin,adminController.salesReport);
-adminRouter.get('/download-pdf',adminAuth.isAdmin,adminController.downloadPdf);
-adminRouter.get('/download-excel',adminAuth.isAdmin,adminController.downloadExcel);
+adminRouter.get('/download-pdf',adminAuth.isAdmin,utility.downloadPdf);
+adminRouter.get('/download-excel',adminAuth.isAdmin,utility.downloadExcel);
 
 // customer management
 adminRouter.get('/users',adminAuth.isAdmin,customerController.customerInfo);
