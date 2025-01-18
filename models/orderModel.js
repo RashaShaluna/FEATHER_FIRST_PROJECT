@@ -36,11 +36,7 @@ const orderSchema = new mongoose.Schema({
         returnReason: {
             type: String
         },
-        // paymentStatus: {
-        //     type: String,
-        //     enum: ['Pending', 'Paid', 'Failed'],
-        //     default: 'Pending'
-        // },
+   
         paymentStatus:{
           type:'String'
         },
@@ -98,56 +94,22 @@ const orderSchema = new mongoose.Schema({
           type: Number ,
           default:0
       },
-    orderUserDetails: {
-        type:Object,
-        required: true
-    },
-   
+
     paymentMethod: {
         type: String,
         enum: ['wallet', 'Cash on Delivery', 'razorpay'],
         required: true
 
     },
-    paymentStatus:{
-      type:'String'
-    },
+   
     orderDate: {
         type: Date,
         default: Date.now()
     },
-    returnDate: {
-      type: Date
-    },
-   shippedDate: {
-     type: Date
-    },
-    deliveredDate: {
-      type: Date
-    },
-    cancelDate: {
-      type: Date
-    },
-    processingDate:{
-     type:Date
-    },
-        //   deliveryDate:{ //its like a just estimate delivery date only 
-        //     type:Date
-        //   },
+ 
     estimatedDeliveryDate:{
-        type:Date
-    },
-    cancelReason: {
-        type: String
-    },
-    cancellationComments: {
-     type: String 
-    },
-   
-    returnReason: {
-        type: String
-    },
-    
+          type:Date
+      },
     couponApplied: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Coupon'

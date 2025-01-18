@@ -209,7 +209,6 @@
                                     <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                                 <% } %>
                                 <% if (orderItem.status === 'Delivered') { %>
-                                    <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                                     <li>Delivery Date: <%= new Date(orderItem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                                 <% } %>
                                 <% if (orderItem.status === 'Cancelled') { %>

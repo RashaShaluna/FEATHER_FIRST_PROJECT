@@ -94,7 +94,7 @@
                                 <p class="mb-0"><strong>Refunded Date:</strong> <%= order.refundDate ? order.refundDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
                             <% } %>
                         
-                        <p class="mb-0"><strong>Status:</strong> 
+                        <!-- <p class="mb-0"><strong>Status:</strong> 
                             <% if(order.status === 'Pending'){ %>
                                 <span class="badge rounded-pill bg-warning text-dark">Pending</span>
                             <% } else if(order.status === 'Processing'){ %>
@@ -108,7 +108,7 @@
                             <% } else if(order.status === 'Returned'){ %>
                                 <span class="badge rounded-pill bg-secondary">Returned</span>
                             <% } %>
-                        </p>
+                        </p> -->
                     </div>
                   </div>
                       <div class="card mt-4">

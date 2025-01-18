@@ -69,8 +69,11 @@
                                   <% } %>
                                 </td>
                                 <td class="text-start">
-                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>" data-offer-percentage="<%= category.offerPercentage %>"><i class="fas fa-edit"></i>
+                                  <a href="#" class= "edit-category" data-category-id="<%= category._id %>" data-category-name="<%= category.name %>" data-category-description="<%= category.description %>" data-offer-percentage="<%= category.offerPercentage %>"   data-start-date="<%= category.offerStartDate %>" 
+                                    data-end-date="<%= category.offerEndDate %>"><i class="fas fa-edit"></i>
+
                                   </a>
+                                  
                                 </a>
                                 <!-- delete option -->
                                 <a href="#" class="delete-category" data-category-id="<%=category._id%> " >
@@ -111,13 +114,20 @@
       const categoryName = button.getAttribute("data-category-name");
       const categoryDescription = button.getAttribute("data-category-description");
       const offerPercentage = button.getAttribute("data-offer-percentage");
+      const offerStartDate = button.getAttribute("data-start-date")||null;
+      const offerEndDate = button.getAttribute("data-end-date")||null;
 
+      console.debug("Offer Percentage:", offerPercentage);
+      console.debug("Offer Start Date:", offerStartDate);
+      console.debug("Offer End Date:", offerEndDate);
       Swal.fire({
         title: 'Edit Category',
         html: `
           <input type="text" id="categoryName" name="name" class="swal2-input" value="${categoryName}" placeholder="Category Name">
-          <input type='text' id='offerPercentage' name="offerPercentage" class= 'swal2-input' value="${offerPercentage}"placeholder="Offer Percentage">
           <textarea id="categoryDescription" name="description" class="swal2-textarea" placeholder="Category Description">${categoryDescription}</textarea>
+          <input type='text' id='offerPercentage' name="offerPercentage" class= 'swal2-input' value="${offerPercentage}"placeholder="Offer Percentage">
+          <input type='date' id='startDate' name="startDate" class= 'swal2-input' placeholder="Start Date" value='${offerStartDate ? new Date(offerStartDate).toISOString().split('T')[0] : ''}'>
+           <input type='date' id='endDate' name="endDate" class= 'swal2-input' placeholder="End Date" value='${offerEndDate ? new Date(offerEndDate).toISOString().split('T')[0] : ''}'>
         `,
         showCancelButton: true,
         confirmButtonText: 'Save',
@@ -126,6 +136,8 @@
           const editedName = Swal.getPopup().querySelector('#categoryName').value.trim();
           const editedDescription = Swal.getPopup().querySelector('#categoryDescription').value.trim();
           const editedOfferPercentage = Swal.getPopup().querySelector('#offerPercentage').value.trim();
+          const startdate = Swal.getPopup().querySelector('#startDate').value.trim();
+          const endate = Swal.getPopup().querySelector('#endDate').value.trim();
 
           if (editedName === '' || editedDescription === '') {
             Swal.showValidationMessage('Please fill in all fields.');
@@ -160,7 +172,9 @@
                 categoryId: categoryId,
                 editedName: editedName,
                 editedDescription: editedDescription,
-                editedOfferPercentage:editedOfferPercentage
+                editedOfferPercentage:editedOfferPercentage,
+                offerStartDate:startdate,
+                offerEndDate:endate
               })
             }).then(()=>{
               location.reload()
@@ -171,7 +185,9 @@
             return {
               categoryName: editedName,
               categoryDescription: editedDescription,
-              offerPercentage:editedOfferPercentage
+              offerPercentage:editedOfferPercentage,
+              offerStartDate:offerStartDate,
+              offerEndDate:offerEndDate
             };
           } catch (error) {
             console.error('Error:', error);
@@ -184,6 +200,8 @@
           button.setAttribute("data-category-name", result.value.categoryName);
           button.setAttribute("data-category-description", result.value.categoryDescription);
           button.setAttribute("data-offer-percentage", result.value.offerPercentage);
+          button.setAttribute("data-start-date", result.value.offerStartDate);
+          button.setAttribute("data-end-date", result.value.offerEndDate);
         }
       });
     });

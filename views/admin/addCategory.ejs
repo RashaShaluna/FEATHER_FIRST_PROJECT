@@ -80,6 +80,11 @@
          
             <label for="offerPercentage">Offer Percentage:</label><br>
             <input type="text" id="offerPercentage" name="offerPercentage" ><br><br>
+            <label for="startDate">Offer Start Date:</label><br>
+            <input type="date" id="startDate" name="offerStartDate" ><br><br>
+            <label for="endDate">Offer End Date:</label><br>
+            <input type="date" id="offerEndDate" name="offerEndDate" ><br><br>
+
 
             <input type="submit" value="Submit" class="btn sub-btn">
           </form>
@@ -116,6 +121,9 @@
       const name = document.getElementById('name').value.trim();
       const description = document.getElementById('description').value.trim();
       const offerPercentage = document.getElementById('offerPercentage').value.trim();
+      const offerStartDate = document.getElementById('startDate').value.trim();
+      const offerEndDate = document.getElementById('offerEndDate').value.trim();
+      
       let valid = true;
   
       if (!name) {
@@ -137,7 +145,9 @@
       const formData = {
           name: name,
           description: description,
-          offerPercentage:offerPercentage
+          offerPercentage:offerPercentage,
+         offerEndDate:offerEndDate,
+         offerStartDate:offerStartDate
       };
   
       try {

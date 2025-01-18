@@ -70,8 +70,9 @@
         <main class="main">
             <div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
                 <div class="container">
-                    <h1 class="page-title" style="color: #c49213;"> <% if (categoryName) { %>
-                        <%= categoryName %>
+                    <h1 class="page-title" style="color: #c49213;"> <% if (category) { %>
+                        <%= category.name %>
+                    
                     <% } else { %>
                         All Products
                     <% } %></h1>
@@ -83,7 +84,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#"> <%= categoryName %> </a></li>
+                        <li class="breadcrumb-item"><a href="#"><%= category.name %>  x</a></li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -152,9 +153,29 @@
                                                       <span>Add to Wishlist</span>
                                                     </a>
                                                   <% } %>
-                                          
-                                                  
                                                 </div><!-- End .product-action-vertical -->
+
+                                                
+                                              
+                                                <div class="product-action">
+                                                  <% if (product.quantity <= 0 || product.status !== 'Out of stock') { %>
+                                                    <% if (!user) { %>
+                                                      <a href="/login" class="btn-product btn-cart">
+                                                        <span>Add to Cart</span>
+                                                      </a>
+                                                    <% } else { %>
+                                                      <% if (cart.items && cart.items.some(item => item.productId.toString() === product._id.toString())) { %>
+                                                        <a href="/cart" class="btn-product btn-cart ">
+                                                          <span>Go to Cart</span>
+                                                        </a>
+                                                      <% } else { %>
+                                                        <a href="javascript:void(0)" class="btn-product btn-cart btn-add-cart" data-product-id="<%= product._id %>">
+                                                          <span>Add to Cart</span>
+                                                        </a>
+                                                      <% } %>
+                                                    <% } %>
+                                                  <% } %>
+                                                </div>
                                             </figure><!-- End .product-media -->
                                 
                                             <div class="product-body">
@@ -367,14 +388,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         window.location.search = queryParams.toString();
     });
-});
 
 
 // wishlist
-document.addEventListener('DOMContentLoaded', () => {
-  const wishlistButtons = document.querySelectorAll('.add-to-wishlist-btn');
+  const wishlistBtn = document.querySelectorAll('.add-to-wishlist-btn');
 
-  wishlistButtons.forEach(button => {
+  wishlistBtn.forEach(button => {
     button.addEventListener('click', async (event) => {
       event.preventDefault();
 
@@ -435,7 +454,54 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+//cart
+const addToCartButtons = document.querySelectorAll('.btn-add-cart');
+  
+  addToCartButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const productId = this.dataset.productId;
+      
+      try {
+        const response = await fetch('/addToCart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            productId: productId,
+            quantity: 1
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+          title: 'Added to Cart',
+          text: 'The product has been added to your cart.',
+          timer: 2000,
+          showConfirmButton: false,
+          }).then((result) => {
+            window.location.reload();
+          });
+        } else {
+          throw new Error(data.message || 'Failed to add product to cart');
+        }
+      } catch (error) {
+        Swal.fire({
+          title: 'Error!',
+          text: error.message,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        });
+      }
+    });
+  });
 });
+
+
 </script>
 
     </body>

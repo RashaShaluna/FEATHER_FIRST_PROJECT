@@ -1,10 +1,14 @@
 const {getDateFilter} = require('../controllers/adminController');
+const {setOfferPrice }= require('../controllers/offerController');
 const Order = require('../models/orderModel');
 const Product = require('../models/productModel');
 const User = require('../models/userSchema');
 const PDFDocument = require('pdfkit');
 const {log} = require('console');
 const ExcelJS = require('exceljs');
+const cron = require('node-cron');
+const Category = require('../models/category')
+
 
 //pdf download
 const downloadPdf = async (req, res) => {
@@ -103,26 +107,23 @@ const downloadExcel = async (req, res) => {
     const { startDate, endDate, filterBy = 'all' } = req.query;
     const dateFilter = getDateFilter(filterBy, startDate, endDate);
 
-    // Find orders with at least one delivered item
     const orders = await Order.find({
       ...dateFilter,
       orderitems: { $elemMatch: { status: 'Delivered' } },
     })
       .sort({ orderDate: -1 })
       .populate({
-        path: 'orderitems.productId', // Populate product details
+        path: 'orderitems.productId', 
         model: Product,
       })
       .populate({
-        path: 'userId', // Populate user details
+        path: 'userId',
         model: User,
       });
 
-    // Create workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
-    // Define columns
     worksheet.columns = [
       { header: 'Date', key: 'orderDate', width: 20 },
       { header: 'Order ID', key: 'orderId', width: 20 },
@@ -135,11 +136,9 @@ const downloadExcel = async (req, res) => {
       { header: 'Payment Status', key: 'paymentStatus', width: 25 },
     ];
 
-    // Add rows for delivered items only
     orders.forEach((order) => {
       const deliveredItems = order.orderitems.filter((item) => item.status === 'Delivered');
 
-      // Add rows for delivered items
       deliveredItems.forEach((item) => {
         worksheet.addRow({
           orderDate: order.orderDate.toLocaleDateString('en-GB', {
@@ -159,7 +158,6 @@ const downloadExcel = async (req, res) => {
       });
     });
 
-    // Set response headers for Excel file download
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -169,7 +167,6 @@ const downloadExcel = async (req, res) => {
       'attachment; filename="sales-report.xlsx"'
     );
 
-    // Write workbook to response
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
@@ -179,7 +176,127 @@ const downloadExcel = async (req, res) => {
 };
 
   
+
+//------------[node -scheduler] for scheduling the date ---------
+const dateScheduler = () => {
+  // Run every minute - using '* * * * *'
+  cron.schedule('* * * * *', async () => {
+    try {
+      const currentDate = new Date();
+      log('scheduled job started at:', currentDate);
+
+      // Add index check to ensure all documents are found
+      const [productsToActive, productsToDeactive] = await Promise.all([
+        Product.find({ 
+          offerStartDate: { $lte: currentDate },
+          offerEndDate: { $gte: currentDate },
+          isOfferActive: false
+        }, '_id isOfferActive').exec(), // Using exec() for better promise handling
+
+        Product.find({ 
+          offerEndDate: { $lte: currentDate },
+          isOfferActive: true
+        }, '_id isOfferActive').exec()
+      ]);
+
+      // Activate products
+      for (const product of productsToActive) {
+        try {
+          await Promise.all([
+            Product.updateOne(
+              { _id: product._id },
+              { $set: { isOfferActive: true } }
+            ),
+            setOfferPrice(product._id)
+          ]);
+          log(`Activated offer for product with ID ${product._id}`);
+        } catch (err) {
+          log(`Error activating product ${product._id}:`, err);
+        }
+      }
+
+      // Deactivate products
+      for (const product of productsToDeactive) {
+        try {
+          await Promise.all([
+            Product.updateOne(
+              { _id: product._id },
+              { $set: { isOfferActive: false } }
+            ),
+            setOfferPrice(product._id)
+          ]);
+          log(`Deactivated offer for product with ID ${product._id}`);
+        } catch (err) {
+          log(`Error deactivating product ${product._id}:`, err);
+        }
+      }
+
+      //======================= category ==================
+      const [categoriesToActive, categoriesToDeactive] = await Promise.all([
+        Category.find({ 
+          offerStartDate: { $lte: currentDate },
+          offerEndDate: { $gte: currentDate },
+          isOfferActive: false
+        }, '_id isOfferActive').exec(),
+
+        Category.find({ 
+          offerEndDate: { $lte: currentDate },
+          isOfferActive: true
+        }, '_id isOfferActive').exec()
+      ]);
+
+      // Activate categories
+      for (const category of categoriesToActive) {
+        try {
+          await Category.updateOne(
+            { _id: category._id },
+            { $set: { isOfferActive: true } }
+          );
+          log(`Activated offer for category with ID ${category._id}`);
+
+          const products = await Product.find({ category: category._id }, '_id');
+          await Promise.all(products.map(product => setOfferPrice(product._id)));
+        } catch (err) {
+          log(`Error activating category ${category._id}:`, err);
+        }
+      }
+
+      // Deactivate categories
+      for (const category of categoriesToDeactive) {
+        try {
+          await Category.updateOne(
+            { _id: category._id },
+            { $set: { isOfferActive: false } }
+          );
+          log(`Deactivated offer for category with ID ${category._id}`);
+
+          const products = await Product.find({ category: category._id }, '_id');
+          await Promise.all(products.map(product => setOfferPrice(product._id)));
+        } catch (err) {
+          log(`Error deactivating category ${category._id}:`, err);
+        }
+      }
+
+      log('scheduled job done at:', new Date());
+    } catch (error) {
+      log('Main scheduler error:', error);
+    }
+  }, {
+    scheduled: true,
+    timezone: "Asia/Kolkata" // Add your timezone here
+  });
+};
+
+// Add these indexes if not already added
+// ProductSchema.index({ offerStartDate: 1, offerEndDate: 1, isOfferActive: 1 });
+// ProductSchema.index({ category: 1 });
+// CategorySchema.index({ offerStartDate: 1, offerEndDate: 1, isOfferActive: 1 });
+
+dateScheduler();
+dateScheduler(); //invoking that func
+
 module.exports = {
     downloadPdf,
-    downloadExcel
+    downloadExcel,
+    dateScheduler
 }

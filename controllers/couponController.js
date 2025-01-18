@@ -5,8 +5,18 @@ const Product = require('../models/productModel');
 //couponpage
 const couponPage = async (req,res)=>{ 
     try {
-        const coupons = await Coupon.find({isDeleted: false}).sort({ createdAt: -1 });
-        res.render('admin/coupon', { coupons ,title:'Coupon - Feather'});
+      const page = parseInt(req.query.page) || 1;
+      const limit = 6;
+      const skip = (page-1)*limit;
+
+      const [totalCoupons, coupons] = await Promise.all([
+        Coupon.countDocuments({ isDeleted: false }),
+        Coupon.find({isDeleted: false}).sort({ createdAt: -1 }).skip(skip).limit(limit)
+      ]);
+      const totalPages = Math.ceil(totalCoupons / limit);
+
+      res.render('admin/coupon', { coupons ,title:'Coupon - Feather',  currentPage: page,
+        totalPages,});
       } catch (error) {
         console.error('Error fetching coupons:', error);
         res.status(500).send('Internal Server Error');
@@ -23,6 +33,7 @@ const addCoupon = async (req, res) => {
       endDate,
       offerPrice,
       minimumPrice,
+     limit
     } = req.body;
 
     // Check if coupon already exists
@@ -46,7 +57,7 @@ const addCoupon = async (req, res) => {
       expireDate: endDate,
       discountAmount: offerPrice,
       minPurchaseAmount: minimumPrice,
-      maxDiscountLimit: null,
+      limit:limit,
     });
 
     await newCoupon.save();
@@ -123,7 +134,11 @@ const activeCoupon = async (req, res) => {
 const getCoupon = async (req, res) => {
   try {
     const currentDate = new Date();
-    const coupons = await Coupon.find({ isDeleted: false, active: true, expireDate: { $gte: currentDate } });
+    const coupons = await Coupon.find({ isDeleted: false, active: true, expireDate: { $gte: currentDate },
+      $or:[
+      {usedBy:{$exists:false}},
+      {usedBy:{$ne:req.session.user}},
+    ] });
     res.json({ coupons });
   } catch (error) {
     console.error('Error fetching coupon:', error);
@@ -136,6 +151,7 @@ const applyCoupon = async(req,res)=>{
   try{
     log('1')
      const {couponCode,subtotal} = req.body;
+     const userId = req.session.user;
      log(couponCode)
      const coupon = await Coupon.findOne({isDeleted:false,active:true,code:couponCode})
      log(coupon)
@@ -148,14 +164,9 @@ const applyCoupon = async(req,res)=>{
     const minPurchaseAmount = coupon.minPurchaseAmount || 0;
     log(discountAmount, 'discount amount in apply code');
 
-    req.session.appliedCoupons = req.session.appliedCoupons || [];
-
-    if (req.session.appliedCoupons.includes(couponCode)) {
+    if (coupon.usedBy && coupon.usedBy.includes(userId)) {
       return res.json({ success: false, message: 'Coupon already applied' });
     }
-
-    req.session.appliedCoupons.push(couponCode);
-    log('Applied Coupons:', req.session.appliedCoupons);
 
     res.json({ success: true, message: 'Coupon applied', discountAmount, minPurchaseAmount });
   }catch(err){
@@ -165,39 +176,7 @@ const applyCoupon = async(req,res)=>{
 }
 
 //remove coupon
-// const removeCoupon = async (req, res) => {
-//   try {
-//     log('1');
-//     const { couponCode } = req.body;
-//     log('Coupon Code:', couponCode);
 
-//     // Fetch coupon from the database to verify its existence
-//     const coupon = await Coupon.findOne({ code: couponCode, isDeleted: false, active: true });
-//     log('Coupon:', coupon);
-
-//     if (!coupon) {
-//       return res.json({ success: false, message: 'No such coupon applied' });
-//     }
-
-//     // Check if the coupon was applied in the session
-//     req.session.appliedCoupons = req.session.appliedCoupons || [];
-//     const couponIndex = req.session.appliedCoupons.indexOf(couponCode);
-//     log('Coupon Index:', couponIndex);
-
-//     if (couponIndex === -1) {
-//       return res.json({ success: false, message: 'Coupon not applied to the cart' });
-//     }
-
-//     // Remove coupon from the appliedCoupons array
-//     req.session.appliedCoupons.splice(couponIndex, 1);
-//     log('Updated Applied Coupons:', req.session.appliedCoupons);
-
-//     res.json({ success: true, message: 'Coupon removed successfully' });
-//   } catch (err) {
-//     log('Error removing coupon:', err);
-//     res.status(500).redirect('/serverError');
-//   }
-// };
 const removeCoupon = async (req, res) => {
   try {
     const { couponCode } = req.body;

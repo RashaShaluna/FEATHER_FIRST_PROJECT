@@ -721,7 +721,6 @@ const checkCouponsBtn = document.getElementById('checkCouponsBtn');
         console.error('Element(s) not found in the DOM.');
     }
 
-
 //modal close
 document.querySelector('.modalCoupon .close').addEventListener('click', function() {
     document.getElementById('couponModal').style.display = 'none';
@@ -864,6 +863,8 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
 
                     document.getElementById('checkCouponsBtn').innerText = 'Coupon Applied';
+                    document.getElementById('checkCouponsBtn').disabled = true;
+
                     document.getElementById('deleteCouponBtn').style.display = 'inline';
                     document.getElementById('manualCouponCode').disabled = true;
                     applyCouponBtn.disabled = true;
@@ -887,67 +888,9 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
 });
 
 
-//Coupon removing
 
 
 
-// document.getElementById('deleteCouponBtn').addEventListener('click', function () {
-//     console.log('Delete coupon button clicked');
-//     const couponCode = document.getElementById('manualCouponCode').value;
-//     const applyCouponBtn = document.getElementById('apply-btn');
-
-//     console.log('Coupon code to be removed:', couponCode);
-
-//     fetch('/removeCoupon', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ couponCode: couponCode }),
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log('Response data from removeCoupon API:', data);
-//         if (data.success) {
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Coupon Removed',
-//                 text: 'Coupon has been removed from your checkout.',
-//             }).then(() => {
-//                 applyCouponBtn.style.display = 'inline-block';
-//                 document.getElementById('manualCouponCode').value = '';
-//                 document.getElementById('deleteCouponBtn').style.display = 'none';
-//                 document.getElementById('checkCouponsBtn').innerText = 'Click here to search for a coupon';
-//                 applyCouponBtn.disabled = false;
-
-
-//                 // Update the summary with the removed coupon
-//                 const discountRow = document.querySelector('.summary-coupon-discount');
-//                 discountRow.innerHTML = `
-//                     <td>Coupon Discount:</td>
-//                     <td>-₹0.00</td>
-//                 `;
-
-//                 const subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim());
-//                 console.log(subtotal);
-//                 const discountAmount = 0;  
-//                 const orderPrice = subtotal - discountAmount;
-
-//                 const amountPayableRow = document.querySelector('.summary-payable');
-//                 amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
-//                 // document.getElementById('couponCode').disabled = false;  THIS LINE IS NOT WORKING
-
-//             })
-//         } else {
-//             console.error('Error removing coupon:', data.message);
-//             alert('Error removing coupon');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error removing coupon:', error);
-//         alert('Error removing coupon');
-//     });
-// });
 
 
 
@@ -1012,7 +955,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                 cartItems.forEach((item, index) => {
                     const priceElement = item.querySelector('.price');
                     console.log('2')
-                    const ogPriceElement = item.querySelector('.ogprice span'); // Get the original price span
+                    const ogPriceElement = item.querySelector('.ogprice span'); 
                     console.log('3')
                     if (ogPriceElement) {
                         const originalPrice = parseFloat(ogPriceElement.innerText.replace('₹', '').trim());
@@ -1148,6 +1091,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
             console.log('hello darling')
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+        let couponCode = document.getElementById('manualCouponCode').value.trim();
 
         const orderPrice = parseFloat(document.querySelector('.summary-payable td:nth-child(2)').innerText.replace('₹', '').trim());
         console.log('orderprice',orderPrice);
@@ -1166,7 +1110,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
             const response = await fetch('/checkout/placeOrder', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery', orderPrice: orderPrice  ,products }),
+                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery', orderPrice: orderPrice  ,products ,couponCode}),
             });
 
             if (response.ok) {
@@ -1207,7 +1151,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                         const verifyResponse = await fetch('/verifyPayment', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ ...paymentDetails, selectedAddress ,orderId,products,orderPrice}),
+                            body: JSON.stringify({ ...paymentDetails, selectedAddress ,orderId,products,orderPrice,couponCode}),
                        });
 
                         console.log('verifyResponse:', verifyResponse);

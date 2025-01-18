@@ -46,12 +46,18 @@ const productSchema = new Schema ({
       },
       isOfferActive: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       offerPrice:{
         type:Number,
         default:null,
         set: (value) => (value === '' ? null : value),
+      },
+      offerStartDate:{
+        type:Date,
+      },
+    offerEndDate: {
+          type:Date,
       },
       activeOfferSource: {
         type: String,
@@ -63,12 +69,7 @@ const productSchema = new Schema ({
         type: Boolean,
         default: false
     },
-    rating: {
-        type: Number,
-        default: 0,
-        min: 0,
-        max: 5
-    },
+   
     createdOn: {
         type: Date,
         default: Date.now

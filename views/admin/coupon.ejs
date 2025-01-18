@@ -8,6 +8,15 @@
    margin: 1px;
  }
 
+ .pagination .page-item.active .page-link {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+  color: white;
+}
+
+.pagination .page-link {
+  color: #1cc0a0;
+}
 
  .error-message {
    color: red;
@@ -146,6 +155,18 @@
                           <div id="error-minimum-price" class="error-message"></div>
                         </div>
            
+                        <!-- <div>
+                          <label for="limit" class="form-label"
+                            >Usage count</label
+                          >
+                          <input
+                            type="text"
+                            name="limit"
+                            placeholder="Type here"
+                            class="form-control"
+                          />
+                          <div id="error-limit" class="error-message"></div>
+                        </div> -->
            
                         <div class="d-grid">
                           <button
@@ -169,8 +190,9 @@
                                     <th  style="font-size: 12px;">Code</th>
                                     <th style="font-size: 12px;">Created On</th>
                                     <th style="font-size: 12px;">Expire On</th>
-                                    <th style="font-size: 12px;">Offer Price</th>
+                                    <th style="font-size: 12px;">Discount Amoount</th>
                                     <th style="font-size: 12px;">Minimum Price</th>
+                                    <th style="font-size: 12px;">usage count</th>
                                     <th style="font-size: 12px;">Status</th>
                                     <th></th>
                                     <!-- <th style="font-size: 12px;">Action</th> -->
@@ -192,6 +214,8 @@
                                     <td class="text-start"><%=coupon.expireDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' })%></td>
                                     <td class="text-start"><%=coupon.discountAmount%></td>
                                     <td class="text-start"><%=coupon.minPurchaseAmount%></td>
+                                    <td class="text-start"><%=coupon.maxUsageCount%></td>
+
                                     <td class="text-start">
                                         <% if(coupon.active ===true){%>
                                             <button class="btn" style=" padding-left: 10px; width: 70px ;white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/coupon/deactivate/?id=<%=coupon._id%>','deactive')">
@@ -216,6 +240,28 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="pagination mt-3">
+                      <ul class="pagination justify-content-center">
+                        <% if (currentPage > 1) { %>
+                          <li class="page-item">
+                            <a class="page-link" href="/admin/coupon?page=<%= currentPage - 1 %>">Previous</a>
+                          </li>
+                        <% } %>
+                    
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/coupon?page=<%= i %>"><%= i %></a>
+                          </li>
+                        <% } %>
+                    
+                        <% if (currentPage < totalPages) { %>
+                          <li class="page-item">
+                            <a class="page-link" href="/admin/coupon?page=<%= currentPage + 1 %>">Next</a>
+                          </li>
+                        <% } %>
+                      </ul>
+                    </div>
+                    
                 </div>
                 <!-- </div> -->
               <!-- </div> -->
@@ -314,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
     todayDateObj.setHours(0, 0, 0, 0); 
     const offerPrice = offerPriceInput.value.trim() !== "" ? parseFloat(offerPriceInput.value) : NaN;
     const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseFloat(minimumPriceInput.value) : NaN;
-
+    const limit = limitInput.trim() !== "" ? parseInt(limitInput.value) : NaN;
     const nameRegex = /^[A-Za-z0-9 ]{1,50}$/; 
     if (!nameRegex.test(name)) {
       document.getElementById("error-couponName").innerHTML = "Coupon Name can only contain alphanumeric characters";

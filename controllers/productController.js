@@ -7,6 +7,7 @@ const {log} = require('console');
 const multer = require('multer');
 const mongoose = require('mongoose')
 const env = require('dotenv').config();
+// const {dateScheduler} = require('../helpers/utility')
 
 // =========================================== Product page ===================================================================
 const productPage = async(req,res)=>{
@@ -83,11 +84,6 @@ const productAdding = async (req, res) => {
     log('in add')
     console.log('name price offerPercentage images:',name,salesPrice, offerPercentage, images);
 
-    // const offerPrice =
-    // salesPrice && offerPercentage
-    //   ? parseFloat(salesPrice) - (parseFloat(salesPrice) * parseFloat(offerPercentage)) / 100
-    //   : null;
-    //   console.log('offerPrice',offerPrice);
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -97,8 +93,9 @@ const productAdding = async (req, res) => {
       quantity,
       price,
       salesPrice,
-      // offerPrice,
       offerPercentage:offerPercentage || null,
+      OfferStartDate:offerStartDate || null,
+      OfferEndDate:offerEndDate || null,
       color: capitalizeFirstLetter(color),
       images, 
     });
@@ -235,62 +232,7 @@ const softDeleteProduct = async (req, res) => {
 
   // =========================================== edit product ===============================================
 
-  // const editingProduct = async(req,res)=>{
-  //   try {
-  //     log('product editing')
-  //     const productId = req.params.id;
-  //     log('product id',productId);
-  //     const uploadedImages = req.files;
-  //     log('Uploaded Images:', uploadedImages);
-
-  //   let imagePaths = [];
-  //   const products = await Product.find({isBlocked:false,isDeleted:false,  _id: productId,
-  //   });
-
-  //   const category = await Category.findOne({ name: req.body.category ,isDeleted:false,islisted:false});
-  // if(!category){
-  //   res.redirect('/admin/pageerror');
-  // }
-  // // const categoryId = category._id;
-
-  //       log('1')
-  //       if (uploadedImages && uploadedImages.length > 0) {
-  //         for (let i = 0; i < uploadedImages.length; i++) {
-  //           const file = uploadedImages[i];
-  //           const filePath = path.join('public/uploads', file.filename);
-  //           const outputFilePath = path.join('public/uploads', `cropped_${file.filename}`);
-  //           imagePaths.push(`cropped_${file.filename}`);
-  //           fs.unlinkSync(filePath);
-  //         }
-  //       }
-  //        log('2')
-
-        
-  //       const updatedProduct = {
-  //         name: req.body.name,
-  //         category: req.body.category,
-  //         price: parseFloat(req.body.price),
-  //         offerprice: parseFloat(req.body.offerprice),
-  //         quantity: parseInt(req.body.quantity),
-  //         description: req.body.description,
-  //         color: req.body.color,
-  //         images: imagePaths
-  //       };
-
-  //     await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
-
-    
-  //     log('updated')
-  //     // res.json({ message: 'Product updated successfully' });
-
-  //     res.redirect("/admin/product")
-
-      
-  //   } catch (error) {
-  //     log('error in editing product',error);
-  //     res.redirect('/admin/pageerror');
-  //   }
-  // }
+ 
   const editingProduct = async (req, res) => {
     try {
         const productId = req.params.id;
@@ -314,17 +256,14 @@ const softDeleteProduct = async (req, res) => {
         product.name = req.body.name;
         product.salesPrice = req.body.salesPrice;
         product.offerPercentage = req.body. offerPercentage;
+        product.offerStartDate = req.body.offerStartDate;
+        product.offerEndDate  = req.body.offerEndDate;
         product.description = req.body.description;
         product.quantity = req.body.quantity;
         product.color = req.body.color;
         product.category = categoryId;
         
-      //   if (req.body.offerPercentage) {
-      //     const offerPrice = Math.floor((product.salesPrice * (100 - req.body.offerPercentage)) / 100);
-      //     log(offerPrice)
-
-      //     product.offerPrice = offerPrice;
-      // }
+     
         const images = [
             files['image1'] ? files['image1'][0].filename : product.images[0] || null,
             files['image2'] ? files['image2'][0].filename : product.images[1] || null,

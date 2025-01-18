@@ -57,10 +57,12 @@ const loadHome = async (req, res) => {
     console.log('home page loaded');
     const user = req.session.user;
 
-    const [categories, products, wishlist] = await Promise.all([
+    const [categories, products, wishlist,cart] = await Promise.all([
       Category.find({ islisted: true, isDeleted: false }),
       Product.find({ isBlocked: false, isDeleted: false }).limit(4),
       user ? Wishlist.findOne({ userId: user }) : null,
+      Cart.findOne({ userId: user }) || { products: [] }
+
     ]);
 
 
@@ -80,6 +82,7 @@ const loadHome = async (req, res) => {
       products: productsWithWishlistStatus,
       categories: categories,
       user: user,
+      cart
     });
   } catch (error) {
     console.log('Home page not found', error);
@@ -408,69 +411,7 @@ const forgotpass = async(req,res)=>{
 
 //======================================================Sending Link==================================================================================
 
-// const forgot = async (req, res) => {
-//   try {
-//     console.log('in forgot');
-//     const {email } = req.body;
-//   console.log('req', req.body);
 
-//     // if (!email) {
-//     //   return res.render('users/forgotepass',{title:'Feather - Forgot password', message: 'Email is required' });
-//     // }
-//     if (!email) {
-//       console.log('No email provided');
-//       return res.render('users/forgotepass', { title: 'Feather - Forgot password', message: 'Email is required' });
-//     }
-    
-//     console.log('Looking for user with email:', email);
-
-//     const findUser = await User.findOne({email});
-// // if (!email) {
-// //   console.log('No email provided');
-// //   // return res.render('users/forgotepass', { title: 'Feather - Forgot password', message: 'Email is required' });
-// //   return res.render('users/forgotepass', { title: 'Feather - Forgot password', message: 'Email is required' });
-
-// // }
-
-//     if (!findUser) {
-//       console.log('User not found for email:', email);
-//       return res.render('users/forgotepass', { title: 'Feather - Forgot password', message: 'User not found' });
-//     }
-//     console.log('User found:', findUser);
-
-//     const secret = process.env.JWT_SECRET + findUser.password;
-//     const payLoad = {
-//       email: findUser.email,
-//       id: findUser._id
-//     };
-//     const token = jwt.sign(payLoad, secret, { expiresIn: '30m' });
-
-//     // creating the resnt link
-//     const link = `http://localhost:4000/resetPass/${findUser._id}/${token}`;
-//     console.log(link);
-
-//     // send the email
-//     const emailSent = await sendLink  (email, link);
-
-//     // if (!emailSent) {
-//     //   return res.status(500).json({ success:false, message: 'Failed to send email' });
-//     // }else{
-//     //   return res.json({ success: true, message: 'Link sent successfully' });
-//     // }
-//     if (emailSent) {
-//       return res.json({ success: true, message: 'Link sent successfully' });
-//     }else{
-//       return res.status(500).json({ success:false, message: 'Failed to send email' });
-
-//     }
-
-
-
-//   } catch (error) {
-//     console.log('Error in forgot password:', error);
-//     return res.status(500).json({ success:false, message: 'Server error' });
-//   }
-// };
 const forgot = async (req, res) => {
   try {
     console.log('in forgot');
@@ -627,7 +568,6 @@ const shop = async (req, res) => {
   try {
     log('in shop');
     const userId = req.session.user;
-     
     const searchQuery = req.query.q?.trim() || '';
     const page = parseInt(req.query.page, 10) || 1;
     const limit = 6;
@@ -670,7 +610,7 @@ const shop = async (req, res) => {
       productQuery.color = { $in: selectedColors };
     }
 
-    const [user,categories, totalProducts, products, colors, category,wishlist] = await Promise.all([
+    const [user,categories, totalProducts, products, colors, category,wishlist,cart] = await Promise.all([
       User.findById(userId),
       Category.aggregate([
         { $match: { isDeleted: false, islisted: true } },
@@ -692,41 +632,41 @@ const shop = async (req, res) => {
       }).sort(sortOptions).limit(limit).skip(skip),
       Product.distinct('color', { ...productQuery, category: categoryId || undefined }),
       categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null,
-      Wishlist.findOne({ userId: userId })
+      Wishlist.findOne({ userId: userId }),
+     Cart.findOne({ userId: userId }) || { products: [] }
 
     ]);
-log(wishlist)
-    if (category) {
-      categoryName = category.name;
-    }
+log(cart)   
 
     colors.sort((a, b) => a.localeCompare(b));
 
     const totalPages = Math.ceil(totalProducts / limit);
     const wishlistProductIds = wishlist ? wishlist.products.map(product => product.productsId.toString()) : [];
-    const productsWithWishlistInfo = products.map(product => ({
+
+      const productsWithWishlist= products.map(product => ({
       ...product.toObject(),
-      isInWishlist: wishlistProductIds.includes(product._id.toString())
+      isInWishlist: wishlistProductIds.includes(product._id.toString()),
     }));
     res.render('users/shop', {
       title: 'Shop - Feather',
       categories,
-      products: productsWithWishlistInfo,
+      products: productsWithWishlist,
       currentPage: page,
       totalPages,
       categoryName,
       colors,
       user,
       sort,
+      category,
       categoryId,
       selectedColors,
       minPrice,
       maxPrice,
       searchQuery,
       wishlist,
-       wishlistProductIds
-
-    });
+       wishlistProductIds,
+       cart
+      });
   } catch (err) {
     console.error(err);
     return res.redirect('/pageNotFound');

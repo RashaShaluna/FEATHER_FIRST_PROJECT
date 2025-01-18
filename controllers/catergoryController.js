@@ -43,7 +43,7 @@ const addCategoryPage = async(req,res)=>{
 const addCategory = async(req,res)=>{
     console.log('in add cat1')
 
-    const {name,description,offerPercentage} =req.body;
+    const {name,description,offerPercentage,offerStartDate,offerEndDate} =req.body;
     try {
       const lowerCaseName = name.toLowerCase();
 
@@ -65,7 +65,9 @@ const addCategory = async(req,res)=>{
             const newCategory = new Category({
             name,
             description,
-            offerPercentage
+            offerPercentage,
+            offerStartDate,
+            offerEndDate
         })
 
      const result =    await newCategory.save();
@@ -115,7 +117,7 @@ const unListCategory = async(req,res) =>{
 // ====================================== Edit Category  ========================================================================================================================
   const editCategory = async (req, res) => {
     try {
-      const { categoryId, editedDescription, editedName, editedOfferPercentage } = req.body;
+      const { categoryId, editedDescription, editedName, editedOfferPercentage ,offerStartDate,offerEndDate} = req.body;
   
       const lowerCaseEditedName = editedName.toLowerCase();
   
@@ -130,7 +132,7 @@ const unListCategory = async(req,res) =>{
   
       await Category.updateOne(
         { _id: categoryId },
-        { $set: { name: editedName, description: editedDescription, offerPercentage: editedOfferPercentage } }
+        { $set: { name: editedName, description: editedDescription, offerPercentage: editedOfferPercentage ,offerStartDate:offerStartDate,offerEndDate:offerEndDate} }
       );
   
       res.json({ success: true, message: 'Category updated successfully' });

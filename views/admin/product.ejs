@@ -230,14 +230,21 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Check for error in the query parameter
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('error') && urlParams.get('error') === 'missing-percentage') {
+  if (urlParams.has('error')) {
+      let errorMessage = '';
+      if (urlParams.get('error') === 'missing-details') {
+          errorMessage = 'This product does not have a valid offer percentage or valid dates. Please ensure both fields are correctly filled.';
+      } else if (urlParams.get('error') === 'missing-percentage') {
+          errorMessage = 'This product does not have a valid offer percentage. Please add a valid offer percentage.';
+      }
+
       Swal.fire({
           title: 'Error!',
-          text: 'This product does not have a valid offer percentage. Please add a valid offer percentage.',
+          text: errorMessage,
           icon: 'error',
           confirmButtonColor: '#1cc0a0',
       }).then(() => {
-         window.location.href='/admin/product';
+          window.location.href = '/admin/product';
       });
   }
 </script>

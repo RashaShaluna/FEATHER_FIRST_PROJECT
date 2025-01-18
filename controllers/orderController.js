@@ -444,37 +444,37 @@ const changeStatus = async (req, res) => {
 
         }
 
-        await order.save(); 
-        log('Order item status updated', orderItem);
+        // await order.save(); 
+        // log('Order item status updated', orderItem);
 
-        const allStatuses = order.orderitems.map(item => item.status);
+        // const allStatuses = order.orderitems.map(item => item.status);
 
-        if (allStatuses.every(status => status === 'Cancelled')) {
-            order.status = 'Cancelled';
-            order.cancelDate = new Date(); 
-        }
-        else if (allStatuses.includes('Delivered')) {
-            order.status = 'Delivered';
-            orderItem.paymentStatus = 'Paid';
-            order.deliveredDate = new Date();
-        }
-        else if (allStatuses.every(status => status === 'Returned')) {
-            order.status = 'Retunrned';
-            orderItem.paymentStatus = 'Refunded';
-            order.returnDate = new Date();
-        }
-        else if (allStatuses.some(status => status === 'Shipped')) {
-            order.status = 'Shipped';
-            order.shippedDate = new Date(); 
-        }
-        else if (allStatuses.some(status => status === 'Processing')) {
-            order.status = 'Processing';
-            order.processingDate = new Date();
-        }
-        else if (allStatuses.some(status => status === 'Pending')) {
-            order.status = 'Pending';
-            order.pendingDate = new Date();
-        }
+        // if (allStatuses.every(status => status === 'Cancelled')) {
+        //     order.status = 'Cancelled';
+        //     order.cancelDate = new Date(); 
+        // }
+        // else if (allStatuses.includes('Delivered')) {
+        //     order.status = 'Delivered';
+        //     orderItem.paymentStatus = 'Paid';
+        //     order.deliveredDate = new Date();
+        // }
+        // else if (allStatuses.every(status => status === 'Returned')) {
+        //     order.status = 'Retunrned';
+        //     orderItem.paymentStatus = 'Refunded';
+        //     order.returnDate = new Date();
+        // }
+        // else if (allStatuses.some(status => status === 'Shipped')) {
+        //     order.status = 'Shipped';
+        //     order.shippedDate = new Date(); 
+        // }
+        // else if (allStatuses.some(status => status === 'Processing')) {
+        //     order.status = 'Processing';
+        //     order.processingDate = new Date();
+        // }
+        // else if (allStatuses.some(status => status === 'Pending')) {
+        //     order.status = 'Pending';
+        //     order.pendingDate = new Date();
+        // }
 
         await order.save(); 
         log('Order status updated', order);

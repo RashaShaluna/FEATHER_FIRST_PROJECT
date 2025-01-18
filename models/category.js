@@ -39,6 +39,13 @@
         type: Boolean,
         default: false,
       },
+    offerStartDate: {
+        type: Date,
+      },
+    offerEndDate: {
+        type: Date,
+      },
+    
      
    })
 

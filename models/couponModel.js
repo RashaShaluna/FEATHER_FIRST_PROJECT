@@ -24,19 +24,24 @@ const couponSchema = new mongoose.Schema({
     },
     minPurchaseAmount: {
         type: Number  
+
     },
-    maxDiscountLimit: {
+    maxUsageCount: {
         type: Number 
     },
+    // limit:{
+    //     type:Number
+    // },
     active: {
         type: Boolean,
         default: true
     },
-    userId: {
+    usedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         
-    },isDeleted: { 
+    },
+    isDeleted: { 
         type: Boolean,
          default: false 
 },
