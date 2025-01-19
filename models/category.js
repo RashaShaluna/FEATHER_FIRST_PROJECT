@@ -49,5 +49,20 @@
      
    })
 
+
+
+
+
+
+   categorySchema.pre('save', function(next) {
+    if (this.name && (!this.slug || this.isModified('name'))) {
+      this.slug = this.name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+        .replace(/-+/g, '-');         // Remove consecutive hyphens
+    }
+    next();
+  });
    const Category = mongoose.model('Category',categorySchema);
    module.exports = Category;

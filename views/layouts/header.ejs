@@ -109,6 +109,8 @@
                                                                     <li style="white-space: nowrap;">
                                                                         <a href="/shop/<%= category._id %>"><%= category.name %></a></li>
                                                                 <% }) %>
+                                                                <li><a href="/shop">View all</a></li>
+
                                                               </ul>
                                                             </div>
                                                           <% } %>
@@ -165,3 +167,16 @@
     <!-- <script src="assets/js/main.js"></script> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchQuery = getQueryParam('q');
+            if (searchQuery) {
+                document.getElementById('q').value = searchQuery;
+            }
+        });
+    </script>

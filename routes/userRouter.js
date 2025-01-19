@@ -44,7 +44,7 @@ router.get('/changedpass',userController.successpass);
 // product
 router.get('/shop/:categoryId',userController.shop);
 router.get('/product/:id', userController. productView);
-// router.get('/shop', userController.shop);
+router.get('/shop', userController.shop);
 
 // profile
 router.get('/profile',userController.userProfile);

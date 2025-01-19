@@ -2088,3 +2088,120 @@ function updateQuantity(quantityInput, productId, salesPrice, availableStock, pr
 // };
 
 
+
+const getDashboard = async (req, res) => {
+  try {
+      const currentDate = new Date();
+      let month = req.query.month ? parseInt(req.query.month) : currentDate.getMonth() + 1;
+      let year = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear(); 
+      const chartType = req.query.chartType || 'monthly';
+
+      let startDate, endDate;
+
+      if (chartType === 'monthly') {
+          startDate = new Date(year, month - 1, 1); 
+          endDate = new Date(year, month, 0); 
+      } else {
+          startDate = new Date(year, 0, 1); 
+          endDate = new Date(year + 1, 0, 0);
+      }
+
+      const topProducts = await Order.aggregate([
+          { $unwind: "$products" },
+          { 
+              $lookup: {
+                  from: "products",
+                  localField: "products.productId",
+                  foreignField: "_id",
+                  as: "productDetails",
+              }
+          },
+          { $unwind: "$productDetails" },
+          { $match: { createdAt: { $gte: startDate, $lte: endDate } } }, 
+          { 
+              $group: {
+                  _id: "$products.productId", 
+                  productName: { $first: "$productDetails.productName" }, 
+                  totalSoldItems: { $sum: "$products.quantity" },
+              }
+          },
+          { $sort: { totalSoldItems: -1 } },
+          { $limit: 10 },
+      ]);
+      
+      const topCategories = await Order.aggregate([
+          { $unwind: "$products" },
+          { 
+              $lookup: {
+                  from: "products",
+                  localField: "products.productId",
+                  foreignField: "_id",
+                  as: "productDetails",
+              }
+          },
+          { $unwind: "$productDetails" },
+          { 
+              $lookup: {
+                  from: "categories",
+                  localField: "productDetails.category",
+                  foreignField: "_id",
+                  as: "categoryDetails",
+              }
+          },
+          { $unwind: "$categoryDetails" },
+          { $match: { createdAt: { $gte: startDate, $lte: endDate } } }, 
+          { 
+              $group: {
+                  _id: "$categoryDetails._id",
+                  name: { $first: "$categoryDetails.name" },
+                  totalSoldItems: { $sum: "$products.quantity" },
+              }
+          },
+          { $sort: { totalSoldItems: -1 } },
+          { $limit: 10 },
+      ]);
+
+      const statusData = await Order.aggregate([
+          { $unwind: "$products" },
+          { 
+              $match: { createdAt: { $gte: startDate, $lte: endDate } } 
+          },
+          { 
+              $group: {
+                  _id: "$products.status", 
+                  count: { $sum: "$products.quantity" }
+              }
+          }
+      ]);
+
+      const productStatus = {
+          delivered: 0,
+          returned: 0,
+          shipped: 0,
+          pending: 0,
+          processing: 0
+      };
+
+      statusData.forEach(item => {
+          if (item._id === 'Delivered') productStatus.delivered = item.count;
+          if (item._id === 'Returned') productStatus.returned = item.count;
+          if (item._id === 'Shipped') productStatus.shipped = item.count;
+          if (item._id === 'Pending') productStatus.pending = item.count;
+          if (item._id === 'Processing') productStatus.processing = item.count;
+      });
+
+      res.render("dashboard", {
+          topProducts,
+          topCategories,
+          productStatus,
+          month,
+          year,
+          chartType
+      });
+
+  } catch (error) {
+      console.error("Error fetching sales data:", error);
+      res.status(500).json({ success: false, message: "Error fetching sales data." });
+  }
+};  
+

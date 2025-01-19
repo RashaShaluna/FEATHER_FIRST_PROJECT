@@ -72,18 +72,162 @@ const admincheck = async (req, res) => {
     }
 };
 
+
+
+
 //==============================Load  dashboard============================
-const dashboard = async (req, res) => 
-    {
-        try {
-            res.render('admin/dashboard',{title:'Dashboard - Feather '});
-            console.log('Admin dashboard loaded');
-        } catch (error) {
-            console.error('Error loading admin dashboard:', error);
-            res.redirect('/admin/pageerror');
+const dashboard = async (req, res) =>  {
+  try {
+    console.log('req.query:', req.query);
+    const currentDate = new Date();
+    const month = req.query.month ? parseInt(req.query.month) : currentDate.getMonth() + 1;
+    const year = req.query.year ? parseInt(req.query.year) : currentDate.getFullYear();
+    const chartType = req.query.chartType || 'monthly';
+
+    let startDate, endDate;
+
+    if (chartType === 'monthly') {
+        startDate = new Date(year, month - 1, 1);
+        endDate = new Date(year, month, 0);
+    } else {
+        startDate = new Date(year, 0, 1);
+        endDate = new Date(year + 1, 0, 0);
+    }
+
+    console.log('startDate:', startDate);
+    console.log('endDate:', endDate);
+
+    // Top Products
+    const topProducts = await Order.aggregate([
+        { $unwind: "$orderitems" },
+        {
+            $lookup: {
+                from: "products",
+                localField: "orderitems.productId",
+                foreignField: "_id",
+                as: "productDetails",
+            }
+        },
+        { $unwind: "$productDetails" },
+        { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+        {
+            $group: {
+                _id: "$orderitems.productId",
+                productName: { $first: "$productDetails.name" },
+                totalSoldItems: { $sum: "$orderitems.originalQuantity" },
+            }
+        },
+        { $sort: { totalSoldItems: -1 } },
+        { $limit: 10 }
+    ]);
+
+    console.log('topProducts:', topProducts);
+
+    // Top Categories
+    const topCategories = await Order.aggregate([
+        { $unwind: "$orderitems" },
+        {
+            $lookup: {
+                from: "products",
+                localField: "orderitems.productId",
+                foreignField: "_id",
+                as: "productDetails",
+            }
+        },
+        { $unwind: "$productDetails" },
+        {
+            $lookup: {
+                from: "categories",
+                localField: "productDetails.category",
+                foreignField: "_id",
+                as: "categoryDetails",
+            }
+        },
+        { $unwind: "$categoryDetails" },
+        { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+        {
+            $group: {
+                _id: "$categoryDetails._id",
+                name: { $first: "$categoryDetails.name" },
+                totalSoldItems: { $sum: "$orderitems.originalQuantity" },
+            }
+        },
+        { $sort: { totalSoldItems: -1 } },
+        { $limit: 10 }
+    ]);
+
+    console.log('topCategories:', topCategories);
+    console.log('1) Order Status Data');
+    const statusData = await Order.aggregate([
+        { $unwind: "$orderitems" },
+        { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
+        {
+            $group: {
+                _id: "$orderitems.status",
+                count: { $sum: "$orderitems.originalQuantity" }
+            }
         }
-   
+    ]);
+
+    console.log('1) statusData:', statusData);
+
+    // Format Status Data
+    const orderStatus = {
+        Pending: 0,
+        Processing: 0,
+        Shipped: 0,
+        Delivered: 0,
+        Cancelled: 0,
+        Returned: 0,
+    };
+
+    console.log('1) orderStatus:', orderStatus);
+
+    statusData.forEach(item => {
+        console.log('1) item:', item);
+        if (orderStatus.hasOwnProperty(item._id)) {
+            console.log('1) updating orderStatus:', item._id);
+            orderStatus[item._id] = item.count;
+        } else {
+            console.log('1) skipping orderStatus:', item._id);
+        }
+    });
+
+    console.log('1) orderStatus after loop:', orderStatus);
+
+    // Render Dashboard
+    res.render('admin/dashboard', {
+        title: 'Dashboard - Feather',
+        topProducts,
+        topCategories,
+        orderStatus,
+        month,
+        year,
+        chartType
+    });
+
+    console.log('Admin dashboard loaded');
+} catch (error) {
+    console.error('Error loading admin dashboard:', error);
+    res.redirect('/admin/pageerror');
+}
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //============================page error=====================================================
 
 const pageerror = async(req,res)=>{
@@ -118,7 +262,7 @@ const adminLogout = async(req,res)=>{
 
 
 
-
+//filter
 const getDateFilter = (filterBy, startDate, endDate) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0); 
@@ -178,7 +322,7 @@ const getDateFilter = (filterBy, startDate, endDate) => {
     return dateFilter;
   };
   
-  
+  //salesreport
   const salesReport = async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
@@ -229,6 +373,8 @@ const getDateFilter = (filterBy, startDate, endDate) => {
     }
   };
     
+
+  
 
 module.exports = {
     Login,

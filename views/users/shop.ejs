@@ -84,7 +84,7 @@
                 <div class="container">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="/">Home</a></li>
-                        <li class="breadcrumb-item"><a href="#"><%= category.name %>  x</a></li>
+                        <li class="breadcrumb-item"><%= category?category.name: 'All Products' %></li>
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
@@ -164,8 +164,8 @@
                                                         <span>Add to Cart</span>
                                                       </a>
                                                     <% } else { %>
-                                                      <% if (cart.items && cart.items.some(item => item.productId.toString() === product._id.toString())) { %>
-                                                        <a href="/cart" class="btn-product btn-cart ">
+                                                      <% if (cart && cart.items && cart.items.some(item => item.productId.toString() === product._id.toString())) { %>
+                                                        <a href="/cart" class="btn-product btn-cart">
                                                           <span>Go to Cart</span>
                                                         </a>
                                                       <% } else { %>
@@ -175,6 +175,7 @@
                                                       <% } %>
                                                     <% } %>
                                                   <% } %>
+                                                  
                                                 </div>
                                             </figure><!-- End .product-media -->
                                 

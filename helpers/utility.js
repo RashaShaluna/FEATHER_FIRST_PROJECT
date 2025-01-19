@@ -292,8 +292,8 @@ const dateScheduler = () => {
 // ProductSchema.index({ category: 1 });
 // CategorySchema.index({ offerStartDate: 1, offerEndDate: 1, isOfferActive: 1 });
 
-dateScheduler();
-dateScheduler(); //invoking that func
+// dateScheduler();
+// dateScheduler(); //invoking that func
 
 module.exports = {
     downloadPdf,

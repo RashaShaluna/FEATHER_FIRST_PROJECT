@@ -57,13 +57,13 @@ const loadHome = async (req, res) => {
     console.log('home page loaded');
     const user = req.session.user;
 
-    const [categories, products, wishlist,cart] = await Promise.all([
+    const [categories, products, wishlist] = await Promise.all([
       Category.find({ islisted: true, isDeleted: false }),
       Product.find({ isBlocked: false, isDeleted: false }).limit(4),
       user ? Wishlist.findOne({ userId: user }) : null,
-      Cart.findOne({ userId: user }) || { products: [] }
 
     ]);
+    const cart = (await Cart.findOne({ userId: user })) || { items: [] };
 
 
     const productsWithWishlistStatus = products.map(product => {
@@ -563,7 +563,6 @@ const successpass = async (req,res) => {
 
 //==================================================== shop =============================================================
 
-
 const shop = async (req, res) => {
   try {
     log('in shop');
@@ -610,7 +609,7 @@ const shop = async (req, res) => {
       productQuery.color = { $in: selectedColors };
     }
 
-    const [user,categories, totalProducts, products, colors, category,wishlist,cart] = await Promise.all([
+    const [user,categories, totalProducts, products, colors, category,wishlist,allColors] = await Promise.all([
       User.findById(userId),
       Category.aggregate([
         { $match: { isDeleted: false, islisted: true } },
@@ -633,9 +632,12 @@ const shop = async (req, res) => {
       Product.distinct('color', { ...productQuery, category: categoryId || undefined }),
       categoryId ? Category.findOne({ _id: categoryId, islisted: true, isDeleted: false }) : null,
       Wishlist.findOne({ userId: userId }),
-     Cart.findOne({ userId: userId }) || { products: [] }
+    //  Cart.findOne({ userId: userId }) || { products: [] },  
+     Product.distinct('color', { isBlocked: false, isDeleted: false })
 
     ]);
+    const cart = (await Cart.findOne({ userId: userId })) || { items: [] };
+
 log(cart)   
 
     colors.sort((a, b) => a.localeCompare(b));
@@ -654,7 +656,7 @@ log(cart)
       currentPage: page,
       totalPages,
       categoryName,
-      colors,
+      colors:allColors,
       user,
       sort,
       category,
@@ -665,14 +667,14 @@ log(cart)
       searchQuery,
       wishlist,
        wishlistProductIds,
-       cart
+       cart,
+       category
       });
   } catch (err) {
     console.error(err);
     return res.redirect('/pageNotFound');
   }
 };
-
 
 // ========================================================================= Product single view ==================================================================
 
