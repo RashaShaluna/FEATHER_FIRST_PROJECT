@@ -64,7 +64,7 @@ div#tab-address {
                                  
                                     <div>
                                         <% if(transaction.orderId){ %>
-                                            <h6 class="mb-0">Order #<%= transaction.orderId.toString().slice(-4)  %></h6>
+                                            <h6 class="mb-0">Order #<%= transaction.orderId  %></h6>
                                             <% }else{ %>
                                         <h6 class="mb-0"><%= transaction.description %> </h6>
                                         <% } %>
@@ -72,7 +72,11 @@ div#tab-address {
                                     </div>
                                 </div>
                                 <div class="text-end">
-                                    <h6 class="mb-0 text-danger"><%= transaction.amount %></h6></h6>
+                                    <% if(transaction.type === 'debit'){ %>
+                                        <h6 class="mb-0 text-danger">-₹<%= transaction.amount %></h6>
+                                    <% }else{ %>
+                                        <h6 class="mb-0 text-success">+₹<%= transaction.amount %></h6>
+                                    <% } %>
                                     <small class="text-muted"><%= transaction.type %></small>
                                 </div>
                             </div>

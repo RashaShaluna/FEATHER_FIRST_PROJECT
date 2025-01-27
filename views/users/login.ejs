@@ -20,6 +20,13 @@
                             <%= message %>
                         </div>
                     <% } %>
+                    <% if (error_msg) { %>
+                        <div style="color: red; margin-left: 1rem;"><%= error_msg %></div>
+                      <% } %>
+                      <% if (success_msg) { %>
+                        <div  style="color: green; margin-left: 1rem;"><%= success_msg %></div>
+                      <% } %>
+                      
                     <form action="/login" method="post" id="loginId">
                         <div class="form-group mt-3">
                             <label for="singin-email-2">Email address *</label>
@@ -42,8 +49,20 @@
                         </div><!-- End .form-footer -->
                         <p>Don't have an account? <a href="/register">Register</a></p>
                     </form>
+                    <div class="form-choice">
+                        <p class="text-center">or Login in with</p>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <a href="/auth/google" class="btn btn-login btn-g">
+                                    <i class="icon-google"></i>
+                                    Login With Google
+                                </a>
+                            </div><!-- End .col-6 -->                            
+                        </div><!-- End .row -->
+                    </div><!-- End .form-choice -->
                 </div><!-- End .form-tab -->
             </div><!-- End .form-box -->
+         
         </div><!-- End .container -->
     </div><!-- End .login-page -->
 </body>

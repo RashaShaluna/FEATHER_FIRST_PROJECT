@@ -171,93 +171,7 @@
         </div>
     </div>
   </main>
-<!--        
-  <script>
-    document.addEventListener('DOMContentLoaded',function(event){
-        event.preventDefault();
-          console.log('hwlo')
-        document.getElementById('wallet').addEventListener('click',function(){
-            const refundMode = document.querySelector('input[name="refundMode"]:checked').value;
-            console.log(refundMode)
-            // const paymentStatus = "{{paymentStatus}}";
-            console.log(paymentStatus)
-            if (paymentStatus !== "Paid") {
-                console.log('hwlo')
 
-        Swal.fire({
-            icon: 'warning',
-            title: 'Unpaid Order',
-            text: 'This product is not paid for. No refund is applicable.',
-        });
-        return;
-    }
-            if (refundMode === 'wallet') {
-        // Handle wallet refund
-        Swal.fire({
-            icon: 'success',
-            title: 'Refund Processed',
-            text: 'The amount has been added to your wallet.',
-        });
-        document.getElementById('cancelForm').submit();
-    } else {
-        Swal.fire({
-            icon: 'info',
-            title: 'No Refund',
-            text: 'No refund is applicable for Cash on Delivery orders.',
-        });
-    }
-       
-        
-        });
-       
-      
-    })              
-  </script> -->
-  <!-- <script>
- document.querySelector('.submit-btn').addEventListener('click', async (event) => {
-    event.preventDefault();
-
-    console.log('in event')
-    
-
-    const refundMode = document.querySelector('input[name="refundMode"]:checked')?.value;
-
-    console.log({ orderId, orderItemId,  refundMode });
-    console.log('refundMode:', document.querySelector('input[name="refundMode"]:checked').value);
-    try {
-        const response = await fetch(`/cancelOrder/${orderId}/${orderItemId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refundMode }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: result.message,
-            }).then(() => {
-                window.location.href = `/orderDetail/${orderId}/${orderItemId}`;
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: result.message,
-            });
-        }
-    } catch (error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Something went wrong while processing your request.',
-        });
-    }
-});
-
-  </script> -->
  
     <script>
   document.getElementById('cancelOrderForm').addEventListener('click', async (event) => {
@@ -297,7 +211,7 @@
         } else {
             console.log('11. result.success is true');
             // Proceed without showing SweetAlert on success
-            window.location.href = `/orderDetail/${orderId}/${orderItemId}`;
+            window.location.href = `/orderDetail/${orderId}`;
         }
     } catch (error) {
         console.error('12. error caught:', error);

@@ -1,374 +1,299 @@
-<%- include("../layouts/profileList")  %>
-
+<%- include('../layouts/header') %>
 <style>
-
+    .main-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        margin-left: 10rem;
+    }
     
-    /* Styling for Scrollable History */
-    #scrollableHistory {
-        max-height: 200px; /* Set a max height and overflow-y to enable scrolling */
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 5px;
+    .order-card {
+        margin-bottom: 1rem;
     }
-
-    /* Styling for Collapsible History */
-    #collapseContent {
-        display: none; /* Hide the content by default */
+    
+    .product-card {
+        display: flex;
+        position: relative;
+        padding: 1rem;
+        border: 0.1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        min-height: 150px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+        width: 95%;
+        max-width: 90%;
     }
-    #scrollableHistory {
-    overflow: auto;
-}
-
-#scrollableTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#scrollableTable th, #scrollableTable td {
-    padding: 8px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-#scrollableTable th {
-    background-color: #f2f2f2;
-}
-
-#scrollableTable tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-#scrollableTable tbody tr:hover {
-    background-color: #ddd;
-}
-
-
+    
+    .product-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin-right: 1rem;
+    }
+    
+    .product-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .cancel-btn ,
+    .return-btn{
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #1cc0a0;
+        margin-right: 3rem;
+        margin-top: 2rem;
+    }
+    
+    .cancel-btn .icon-wrapper ,
+     .return-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: #1cc0a0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 4px;
+    }
+    
+    .cancel-btn i {
+        color: white;
+        font-size: 12px;
+    }
+    
+    .address {
+        flex: 1;
+        font-size: 13px;
+        margin-right: 20px;
+    }
+    
+    h1 { font-size: 0.9rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 2rem; }
+    h4 { font-size: 1.875rem; }
+    h5 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    
+    .product-status {
+        display: flex;
+        margin-left: 20px;
+        margin-top: 10px;
+    }
+    
+    .order-cancelled {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 12px;
+        margin: 10px;
+        text-align: right;
+    }
+    .estimated-delivery  p {
+        position: absolute;
+        bottom: 0;
+        right:0;
+        margin-right: 30px;
+        margin-bottom: 10px;
+        text-align: right;
+    }
+    .paymet{
+        font-size: 12px;
+    }
+    @media (max-width: 767.98px) {
+        .main-container {
+            margin-left: 0;
+            padding: 0.5rem;
+        }
+        
+        .product-card {
+            flex-direction: column;
+            width: 100%;
+            max-width: 100%;
+        }
+        
+        .product-image {
+            width: 300px;
+            height:300px;
+            margin-right: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .cancel-btn,
+        .return-btn {
+            position: static;
+            margin: 1rem 0 0 0;
+        }
+        
+        .estimated-delivery,
+        .order-cancelled {
+            position: static;
+            text-align: left;
+            margin: 1rem 0 0 0;
+        }
+        
+        .product-status {
+            margin-left: -100px;
+        }
+    }
 </style>
 
-
-<!-- <div class='col-md-8 p-0 right' style=" border-radius: 0;"> -->
-
-
-
-    <!-- <div id="tab-wallet" role="tabpanel" aria-labelledby="tab-wallet-link"> -->
-        <!-- <div class="row" style="padding: 20px; background-color: #f0f0f0;"> -->
-            <!-- <div class="col-lg-6" style="margin-top: 0px;"> -->
-                <div class="card card-dashboard" style="background-color: #fff; border-radius: 0px; padding: 20px;">
-                    <h3 style="color: #333;">My E-Wallet</h3>
-                    <!-- <div class="card-body"> -->
-                        <div class="bg-white" style="padding: 10px; border-radius: 5px; border-width: 1px; border: solid;">
-                            <h4 class="fw-bolder" style="color: #000000;">Available Balance</h4>
-                            <h6 class="text-primary ">₹ <%= walletBalance %></h6>
-                        </div>
-                        <form id="addMoneyForm" action="/wallet/add-money" method="post">
-                            <input type="text" name="amount" id="amountInput"  placeholder="Enter Amount" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                            <button type="submit" class="btn btn-primary" style="margin-top: 10px; height: 40px; width: 100px; border-radius: 5px;">Add Now</button>
-                        </form
-                        
-                    
-                        <br>
-                        <br>
-                        <h4>Transaction History</h4>
-                     <!-- Scrollable History -->
-                     <div id="scrollableHistory">
-                        <table id="scrollableTable">
-                            <thead>
-                                <tr>
-                                    <th>Reason</th>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                    <th>Type</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% transactions.slice().reverse().forEach(transaction => { %>
-                                    <tr>
-                                        <td><%= transaction.reason %></td>
-                                        <td><%= transaction.date.toDateString() %></td>
-                                        <td>₹<%= transaction.transactionAmount %></td>
-                                        <td><%= transaction.type %></td>
-                                    </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-
-                        
-                        <!-- Collapsible History -->
-                        <br>
-                        <!-- <div id="collapsibleHistory">
-                            <button id="toggleCollapse">Wallet History</button>
-                            <div id="collapseContent">
-                                <table id="collapseTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th></th>
-                                            <th>Type</th>
-                                            <th>Reason</th>
-                                            <th>Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="collapseList">
-                                        <% transactions.slice().reverse().forEach(transaction => { %>
-                                            <tr>
-                                                <td><%= transaction.date.toDateString() %></td>
-                                                <td><%= transaction.type %></td>
-                                                <td><%= transaction.reason %></td>
-                                                <td>₹<%= transaction.transactionAmount %></td>
-                                                <% if (transaction.orderId) { %>
-                                                    <td><a href="/profile/myorders/orderDetails/<%= transaction.orderId %>">View Order</a></td>
-                                                <% } else { %>
-                                                    <td></td>
-                                                <% } %>
-                                                <% if (transaction.returnReason) { %>
-                                                    <td><%= transaction.returnReason %></td>
-                                                <% } else { %>
-                                                    <td></td>
-                                                <% } %>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
+<body>
+    <main>
+        <div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
+            <div class="container">
+                <h1 class="page-title">Order Details</h1>
+            </div>
+        </div>
+        <nav aria-label="breadcrumb" class="breadcrumb-nav">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/orders">order</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Order Details</li>
+                </ol>
+            </div>
+        </nav>
+        <div class="container mt-4 main-container mr-5">
+            <div class="row mb-4">
+                <div class="col-12 col-md-5">
+                    <div class="order-card">
+                        <div class="product-card">
+                            <div class="address mr-4" style="flex: 1;">
+                                <h2 style="font-size: 16px; margin-bottom: 10px;">Delivery Address:</h2>
+                                <div class="d-flex flex-column">
+                                    <div class="mb-1"><%= order.address.name %></div>
+                                    <div><%= order.address.address %>, <%= order.address.landmark %></div>
+                                    <div><%= order.address.locality %>, <%= order.address.district %>, <%= order.address.state %></div>
+                                    <div class="mb-1"><%= order.address.pincode %>, <%= order.address.country %></div>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                        <div style="margin-bottom: -4px; margin-top: -10px;">Phone Numbers: <%= order.address.phone %>, <%= order.address.alternatePhone%></div>
+                                    </div>
+                                </div>
                             </div>
-                        </div> -->
-                        
-
-
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    
-
-
-<div class="collapse" id="collapseHistory">
-    <div class="card card-body">
-        <table>
-            <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Reason</th>
-                <th>Amount</th>
-            </tr>
             
-        </table>
-    </div>
-</div>
+            <div class="order-card">
+                <h4>Product Details</h4>
+               
 
-
-
-
-
-
-
-
-<!-- profileList end div        -->
-</div>
-</div>
- <!-- profileList end div        -->
-
-
-
- <br>
-<br>
-<%- include("../layouts/mobileNav") %>
-<%- include("../layouts/footer")  %>
-<%- include("../layouts/footerNav")  %>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- wallet history collapse -->
-<script>
-    const toggleButton = document.getElementById('toggleCollapse');
-    const collapseContent = document.getElementById('collapseContent');
-
-    toggleButton.addEventListener('click', function() {
-        if (collapseContent.style.display === 'none') {
-            collapseContent.style.display = 'block'; 
-        } else {
-            collapseContent.style.display = 'none'; 
-        }
-    });
-</script>
-
-
-<script>
-document.getElementById('addMoneyForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the form from submitting normally
-
-    const amount = document.getElementById('amountInput').value;
-    if (isNaN(amount) || amount <= 0) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'Please enter a valid amount.',
-            icon: 'error',
-            confirmButtonText: 'OK'
+                    <div class="product-card">
+                            <div class="product-info d-flex flex-column flex-md-row">
+                                <img src="/uploads/<%= orderItem.productId.images[0] %>" alt="Product Image" class="product-image">
+                                <div class="product-details ml-md-3">
+                                    <p style="font-size: 12px; margin-bottom: 10px;">Order Id : #<%= order._id %></p>
+                                    <h5><%= orderItem.productId.name %></h5>
+                                    <p>Color: <%= orderItem.productId.color %></p>
+                                    <p>Price: ₹<%= orderItem.productPrice %></p> <!-- Assuming you have a productPrice in the order item -->
+                                    <p>Quantity: <%= orderItem.originalQuantity %></p>
+                                    <p class="paymet">Payment Method: <%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
+                                    <p class="paymet">Payment Status: <%= orderItem.paymentStatus %></p>
+                                </div>
+                            </div>
+                        
+                        <div class="product-status" style="font-size: 12px; margin-left: 70px;">
+                            <ul style="list-style: none; padding: 0;">
+                                <li>Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                        
+                                <% if (orderItem.status === 'Shipped' || orderItem.status === 'Delivered' || orderItem.status === 'Out of Delivery') { %>
+                                    <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                <% } %>
+                                <% if (orderItem.status === 'Delivered') { %>
+                                    <li>Delivery Date: <%= new Date(orderItem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                <% } %>
+                                <% if (orderItem.status === 'Cancelled') { %>
+                                    <li>Cancelled At: <%= new Date(orderItem.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                <% } %>
+                                <% if (orderItem.status === 'Returned') { %>
+                                    <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <li>Delivery Date: <%= new Date(orderItem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                    <li>Return Date: <%= new Date(orderItem.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                        
+                        <div class="actions d-flex justify-content-center">
+                            <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing') { %>
+                                <a href="/cancelOrder/<%= order._id %>/<%= orderItem._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderItem.productId.name %>">
+                                    <div class="icon-wrapper">
+                                        <i class="fa fa-close"></i>
+                                    </div>
+                                    <span class="d-none d-sm-block">Cancel</span>
+                                </a>
+                            <% } else if (orderItem.status === 'Delivered') { %>
+                                <a href="/returnPage/<%= order._id %>/<%= orderItem._id %>" id="returnBtn">
+                                    <span class="d-none d-sm-block text-danger" style="margin-left: 300px;">Return</span>
+                                </a>
+                                
+                                <% console.log(order._id, orderItem._id); %>
+                                
+                            <% } %>
+                        </div>
+                        <div class="estimated-delivery">
+                            
+                            <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing' || orderItem.status === 'Shipped') { %>
+                                <p>Estimated Delivery: <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                            <% } %>
+                        </div>
+                        
+                        <div class="order-cancelled">
+                            <% if (orderItem.status === 'Cancelled') { %>
+                                <p>Order Cancelled</p>
+                            <% } %>
+                        </div>
+              </div>                        
+        </div>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        //cancel order
+        document.getElementById('cancelBtn').addEventListener('click', function (event) {
+            event.preventDefault();
+            const cancelUrl = this.href;
+            const name = this.getAttribute('data-product-name');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to cancel the order for "${name}"?`,
+                showCancelButton: true,
+                confirmButtonColor: '#1cc0a0',
+                cancelButtonColor: '',
+                confirmButtonText: 'Yes, cancel it!',
+                cancelButtonText: 'No, keep it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = cancelUrl;
+                }
+            });
         });
-        return;
-    }
 
-    fetch('/wallet/add-money', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: amount }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        window.location.reload()
-    })
-    .then(data => {
-        Swal.fire({
-            title: 'Success!',
-            text: 'Money has been successfully added to your wallet.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'An error occurred while adding money to your wallet.',
-            icon: 'error',
-            confirmButtonText: 'OK'
-        });
-    });
+
+        //return order
+    // document.getElementById('returnBtn').addEventListener('click', function (event) {
+    //     event.preventDefault();
+    //     console.log('1')
+    //     const orderId = this.getAttribute('data-order-id');
+    //     const orderItemId = this.getAttribute('data-order-item-id');
+    //     console.log(`Order ID: ${orderId}, Order Item ID: ${orderItemId}`);
+    //     if (orderId && orderItemId) {
+    //     const returnUrl = `/returnPage?orderId=${orderId}&orderItemId=${orderItemId}`;
+    //     console.log('Navigating to:', returnUrl); 
+    //     window.location.href = returnUrl;
+    // } else {
+    //     console.error("Order ID or Order Item ID is missing.");
+    // }
+    // })
 });
-</script>
-
-<section class="content-main"> 
- <div class="content-header">
-   <div>
-     <h2 class="content-title card-title">Coupons</h2>
-   </div>
- </div>
- <div class="card card-top">
-   <div class="card">
-     <div class=" row row-top">
-       <div class="col-md-3">
-         <form method="post" action="">
-           <body onload=""></body>
-             <div class="mb-4">
-               <label for="coupon-name" class="form-label">Coupon Name</label>
-               <input
-                 type="text"
-                 id="coupon-name"
-                 name="couponName"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-coupon-name" class="error-message"></div>
-             </div>
-
-
-             <div>
-               <label for="startingDate" class="form-label">Start Date</label>
-               <input
-                 type="date"
-                 name="startDate"
-                 class="form-control"
-                 required="true"
-                 id="startingDate"
-               />
-               <div id="error-start-date" class="error-message"></div>
-             </div>
-
-
-             <div>
-               <label for="expiringDate" class="form-label">End Date</label>
-               <input
-                 type="date"
-                 name="endDate"
-                 class="form-control"
-                 id="expiringDate"
-                 required="true"
-               />
-               <div id="error-end-date" class="error-message"></div>
-             </div>
-
-
-             <div>
-               <label for="offer-price" class="form-label">Offer Price</label>
-               <input
-                 type="text"
-                 name="offerPrice"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-offer-price" class="error-message"></div>
-             </div>
-
-
-             <div>
-               <label for="minimum-price" class="form-label"
-                 >Minimum Price</label
-               >
-               <input
-                 type="text"
-                 name="minimumPrice"
-                 placeholder="Type here"
-                 class="form-control"
-               />
-               <div id="error-minimum-price" class="error-message"></div>
-             </div>
-
-
-             <div class="d-grid">
-               <button
-                 class="btn btn-primary mt-20"
-                 onclick=""
-                 type="submit"
-               >
-                 Add Coupon
-               </button>
-             </div>
-             <div id="err-msg" class="error-message"></div>
-           </body>
-         </form>
-       </div>
-       <div class="col-md-7 ml-105">
-         <div class="table-responsive">
-             <table class="table table-hover">
-                 <thead>
-                     <tr>
-                         <th>Name</th>
-                         <th>Created On</th>
-                         <th>Expire On</th>
-                         <th>Offer Price</th>
-                         <th>Minimum Price</th>
-                         <th>Status</th>
-                         <th>Edit/Delete</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                    
-                     <tr>
-                         <td class="text-start"></td>
-                         <td class="text-start"></td>
-                         <td class="text-start"></td>
-                         <td class="text-start"></td>
-                         <td class="text-start"></td>
-                         <td class="text-start"></td>
-                         <td class="text-start">
-                             <a href="#" class="btn btn-primary btn-sm" >Edit</a>
-
-
-                        <a href="#" onclick="" class="btn btn-danger btn-sm" style="height: 35px;width: 105px;"">Delete</a>
-                         </td>
-                     </tr>
-                 </tbody>
-             </table>
-         </div>
-     </div>
-     </div>
-   </div>
- </div>
-</section>
+    </script>
+    
+    <%- include('../layouts/footer') %>
+</body>
+</html>

@@ -131,10 +131,10 @@
                                                     <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
                                                         <span class="product-label label-out">Out of stock</span>
                                                     <% }else{ %>
-                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product')  { %>
+                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product' && product.offerEndDate > new Date())  { %>
                                                       <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
-                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category'){ %>
-                                                        <span class="product-label label-disc">-<%= product.category.offerPercentage %>%</span>
+                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category' && product.category.offerEndDate > new Date()){ %>
+                                                        <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
 
                                                         <% } %>
                                                         <% } %>
@@ -190,10 +190,10 @@
                                                   <% if (product.quantity <=0 || product.status === 'Out of stock') { %>
                                                     <span class="new-price"><%= '₹' + product.salesPrice %></span>
                                                   <% } else { %>
-                                                    <% if (product.activeOfferSource === 'product') { %>
+                                                    <% if (product.activeOfferSource === 'product' && product.offerEndDate > new Date()) { %>
                                                       <span class="old-price"><%= '₹' + product.salesPrice %></span>
                                                       <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                                    <% } else if (product.activeOfferSource === 'category' && product.category?.isOfferActive) { %>
+                                                    <% } else if (product.activeOfferSource === 'category' && product.category?.isOfferActive && product.category.offerEndDate > new Date()) { %>
                                                       <span class="old-price"><%= '₹' + product.salesPrice %></span>
                                                       <span class="new-price"><%= '₹' + product.offerPrice %></span>
                                                     <% } else { %>

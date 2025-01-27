@@ -107,6 +107,31 @@
     .paymet{
         font-size: 12px;
     }
+      
+
+    .payment-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 2rem;
+        width: 60%;
+        margin-bottom: 1.5rem;
+        margin-left: 1rem;
+    }
+
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .payment-label {
+        color: #666;
+    }
+
+    .payment-value {
+        font-weight: 500;
+    }
+
     @media (max-width: 767.98px) {
         .main-container {
             margin-left: 0;
@@ -163,7 +188,13 @@
         </nav>
         <div class="container mt-4 main-container mr-5">
             <div class="row mb-4">
-                <div class="col-12 col-md-5">
+                <div class="col-4 col-md-4 " style="font-size: 1.2rem;">
+                    <h2>Order details:</h2>
+                    <div style="font-size: 15px;">Order ID: <%= order._id %></div>
+                    <div class="mb-1" style="font-size: 15px;">Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></div>
+                </div>
+                <div class="col-4 col-md-5">
+                       
                     <div class="order-card">
                         <div class="product-card">
                             <div class="address mr-4" style="flex: 1;">
@@ -178,15 +209,23 @@
                                     </div>
                                 </div>
                             </div>
+                           
                         </div>
                     </div>
+                 
                 </div>
+                <% if (order.orderitems.some(item => item.status === 'Delivered')) { %>
+
+                <div class="col-4 col-md-4 d-flex justify-content-end align-items-start" style="position: absolute; top: 10; right: 0; margin-right: 7rem; color: #1cc0a0;">
+                    <a href="/invoicePDF?orderId=<%= order._id %>">Download Invoice</a>
+                </div>
+                <%}%>
             </div>
             
-            <div class="order-card">
-                <h4>Product Details</h4>
-               
+            <div class="order-card">               
 
+                <h2 class="h5 mb-3">Order Items</h2>
+                <% order.orderitems.forEach(orderItem => { %>
                     <div class="product-card">
                         <div class="product-info d-flex flex-column flex-md-row">
                             <img src="/uploads/<%= orderItem.productId.images[0] %>" alt="Product Image" class="product-image">
@@ -196,14 +235,11 @@
                                 <p>Color: <%= orderItem.productId.color %></p>
                                 <p>Price: ₹<%= orderItem.productPrice %></p> <!-- Assuming you have a productPrice in the order item -->
                                 <p>Quantity: <%= orderItem.originalQuantity %></p>
-                                <p class="paymet">Payment Method: <%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
-                                <p class="paymet">Payment Status: <%= orderItem.paymentStatus %></p>
+                                <p class="paymet">Payment Status: <%= orderItem.paymentStatus %></p> 
                             </div>
                         </div>
-                        
                         <div class="product-status" style="font-size: 12px; margin-left: 70px;">
                             <ul style="list-style: none; padding: 0;">
-                                <li>Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
                         
                                 <% if (orderItem.status === 'Shipped' || orderItem.status === 'Delivered' || orderItem.status === 'Out of Delivery') { %>
                                     <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></li>
@@ -221,7 +257,7 @@
                                 <% } %>
                             </ul>
                         </div>
-                        
+                                  
                         <div class="actions d-flex justify-content-center">
                             <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing') { %>
                                 <a href="/cancelOrder/<%= order._id %>/<%= orderItem._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderItem.productId.name %>">
@@ -251,8 +287,30 @@
                                 <p>Order Cancelled</p>
                             <% } %>
                         </div>
-              </div>                        
+                    </div>
+                <% }); %>
+        </div>  <!-- End of order items -->
+        <!-- Payment Details -->
+    <div class="payment-details mt-4">
+        <h2 class="h5 mb-3">Payment details</h2>
+        <div class="payment-row">
+            <div class="payment-label">Payment method</div>
+            <div class="payment-value"><%= order.paymentMethod.toUpperCase() %></div>
+         
+            
         </div>
+   
+       
+            <div class="payment-row">
+                <div class="payment-label">Delivery Charge</div>
+                <div class="payment-value">Free delivery</div>
+            </div>
+        <hr>
+        <div class="payment-row fw-bold">
+            <div>Total Amount</div>
+            <div>₹<%= order.orderPrice %></div>
+        </div>
+    </div>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         //cancel order

@@ -51,11 +51,11 @@
                         <div class="product-price ">
                             
                             <% if (product.quantity > 0 && product.status !== 'Out of stock') { %>
-                                <% if (product.activeOfferSource === 'product' && product.isOfferActive === true) { %>
+                                <% if (product.activeOfferSource === 'product' && product.isOfferActive === true &&  product.offerEndDate > new Date()) { %>
                                     <!-- Product offer is active -->
                                     <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.offerPercentage %>%</span>
                                     <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                <% } else if (product.activeOfferSource === 'category' && product.category.isOfferActive === true) { %>
+                                <% } else if (product.activeOfferSource === 'category' && product.category.isOfferActive === true && product.category.offerEndDate > new Date()) { %>
                                     <!-- Category offer is active -->
                                     <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.category.offerPercentage %>%</span>
                                     <span class="new-price"><%= '₹' + product.offerPrice %></span>

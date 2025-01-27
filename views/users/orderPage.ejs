@@ -1,4 +1,5 @@
 <%- include('../layouts/header') %>
+
 <style>
     .main-container {
         flex-grow: 1;
@@ -10,104 +11,59 @@
     
     .order-card {
         margin-bottom: 1rem;
-        margin-left: 5rem;
-        width: 90%;
+        margin-left: 18rem;
+        width: 60%;
     }
-
+    
     .product-card {
-    position: relative;
-    padding: 1rem;
-    border: 0.1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background-color: #ffffff;
-    display: flex;
-    align-items: center;
-    width: 95%;
-}
-
-.product-status {
-    position: absolute;
-    right: 1rem;
-    bottom: 0.5rem;
-    text-align: right;
-    font-size: 12px;
-}
-
-.product-status p {
-    margin: -100px 150px 10px 100px;
-}
+        position: relative;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #ffffff;
+    }
+    
+    .order-items-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .product-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
     .product-image {
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
-        margin-right: 1rem;
+        border-radius: 8px;
     }
     
     .product-details {
         flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
     }
     
-    .cancel-btn ,
-    .return-btn{
-        position: absolute;
-        top: 0.5rem;
-        right: 0.5rem;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #1cc0a0;
-        margin-right: 3rem;
-        margin-top: 2rem;
+    .item-divider {
+        margin: 1rem 0;
+        border-top: 1px solid #e0e0e0;
     }
     
-    .cancel-btn .icon-wrapper ,
-     .return-btn {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background-color: #1cc0a0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-right: 4px;
+    .order-summary {
+        /* margin-top: 1rem; */
+        /* padding-top: 1rem; */
+        border-top: 1px solid #e0e0e0;
     }
     
-    .cancel-btn i {
-        color: white;
-        font-size: 12px;
-    }
-    
-    .address {
-        flex: 1;
+    .estimate {
         font-size: 13px;
-        margin-right: 20px;
-    }
-    
-    h1 { font-size: 0.9rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 2rem; }
-    h4 { font-size: 1.875rem; }
-    h5 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    
-    .product-status {
-        display: flex;
-        margin-left: 10px;
-        margin-top: 10px;
-    }
-    
-    .estimated-delivery,
-    .order-cancelled {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        font-size: 12px;
-        margin: 10px;
-        text-align: right;
+        color: #555;
+        margin-top: 1rem;
     }
     
     @media (max-width: 767.98px) {
@@ -115,30 +71,23 @@
             margin-left: 0;
             padding: 0.5rem;
         }
-        
-        .product-card {
+    
+        .product-item {
             flex-direction: column;
-            width: 100%;
-            max-width: 100%;
+            align-items: flex-start;
         }
-        
+    
         .product-image {
-            width: 300px;
-            height:300px;
-            margin-right: 0;
+            width: 100%;
+            height: auto;
             margin-bottom: 1rem;
         }
-        
-        .cancel-btn,
-        .return-btn {
-            position: static;
-            margin: 1rem 0 0 0;
-        }
-        .product-status {
-            margin-left: 100px;
+    
+        .product-details {
+            width: 100%;
         }
     }
-</style>
+    </style>
 
 <body>
     <main>
@@ -159,55 +108,55 @@
         <div class="container mt-4 main-container mr-5">
             <div class="row mb-4">
                 <div class="order-card">
+
                     <% if (orders && orders.length > 0) { %>
                         <% orders.forEach(order => { %>
-                            <% if (order.orderitems && order.orderitems.length > 0) { %>
-                                <% order.orderitems.forEach(orderitem => { %>
-                                    <!-- Wrap the entire card in a link to the order detail page -->
-                                    <a href="/orderDetail/<%= order._id %>/<%= orderitem._id %>" class="product-card-link">
-                                        <div class="product-card">
-                                            <div class="product-info d-flex flex-column flex-md-row">
-                                                <!-- Check if images exist -->
-                                                <% if (orderitem.productId.images && orderitem.productId.images.length > 0) { %>
-                                                    <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image" class="product-image">
-                                                <% } else { %>
-                                                    <img src="/path-to-default-image.jpg" alt="Default Image" class="product-image">
-                                                <% } %>
-                
-                                                <!-- Product Details -->
-                                                <div class="product-details ml-md-3">
-                                                    <p style="font-size: 12px; margin-bottom: 10px;">Order Id: #<%= order._id %></p>
-                                                    <h5><%= orderitem.productId.name %></h5>
-                                                    <p>Color: <%= orderitem.productId.color %></p>
-                                                    <p>Quantity: <%= orderitem.originalQuantity %></p>
-                                                    <p style="font-size: 15px;">Price: ₹<%= orderitem.productPrice %></p>
-                                                </div>
-                
-                                                <!-- Product Status on the right side -->
-                                                <div class="product-status">
-                                                    <% if (orderitem.status === 'Pending' || orderitem.status === 'Processing' || orderitem.status === 'Shipped') { %>
-                                                        <p class="estimate">Estimated Delivery: <%=new Date(order.estimatedDeliveryDate) .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'Delivered') { %>    
-                                                        <p class="estimate">Delivered on: <%= new Date(orderitem.deliveryDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
-                                                    <% } else if (orderitem.status === 'Cancelled') { %>
-                                                        <p class="text-danger">Order Cancelled on: <%= new Date(orderitem.cancelDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
-                                                    <% } else if (orderitem.status === 'Returned') { %>
-                                                        <p class="text-warning">Product Returned on: <%= new Date(orderitem.returnDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></p>
+
+                            <a href="/orderDetail/<%= order._id %>" class="product-card-link">
+                                <div class="product-card">
+                                    <p style="font-size: 12px; margin-bottom: 10px;">Order Id: #<%= order._id %></p>
+
+                                    <div class="product-info d-flex flex-column flex-md-row">
+                                        <div class="order-items-container">
+                                            <% order.orderitems.forEach((orderitem, index) => { %>
+                                                <div class="product-item">
+                                                    <!-- Display image for each order item -->
+                                                    <% if (orderitem.productId && orderitem.productId.images && orderitem.productId.images.length > 0) { %>
+                                                        <img src="/uploads/<%= orderitem.productId.images[0] %>" alt="Product Image" class="product-image">
+                                                    <% } else { %>
+                                                        <img src="/path-to-default-image.jpg" alt="Default Image" class="product-image">
                                                     <% } %>
+                                                    
+                                                    <div class="product-details ml-md-3">
+                                                        <span><%= orderitem.productId.name %></span>
+                                                        <!-- <p>Quantity: <%= orderitem.originalQuantity %></p> -->
+                                                        <p style="font-size: 15px;">Price: ₹<%= orderitem.productPrice %></p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <% if (index !== order.orderitems.length - 1) { %>
+                                                    <hr class="item-divider">
+                                                <% } %>
+                                            <% }) %>
+                                            <p style="font-size: 13px;">Total: ₹<%= order.orderPrice %></p>
+                                            <!-- <% if (order.status === 'Delivered') { %>
+                                                <p class="estimate">Delivered on: <%= new Date(order.deliveredDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                            <% } else { %>
+                                                <p class="estimate">Estimated Delivery: <%= new Date(order.estimatedDeliveryDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+                                            <% } %> -->
                                         </div>
-                                    </a>
-                                <% }) %>
-                            <% } %>
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
                         <% }) %>
+                    <% } else { %>
+                        <p>No orders found.</p>
                     <% } %>
                 </div>
-                 
+            </div>
         </div>
     </main>
-
-    
     
     <%- include('../layouts/footer') %>
 </body>
