@@ -191,6 +191,8 @@
                 <div class="col-4 col-md-4 " style="font-size: 1.2rem;">
                     <h2>Order details:</h2>
                     <div style="font-size: 15px;">Order ID: <%= order._id %></div>
+                    <input type="hidden" id="orderId" value="<%= order._id %>">
+
                     <div class="mb-1" style="font-size: 15px;">Order Date: <%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' }) %></div>
                 </div>
                 <div class="col-4 col-md-5">
@@ -259,7 +261,7 @@
                         </div>
                                   
                         <div class="actions d-flex justify-content-center">
-                            <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing') { %>
+                            <% if (orderItem.status === 'Pending' || orderItem.status === 'Processing' ) { %>
                                 <a href="/cancelOrder/<%= order._id %>/<%= orderItem._id %>" class="cancel-btn" id="cancelBtn" data-product-name="<%= orderItem.productId.name %>">
                                     <div class="icon-wrapper">
                                         <i class="fa fa-close"></i>
@@ -296,11 +298,16 @@
         <div class="payment-row">
             <div class="payment-label">Payment method</div>
             <div class="payment-value"><%= order.paymentMethod.toUpperCase() %></div>
-         
-            
         </div>
-   
-       
+
+        <% if (order.paymentStatus === 'Failed' ) { %>
+        <div class="payment-row">
+            <div class="payment-label">Payment status(<span class="text-danger" style="font-weight: bold;">Failed</span>)</div>
+            <div class="payment-retry">
+              <a href="retryPayment" id="retryPaymentButton"  class="btn btn-link">Retry Payment</a>
+            </div>
+        </div>
+        <% } %>
             <div class="payment-row">
                 <div class="payment-label">Delivery Charge</div>
                 <div class="payment-value">Free delivery</div>
@@ -308,9 +315,12 @@
         <hr>
         <div class="payment-row fw-bold">
             <div>Total Amount</div>
+            <input type="hidden" id="orderPrice" value="<%= order.orderPrice %>">
             <div>₹<%= order.orderPrice %></div>
         </div>
     </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         //cancel order
@@ -334,23 +344,89 @@
         });
 
 
-        //return order
-    // document.getElementById('returnBtn').addEventListener('click', function (event) {
-    //     event.preventDefault();
-    //     console.log('1')
-    //     const orderId = this.getAttribute('data-order-id');
-    //     const orderItemId = this.getAttribute('data-order-item-id');
-    //     console.log(`Order ID: ${orderId}, Order Item ID: ${orderItemId}`);
-    //     if (orderId && orderItemId) {
-    //     const returnUrl = `/returnPage?orderId=${orderId}&orderItemId=${orderItemId}`;
-    //     console.log('Navigating to:', returnUrl); 
-    //     window.location.href = returnUrl;
-    // } else {
-    //     console.error("Order ID or Order Item ID is missing.");
-    // }
-    // })
+      
+  
+document.getElementById('retryPaymentButton').addEventListener('click', async function (event) {
+    event.preventDefault();  // Prevent the default link behavior
+    const orderId = document.getElementById('orderId').value;
+    const orderPrice = document.getElementById('orderPrice').value;
+
+    if (!orderId) {
+        alert('Order ID is missing!');
+        return;
+    }
+
+    try {
+        console.log('Retrying payment for order:', orderId);
+
+        const response = await fetch('/retryPayment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId })
 });
-    </script>
+console.log( response);
+
+        const { razorpayOrderId, orderId: newOrderId } = await response.json();
+
+        console.log('razorpayOrderId:', razorpayOrderId);
+        console.log('orderId:', newOrderId);
+
+        const options = {
+            key: 'rzp_test_QClWP75u7ELl6o',
+            amount: orderPrice * 100,  
+            currency: 'INR',
+            name: 'Feather',
+            description: 'Order Payment Retry',
+            order_id: razorpayOrderId,
+            handler: async (paymentDetails) => {
+                console.log('paymentDetails:', paymentDetails);
+
+                // Send the payment verification request to the backend
+                const verifyResponse = await fetch('/verifyPayment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...paymentDetails,
+                        orderId: newOrderId
+                    }),
+                });
+
+                if (verifyResponse.ok) {
+                    const { message } = await verifyResponse.json();
+                    console.log('Payment successful:', message);
+                    window.location.reload();  
+                                } else {
+                    window.location.href = '/paymentFailed';  // Redirect to failure page
+                }
+            },
+            prefill: {
+                name: 'Lucifer Morningstar',  // Pre-fill customer details
+                email: 'lucifer@example.com',
+                contact: '9078563412',
+            },
+            theme: {
+                color: '#1cc0a0',  // Custom theme color for Razorpay
+            },
+        };
+
+        // Open Razorpay payment gateway
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+        rzp.on('payment.failed', (response) => {
+            console.error('Payment failed:', response.error);
+            window.location.href = '/paymentFailed';  // Redirect to payment failure page
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to retry payment. Please try again later.');
+    }
+});
+
+});
+
+  
+  </script>
     
     <%- include('../layouts/footer') %>
 </body>

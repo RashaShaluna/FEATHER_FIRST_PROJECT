@@ -1,4 +1,7 @@
 <%- include('../adminlayouts/header') %>
+<head>
+  <!-- <link href="./node_modules/cropperjs/dist/cropper.min.css" rel="stylesheet"> -->
+</head>
 
 <style>
   input[type="text"],
@@ -191,6 +194,7 @@
                   <div class="col-lg-4 mb-4">
                     <div class="col-lg-6 mb-4">
                       <label class="form-label">Category</label>
+                      <label class="form-label">Category</label>
                       <select class="form-select border" style="width: 350px;" name="categoryId" id="category">
                         <% for (let i = 0; i <category .length; i++) { %>
                             <option value="<%=category [i]._id %>" <%= product.category.toString() ===category [i]._id.toString() ? 'selected' : '' %>>
@@ -214,7 +218,7 @@
                     
                     <div class="col-lg-4 mb-4">
                       <label class="form-label">Offer percentage</label>
-                      <input  id="offerPercentage" name="offerPercentage" type="text" class="form-control border" value="<%= product.offerPercentage %>">
+                      <input id="offerPercentage" name="offerPercentage" type="text" class="form-control border" value="<%= product.offerPercentage %>">
                       <div id="offerPercentage-error" class="error-message"></div>
                     </div>
                   </div>
@@ -297,10 +301,14 @@
       </div>
 </div>
 </div>
+
+
+  <!-- Repeat modals for each image if needed -->
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+  
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     
@@ -316,7 +324,7 @@
           document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
       
           // Validate Product Name
-          var productName = document.getElementById('product_name').value.trim();
+          const productName = document.getElementById('product_name').value.trim();
           if (productName === '') {
             document.getElementById('productName-error').textContent = 'Product name is required.';
             document.getElementById('productName-error').style.display = 'block';
@@ -331,16 +339,7 @@
             isValid = false;
           }
       
-      //  // Validate Offer Percentage 
-        const offerPercentage = document.getElementById('offerPercentage').value.trim();
-        if (offerPercentage !== '' && (isNaN(offerPercentage) || parseFloat(offerPercentage) < 0 || parseFloat(offerPercentage) > 1000)) {
-          document.getElementById('offerPercentage-error').textContent = 'Offer percentage must be between 0 and 1000.';
-          document.getElementById('offerPercentage-error').style.display = 'block';
-          isValid = false;
-        } else {
-          document.getElementById('offerPercentage-error').style.display = 'none';
-        }
-
+       
       
           // Validate Sale Price
           const salesPrice = document.querySelector('input[name="salesPrice"]').value.trim();
@@ -349,7 +348,24 @@
             document.getElementById('salesPrice-error').style.display = 'block';
             isValid = false;
           }
-     
+
+              const offerPercentageInput = document.querySelector('input[name="offerPercentage"]');
+      const offerPercentageError = document.getElementById('offerPercentage-error');
+      const offerPercentage = offerPercentageInput.value.trim();
+      
+      if (offerPercentage !== '') {
+        const percentageValue = parseFloat(offerPercentage);
+        if (isNaN(percentageValue)) {
+          offerPercentageError.textContent = 'Please enter a valid number';
+          offerPercentageError.style.display = 'block';
+          isValid = false;
+        } else if (percentageValue < 0 || percentageValue > 100) {
+          offerPercentageError.textContent = 'Offer percentage must be between 0 and 100';
+          offerPercentageError.style.display = 'block';
+          isValid = false;
+        }
+      }
+        
           // Validate Quantity
           const quantity = document.getElementById('quantity').value.trim();
           if (quantity === '' || isNaN(quantity) || parseInt(quantity) <= 0) {
@@ -374,23 +390,21 @@
             isValid = false;
           }
       
-        // Validate Images
+          // Validate Images
+          // const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
+          // let imageValid = false;
+          // imageInputs.forEach(input => {
+          //   if (input.files.length > 0) {
+          //     imageValid = true;
+          //   }
+          // });
+          // if (!imageValid) {
+          //   document.getElementById('images-error').textContent = 'Image is required';
+          //   document.getElementById('images-error').style.display = 'block';
+          //   isValid = false;
+          // }
       
-        // const imageInputs = document.querySelectorAll('input[type="file"][name="images"]');
-        //   let imageValid = false;
-        //   imageInputs.forEach(input => {
-        //     if (input.files.length > 0) {
-        //       imageValid = true;
-        //     }
-        //   });
-        //   if (!imageValid) {
-        //     document.getElementById('images-error').textContent = 'Image is required';
-        //     document.getElementById('images-error').style.display = 'block';
-        //     isValid = false;
-        //   }
-
-     return isValid;
-
+          return isValid;
         }
       
 function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
@@ -472,52 +486,48 @@ handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
 document.getElementById('editproductForm').addEventListener('submit', function(event) {
   event.preventDefault();
   
-  const productName = document.getElementById('product_name').value.trim();
-  const categoryId = document.getElementById('category').value;  
-
- 
   if (validateForm()) {
-      const formData = new FormData();
-    formData.append('name', productName);
-    formData.append('categoryId', categoryId);
-    // croppedImages.forEach((image, index) => {
-    //     formData.append('files', image);
-    // });    
-      const productId = '<%= product._id %>'; 
+    const formData = new FormData(this);
+    const productId = '<%= product._id %>'; 
 
-      fetch(`/admin/ediproduct/${productId}`, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-      
-        console.log('Success:', data);
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Product Added',
-          text: 'The product was edited successfully!',
-          confirmButtonText: 'OK'
-        }).then(()=>{
-          window.location.href = '/admin/product';
-          })
-
-      })
-      .catch(error => {
-        console.error('Error:', error);
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Something went wrong!',
-          confirmButtonText: 'OK'
-        });
+    fetch(`/admin/editproduct/${productId}`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: data.message,
+        timer: 2000,
+        showConfirmButton: false
+      }).then(() => {
+        window.location.href = '/admin/product';
       });
-    }
-  });
+      } else {
+        throw new Error(data.message || 'Update failed');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Something went wrong!',
+        confirmButtonText: 'OK'
+      });
+    });
+  }
+});
 
-// image Delete button functionality
+// Delete button functionality
   const deleteButtons = document.querySelectorAll('.delete-button');
   
   deleteButtons.forEach(button => {
@@ -580,7 +590,7 @@ document.getElementById('editproductForm').addEventListener('submit', function(e
     });
   });
 });
-
+ 
 
 
 </script>

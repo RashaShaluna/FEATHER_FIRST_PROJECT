@@ -223,7 +223,19 @@ router.post(
   userAuth.isBlocked,
   checkoutController.verifyRazorpay
 );
-router.get("/paymentFailed", checkoutController.paymentFailed);
+router.post(
+  "/retryPayment",
+  userAuth.isLogin,
+  userAuth.isBlocked,
+  checkoutController.retryPayment
+);
+
+router.get(
+  "/paymentFailed",
+  userAuth.isLogin,
+  userAuth.isBlocked,
+  checkoutController.paymentFailed
+);
 
 //wallet
 router.get(
@@ -255,14 +267,18 @@ router.post(
 
 // ----------------------google---------------------
 
-router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}));
 router.get(
-  '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.user = req.user._id; 
-    res.redirect('/home');
-  });
+    req.session.user = req.user._id;
+    res.redirect("/home");
+  }
+);
 
 // ----------------------facebook---------------------
 router.get(

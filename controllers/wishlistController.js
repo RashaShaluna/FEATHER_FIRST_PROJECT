@@ -109,7 +109,7 @@ const getWishlist = async (req, res) => {
     res.render("users/wishlist", {
       cart: cart || { items: [] },
       categories,
-      wishlist,
+      wishlist: wishlist || { products: [] },
       title: "Wishlist - Feather",
     });
   } catch (error) {

@@ -9,7 +9,7 @@ const { log } = require("console");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Coupon = require("../models/couponModel");
-const Wallet = require('../models/walletSchema');
+const Wallet = require("../models/walletSchema");
 
 function capitalizeFirstLetter(string) {
   if (!string) return "";
@@ -168,16 +168,15 @@ const addAddress = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    log('in place order')
+    log("in place order");
     const userId = req.session.user;
-    log('1')
+    log("1");
 
     const { selectedAddress, paymentMethod, products, couponCode } = req.body;
     const orderPrice = parseFloat(req.body.orderPrice);
-    log('1',req.body)
+    log("1", req.body);
 
-    
-    log('1')
+    log("1");
 
     const [address, cart, coupon] = await Promise.all([
       Address.findById(selectedAddress),
@@ -193,26 +192,26 @@ const placeOrder = async (req, res) => {
     if (!address) {
       return res.status(400).send("Invalid address selected.");
     }
-    log('2')
+    log("2");
 
     //wallet payment
-   
-    log('2')
+
+    log("2");
 
     const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-    log('2')
+    log("2");
 
     const orderItems = products.map((product) => ({
       productId: product.productId,
       originalQuantity: parseInt(product.quantity, 10),
       productPrice: parseFloat(product.productPrice),
-      paymentMethod:paymentMethod ,
-      paymentStatus: paymentMethod === "wallet" ? "Paid" : "pending", 
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentMethod === "wallet" ? "Paid" : "pending",
       refundMode: paymentMethod === "wallet" ? "wallet" : "No refund",
       unitPrice: parseFloat(product.effectivePrice),
       status: "Pending",
     }));
-log(orderItems)
+    log(orderItems);
     const newOrder = new Order({
       userId,
       orderUserDetails: userId,
@@ -221,8 +220,8 @@ log(orderItems)
       paymentStatus: "pending",
       status: "Pending",
       orderDate: new Date(),
-      paymentMethod:paymentMethod ,
-      paymentStatus: paymentMethod === "wallet" ? "Paid" : "pending", 
+      paymentMethod: paymentMethod,
+      paymentStatus: paymentMethod === "wallet" ? "Paid" : "pending",
       address: selectedAddress,
       estimatedDeliveryDate,
       orderQuantity: orderItems.reduce(
@@ -233,14 +232,16 @@ log(orderItems)
     });
     if (paymentMethod === "wallet") {
       const wallet = await Wallet.findOne({ userId });
-log('in wallet')
+      log("in wallet");
+      if (!wallet || wallet.balance <= 0 || wallet.balance < orderPrice) {
       if (!wallet || wallet.balance < orderPrice) {
         return res.status(400).json({
           success: false,
+          message: wallet.balance <= 0 ? "Your wallet balance is zero." : "Insufficient wallet balance.",
           message: "Insufficient wallet balance.",
         });
       }
-      log('in wallet')
+      log("in wallet");
 
       wallet.balance -= orderPrice;
 
@@ -252,7 +253,8 @@ log('in wallet')
 
       await wallet.save();
     }
-log(newOrder)
+  }
+    log(newOrder);
     await Promise.all([
       newOrder.save(),
       ...orderItems.map((item) =>
@@ -281,8 +283,6 @@ log(newOrder)
   }
 };
 
-
-
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_ID_KEY,
   key_secret: process.env.RAZORPAY_SECRET_KEY,
@@ -310,12 +310,12 @@ const createOrder = async (req, res) => {
     console.log("cart:", cart);
 
     const coupon = couponCode
-    ? await Coupon.findOne({
-        code: couponCode,
-        active: true,
-        isDeleted: false,
-      })
-    : null;
+      ? await Coupon.findOne({
+          code: couponCode,
+          active: true,
+          isDeleted: false,
+        })
+      : null;
     console.log("coupon:", coupon);
 
     const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
@@ -328,6 +328,7 @@ const createOrder = async (req, res) => {
       unitPrice: parseFloat(product.effectivePrice),
       status: "Pending",
       paymentMethod: "razorpay",
+      paymentStatus: "Failed",
     }));
     console.log("orderItems:", orderItems);
 
@@ -337,7 +338,7 @@ const createOrder = async (req, res) => {
       orderitems: orderItems,
       orderPrice,
       paymentMethod: "razorpay",
-      paymentStatus: "Pending",
+      paymentStatus: "Failed",
       status: "Pending",
       orderDate: new Date(),
       address: selectedAddress,
@@ -394,42 +395,55 @@ const createOrder = async (req, res) => {
 // verifying the razorpay and saving the order
 const verifyRazorpay = async (req, res) => {
   try {
-    log("verifyRazorpay called");
-    log("req.body:", req.body);
+    console.log("verifyRazorpay called");
+    console.log("req.body:", req.body);
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderId
+      orderId,
     } = req.body;
 
-    log("orderId:", orderId);
+    console.log("orderId:", orderId);
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
-    log("body:", body);
+    console.log("body:", body);
 
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
       .update(body)
       .digest("hex");
 
-    log("expectedSignature:", expectedSignature);
+    console.log("expectedSignature:", expectedSignature);
+
+    const order = await Order.findById(orderId);
+
     if (expectedSignature !== razorpay_signature) {
-      log("Signatures do not match");
-      const order = await Order.findById(orderId);
+      console.log("Signatures do not match");
+
       order.paymentStatus = "Failed";
+      order.status = "Failed"; 
       order.orderitems.forEach((item) => {
         item.paymentStatus = "Failed";
       });
+
       await order.save();
-      return res.status(400).send("Payment verification failed.");
+
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed. Order status updated to Failed.",
+      });
     }
-    log("Signatures match");
-    const order = await Order.findById(orderId);
+
+    console.log("Signatures match");
+
     order.paymentStatus = "Paid";
+    order.status = "Pending"; 
     order.orderitems.forEach((item) => {
       item.paymentStatus = "Paid";
     });
+
     await order.save();
 
     res.json({
@@ -437,11 +451,47 @@ const verifyRazorpay = async (req, res) => {
       message: "Order placed successfully",
     });
   } catch (error) {
-    log("Error verifying payment:", error);
-    res.redirect("/serverError");
+    console.error("Error verifying payment:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error during payment verification.",
+    });
   }
 };
 
+const retryPayment = async (req, res) => {
+  try {
+    log("in retry payment");
+    const { orderId } = req.body;
+
+    const order = await Order.findById(orderId);
+    if (!order) {
+      console.error("Order not found for orderId:", orderId);
+      return res.status(404).send("Order not found");
+    }
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: order.orderPrice * 100,
+      currency: "INR",
+      receipt: `receipt_${order._id}`,
+    });
+
+    console.log("Razorpay order created:", razorpayOrder);
+
+ 
+    console.log("Order updated with new Razorpay order ID:", order._id);
+
+    res.json({
+      success: true,
+      razorpayOrderId: razorpayOrder.id,
+      orderPrice: order.orderPrice,
+      orderId: order._id,
+    });
+  } catch (error) {
+    console.error("Error in retryPayment:", error);
+    res.status(500).send("Error while retrying payment.");
+  }
+};
 
 // payment failed
 const paymentFailed = async (req, res) => {
@@ -461,5 +511,6 @@ module.exports = {
   placeOrder,
   verifyRazorpay,
   createOrder,
+  retryPayment,
   paymentFailed,
 };

@@ -6,17 +6,6 @@ const setOfferPrice = async (productId) => {
   try {
     const product = await Product.findById(productId).populate("category");
 
-    if (!product) {
-      log(`Product with ID ${productId} not found`);
-      return;
-    }
-    log(`Product: ${product.name} with ID ${productId}`);
-    log(`Product offer active: ${product.isOfferActive}`);
-    log(`Product offer percentage: ${product.offerPercentage}`);
-
-    log(`Category: ${product.category.name} with ID ${product.category._id}`);
-    log(`Category offer active: ${product.category.isOfferActive}`);
-    log(`Category offer percentage: ${product.category.offerPercentage}`);
 
     const productOfferPercentage = product.isOfferActive
       ? product.offerPercentage
@@ -25,34 +14,26 @@ const setOfferPrice = async (productId) => {
       ? product.category.offerPercentage
       : 0;
 
-    log(`productOfferPercentage: ${productOfferPercentage}`);
-    log(`categoryOfferPercentage: ${categoryOfferPercentage}`);
-
     const activeOfferSource =
       productOfferPercentage > categoryOfferPercentage ? "product" : "category";
-    log(activeOfferSource);
 
     const largerOfferPercentage = Math.max(
       productOfferPercentage,
       categoryOfferPercentage
     );
-    log(`largerOfferPercentage: ${largerOfferPercentage}`);
 
+      
     if (largerOfferPercentage > 0) {
       product.offerPrice = Math.floor(
         product.salesPrice * (1 - largerOfferPercentage / 100)
       );
     } else {
-      product.offerPrice = null; // No active offers
+      product.offerPrice = null; 
     }
 
     product.activeOfferSource = activeOfferSource;
     const result = await product.save();
-    log(result);
-    log(
-      `Offer price updated for product ID ${productId}: ${product.offerPrice}`
-    );
-    log(result);
+  
   } catch (error) {
     log(`Error in setOfferPrice: ${error.message}`);
   }
