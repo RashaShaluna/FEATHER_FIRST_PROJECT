@@ -2,13 +2,21 @@ const { log } = require("console");
 const Coupon = require("../models/couponModel");
 const Product = require("../models/productModel");
 
+const Messages = {
+  EXISTING_COUPON: "A coupon with this name already exists",
+  COUPON_ADDED: "Coupon added successfully",
+  COUPON_NOT_FOUND: "Coupon not found",
+  COUPON_DELETED: "Coupon successfully deleted",
+  INVALID_COUPON: "Invalid coupon code",
+  DISCOUNT_GREATER: "Discount amount is greater than the Order Price",
+  COUPON_REMOVED: "Coupon removed successfully",
+};
 //couponpage
 const couponPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
     const skip = (page - 1) * limit;
-
     const [totalCoupons, coupons] = await Promise.all([
       Coupon.countDocuments({ isDeleted: false }),
       Coupon.find({ isDeleted: false })
@@ -26,7 +34,7 @@ const couponPage = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching coupons:", error);
-    res.status(500).send("Internal Server Error");
+    res.redirect("/pageNotFound");
   }
 };
 
@@ -46,11 +54,11 @@ const addCoupon = async (req, res) => {
     const existingCoupon = await Coupon.findOne({
       couponName: { $regex: new RegExp(`^${couponName}$`, "i") },
     });
-    
+
     if (existingCoupon) {
-      return res.status(200).json({
+      return res.json({
         success: false,
-        message: "A coupon with this name already exists",
+        message: Messages.EXISTING_COUPON,
       });
     }
 
@@ -68,16 +76,12 @@ const addCoupon = async (req, res) => {
 
     await newCoupon.save();
 
-    return res.status(200).json({
+    return res.json({
       success: true,
-      message: "Coupon added successfully",
+      message: Messages.COUPON_ADDED,
     });
   } catch (error) {
-    console.error("Error adding coupon:", error);
-    return res.status(200).json({
-      success: false,
-      message: "An error occurred while adding the coupon",
-    });
+    res.redirect("/serverError");
   }
 };
 
@@ -92,16 +96,12 @@ const deleteCoupon = async (req, res) => {
       { new: true }
     );
     if (!coupon) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Coupon not found" });
+      return res.json({ success: false, message: Messages.COUPON_NOT_FOUND });
     }
 
-    res.json({ success: true, message: "Coupon successfully deleted" });
-    log("done deleting coupon");
+    res.json({ success: true, message: Messages.COUPON_DELETED });
   } catch (error) {
-    console.error("Error deleting coupon:", error);
-    res.status(500).redirect("/serverError");
+    redirect("/serverError");
   }
 };
 
@@ -115,10 +115,9 @@ const deactivateCoupon = async (req, res) => {
       { $set: { active: false, isDeleted: false } }
     );
     res.redirect("/admin/coupon");
-    log("done deactivating coupon");
   } catch (err) {
     console.error(err);
-    res.status(500).redirect("/serverError");
+    res.redirect("/serverError");
   }
 };
 
@@ -131,12 +130,10 @@ const activeCoupon = async (req, res) => {
       { _id: couponId },
       { $set: { active: true, isDeleted: false } }
     );
-
     res.redirect("/admin/coupon");
-    log("done activating coupon");
   } catch (err) {
     console.error(err);
-    res.status(500).redirect("/serverError");
+    redirect("/serverError");
   }
 };
 
@@ -156,33 +153,34 @@ const getCoupon = async (req, res) => {
     res.json({ coupons });
   } catch (error) {
     console.error("Error fetching coupon:", error);
-    res.status(500).redirect("/serverError");
+    redirect("/serverError");
   }
 };
 
 //applycoupon
 const applyCoupon = async (req, res) => {
   try {
-    log("1");
     const { couponCode, subtotal } = req.body;
     const userId = req.session.user;
-    log(couponCode);
     const coupon = await Coupon.findOne({
       isDeleted: false,
       active: true,
       code: couponCode,
     });
-    log(coupon);
 
-    if (coupon.expireDate && new Date() > coupon.expireDate) {
-      return res.json({ success: false, message: "Coupon has expired" });
+    if (!coupon) {
+      return res.json({ success: false, message: Messages.INVALID_COUPON });
     }
 
     const discountAmount = coupon.discountAmount || 0;
     const minPurchaseAmount = coupon.minPurchaseAmount || 0;
-    log(discountAmount, "discount amount in apply code");
 
-
+    if (discountAmount > subtotal) {
+      return res.json({
+        success: false,
+        messages: Messages.DISCOUNT_GREATER,
+      });
+    }
 
     res.json({
       success: true,
@@ -192,7 +190,7 @@ const applyCoupon = async (req, res) => {
     });
   } catch (err) {
     log(err);
-    res.status(500).redirect("/serverError");
+    res.redirect("/serverError");
   }
 };
 
@@ -208,17 +206,9 @@ const removeCoupon = async (req, res) => {
       active: true,
     });
 
-    if (!coupon) {
-      return res.json({ success: false, message: "No such coupon applied" });
-    }
-
     req.session.appliedCoupons = req.session.appliedCoupons || [];
     const couponIndex = req.session.appliedCoupons.indexOf(couponCode);
     log(couponIndex);
-
-    // if (couponIndex === -1) {
-    //   return res.json({ success: false, message: 'Coupon not applied to the cart' });
-    // }
 
     req.session.appliedCoupons.splice(couponIndex, 1);
 
@@ -228,12 +218,12 @@ const removeCoupon = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Coupon removed successfully",
+      message: Messages.COUPON_REMOVED,
       orderPrice: orderPrice,
     });
   } catch (err) {
     console.error("Error removing coupon:", err);
-    res.status(500).redirect("/serverError");
+    res.redirect("/serverError");
   }
 };
 

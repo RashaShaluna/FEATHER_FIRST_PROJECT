@@ -73,7 +73,7 @@ const offerActive = async (req, res) => {
   }
 };
 
-// Deactivate product offer and reset offer price
+// Deactivate product offer 
 const offerDeactive = async (req, res) => {
   try {
     const productId = req.query.id;
@@ -99,7 +99,7 @@ const offerDeactive = async (req, res) => {
   }
 };
 
-// Activate category offer and update all related products' offer prices
+// Activate category offer
 const offerCategoryActive = async (req, res) => {
   try {
     const categoryId = req.query.id;
@@ -146,7 +146,7 @@ const offerCategoryActive = async (req, res) => {
   }
 };
 
-// Deactivate category offer and reset all related products' offer prices
+// Deactivate category offer 
 const offerCategoryDeactive = async (req, res) => {
   try {
     const categoryId = req.query.id;
@@ -160,7 +160,7 @@ const offerCategoryDeactive = async (req, res) => {
     if (category) {
       const products = await Product.find({ category: categoryId });
 
-      // Reset offer price for all products in the category
+      // Reset offer price
       for (const product of products) {
         await setOfferPrice(product._id);
       }

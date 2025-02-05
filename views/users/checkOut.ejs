@@ -756,8 +756,8 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
     let couponCode = document.getElementById('manualCouponCode').value;
     let applyCouponBtn = document.getElementById('apply-btn');
     let subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim()) || 0;
-    let  totalDiscountedPrice =0;
-    console.log('subtotal',subtotal);
+    let totalDiscountedPrice = 0;
+    console.log('subtotal', subtotal);
 
     if (couponCode) {
         fetch('/applyCoupon', {
@@ -765,24 +765,10 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ couponCode: couponCode }),
+            body: JSON.stringify({ couponCode: couponCode, subtotal: subtotal }), // Pass subtotal for validation
         })
-        .then(response => {
-            console.log('1'); 
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Data from server:', data);
-            if (data.message === 'Coupon already applied') {
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Coupon Already Applied',
-                    text: 'This coupon has already been applied to your checkout.',
-                }).then(() => {
-                    document.getElementById('manualCouponCode').value = '';
-                })
-                return;
-            }
             if (data.success) {
                 const minPurchaseAmount = data.minPurchaseAmount || 0;
                 console.log('minPurchaseAmount:', minPurchaseAmount);
@@ -797,65 +783,57 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     return;
                 }
 
-               let couponDiscount = data.discountAmount || 0;
+                let couponDiscount = data.discountAmount || 0;
 
                 Swal.fire({
                     icon: 'success',
                     title: 'Coupon Applied',
                     text: 'Coupon applied successfully!',
                 }).then(() => {
-                   
-                    //new 
-            let cartItem = document.querySelectorAll('.cart-items .price-tr'); // Select all rows with the `price-tr` class
-            let discountRow = document.querySelector('.summary-coupon-discount');
-            let remaingDiscount = couponDiscount; 
+                    let cartItem = document.querySelectorAll('.cart-items .price-tr'); // Select all rows with the `price-tr` class
+                    let discountRow = document.querySelector('.summary-coupon-discount');
+                    let remainingDiscount = couponDiscount;
 
-            cartItem.forEach((item, index) => {
-                let priceElement = item.querySelector('.price');
-                let ogPrice = parseFloat(priceElement.innerText.replace('₹', '').trim());
+                    cartItem.forEach((item, index) => {
+                        let priceElement = item.querySelector('.price');
+                        let ogPrice = parseFloat(priceElement.innerText.replace('₹', '').trim());
 
-                console.log('Original Price:', ogPrice);
+                        console.log('Original Price:', ogPrice);
 
-                let proporDisc = Math.round((ogPrice / subtotal) * couponDiscount);
-                console.log(proporDisc)
-                let finalDiscount = index === cartItem.length - 1
-                ? remaingDiscount 
-                : proporDisc;
+                        let proportionDisc = Math.round((ogPrice / subtotal) * couponDiscount);
+                        let finalDiscount = index === cartItem.length - 1 ? remainingDiscount : proportionDisc;
 
-                remaingDiscount -= finalDiscount;
+                        remainingDiscount -= finalDiscount;
 
-                let discountedPrice = ogPrice - finalDiscount;
-                console.log(discountedPrice)
-                totalDiscountedPrice += discountedPrice;
-                console.log(totalDiscountedPrice)
+                        let discountedPrice = ogPrice - finalDiscount;
+                        console.log(discountedPrice);
+                        totalDiscountedPrice += discountedPrice;
+                        console.log(totalDiscountedPrice);
 
+                        priceElement.innerHTML = `
+                            <td class='price'>
+                                <div>
+                                    <span>₹${discountedPrice.toFixed(2)}</span>
+                                </div>
+                                <div class='ogprice'>
+                                    <span style="text-decoration: line-through; font-size:12px">₹${ogPrice.toFixed(2)}</span>
+                                </div>
+                            </td>
+                        `;
 
-                // priceElement.innerText = `₹${discountedPrice.toFixed(2)}`;
-                priceElement.innerHTML =`
-                     <td class='price'>
-                    <div>
-                        <span>₹${discountedPrice.toFixed(2)}</span>
-                    </div>
-                    <div class='ogprice'>
-                        <span style="text-decoration: line-through; font-size:12px">₹${ogPrice.toFixed(2)}</span>
-                    </div>
-                    </td>
-                `;
+                        const hiddenPriceInput = document.querySelector(
+                            `input[name="products[${index}][productPrice]"]`
+                        );
+                        if (hiddenPriceInput) {
+                            hiddenPriceInput.value = discountedPrice.toFixed(2);
+                        }
+                    });
 
-                const hiddenPriceInput = document.querySelector(
-                    `input[name="products[${index}][productPrice]"]`
-                );
-                if (hiddenPriceInput) {
-                    hiddenPriceInput.value = discountedPrice.toFixed(2);
-                }
-            });
-                   console.log('doinggg')
                     discountRow.innerHTML = `
                         <td>Coupon Discount:</td>
                         <td>-₹${couponDiscount}</td>
                     `;
-                    const orderPrice =  totalDiscountedPrice ;
-                    console.log(orderPrice)
+                    const orderPrice = totalDiscountedPrice;
                     const amountPayableRow = document.querySelector('.summary-payable');
                     amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
 
@@ -868,10 +846,12 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     applyCouponBtn.style.display = 'none';
                 });
             } else {
+                // Show error messages returned from the backend
+                let errorMessage = data.message || "An error occurred";
                 Swal.fire({
                     icon: 'error',
-                    title: 'Invalid Coupon',
-                    text: 'Invalid coupon code!',
+                    title: 'Coupon Application Failed',
+                    text: errorMessage,
                 });
             }
         })
@@ -883,6 +863,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
         alert('Please enter a coupon code');
     }
 });
+
 
 
 //to delete coupon
