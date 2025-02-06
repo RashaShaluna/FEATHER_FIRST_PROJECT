@@ -1,5 +1,6 @@
 const User = require("../models/userSchema");
 
+const messages = {};
 //================================= user details showing=====================================
 const customerInfo = async (req, res) => {
   try {
@@ -13,23 +14,27 @@ const customerInfo = async (req, res) => {
     }
     // for pagination
     const limit = 3;
-    const userData = await User.find({
-      isAdmin: false,
-      $or: [
-        { name: { $regex: ".*" + search + ".*" } }, // star for  numbers and all letters  beggning of the search
-        { email: { $regex: ".*" + search + ".*" } },
-      ],
-    })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .exec();
-    const count = await User.find({
-      isAdmin: false,
-      $or: [
-        { name: { $regex: ".*" + search + ".*" } },
-        { email: { $regex: ".*" + search + ".*" } },
-      ],
-    }).countDocuments();
+
+    const [userData, count] = await Promise.all([
+      User.find({
+        isAdmin: false,
+        $or: [
+          { name: { $regex: ".*" + search + ".*" } }, // star for  numbers and all letters  beggning of the search
+          { email: { $regex: ".*" + search + ".*" } },
+        ],
+      })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec(),
+      User.find({
+        isAdmin: false,
+        $or: [
+          { name: { $regex: ".*" + search + ".*" } },
+          { email: { $regex: ".*" + search + ".*" } },
+        ],
+      }).countDocuments(),
+    ]);
+
     res.render("admin/customers", {
       title: "Customer - Feather",
       data: userData,

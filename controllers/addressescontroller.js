@@ -9,24 +9,23 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
+const messages = {
+  ADD_DELETE: "Address deleted successfully",
+};
 //================= load address ====================
 
 const loadAddress = async (req, res) => {
   try {
-    log("in address");
     const userId = req.session.user;
-    log(userId);
-    const categories = await Category.find({
-      islisted: true,
-      isDeleted: false,
-    });
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
-    const addresses = await Address.find({ userId, isDeleted: false });
-    console.log("Addresses:", addresses);
 
+    const [user, categories, addresses] = await Promise.all([
+      await Category.find({
+        islisted: true,
+        isDeleted: false,
+      }),
+      await User.findById(userId),
+      Address.find({ userId, isDeleted: false }),
+    ]);
     res.render("users/address", {
       title: "Address - Feather",
       categories,
@@ -43,16 +42,14 @@ const loadAddress = async (req, res) => {
 //  ========== add adress ================
 const addAddress = async (req, res) => {
   try {
-    log("in add address");
     const userId = req.session.user;
-    const categories = await Category.find({
-      islisted: true,
-      isDeleted: false,
-    });
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
+    const [user, categories] = await Promise.all([
+      User.findById(userId),
+      Category.find({
+        islisted: true,
+        isDeleted: false,
+      }),
+    ]);
 
     res.render("users/addAddress", {
       title: "Add Address - Feather",
@@ -69,7 +66,6 @@ const addAddress = async (req, res) => {
 // ================== save address =========================
 const addAddressVerify = async (req, res) => {
   try {
-    log("in adrress verifying  ");
     const {
       name,
       phone,
@@ -83,9 +79,7 @@ const addAddressVerify = async (req, res) => {
     } = req.body;
     const userId = req.session.user;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
+
     const capitalizedDistrict = capitalizeFirstLetter(district);
     const capitalizedName = capitalizeFirstLetter(name);
 
@@ -103,7 +97,6 @@ const addAddressVerify = async (req, res) => {
     };
     const newAddress = new Address(addressObj);
     await newAddress.save();
-    log(newAddress);
     res.redirect("/address");
   } catch (error) {
     console.log("error:", error);
@@ -114,21 +107,15 @@ const addAddressVerify = async (req, res) => {
 //   ============ delete address ===============
 const deleteAddress = async (req, res) => {
   try {
-    log("in the delete");
     const addressId = req.params.id;
     const userId = req.session.user;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
+
     await Address.findByIdAndUpdate(addressId, {
       isDeleted: true,
       deletedAt: new Date(),
     });
-    log("deleted");
-    res
-      .status(200)
-      .json({ success: true, message: "Address soft deleted successfully" });
+    res.json({ success: true, message: messages.ADD_DELETE });
   } catch (error) {
     console.log("error:", error);
     res.redirect("/serverError");
@@ -143,18 +130,16 @@ const editAddress = async (req, res) => {
     log(addressId);
     log(addressId);
     const userId = req.session.user;
-    const categories = await Category.find({
-      islisted: true,
-      isDeleted: false,
-    });
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
-    const address = await Address.findById(addressId, { isDeleted: false });
-    if (!address) {
-      return res.redirect("/serverError");
-    }
+
+    const [user, categories, addresses] = await Promise.all([
+      await Category.find({
+        islisted: true,
+        isDeleted: false,
+      }),
+      await User.findById(userId),
+      Address.find({ userId, isDeleted: false }),
+    ]);
+
     res.render("users/editAddress", {
       title: "Edit Address - Feather",
       categories,
@@ -171,7 +156,6 @@ const editAddress = async (req, res) => {
 //   ============ update address ===============
 const editAddressVerify = async (req, res) => {
   try {
-    log("in address verifying  ");
     const {
       name,
       phone,
@@ -185,9 +169,7 @@ const editAddressVerify = async (req, res) => {
     } = req.body;
     const userId = req.session.user;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.redirect("/serverError");
-    }
+
     const capitalizedDistrict = capitalizeFirstLetter(district);
     const capitalizedName = capitalizeFirstLetter(name);
 

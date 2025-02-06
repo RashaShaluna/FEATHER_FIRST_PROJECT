@@ -437,9 +437,9 @@ input[type="radio"]:checked {
                                     <td><a href="#"><%= item.productId.name %></a></td>
                                     <% let effectivePrice = item.productId.salesPrice; %> 
 
-                                    <% if (item.productId.activeOfferSource === 'product' && item.productId.isOfferActive === true) { %>
+                                    <% if (item.productId.activeOfferSource === 'product' && item.productId.isOfferActive === true && item.productId.offerEndDate > new Date()) { %>
                                         <% effectivePrice = item.productId.offerPrice; %>
-                                    <% } else if (item.productId.activeOfferSource === 'category' && item.productId.category && item.productId.category.isOfferActive === true ) { %>
+                                    <% } else if (item.productId.activeOfferSource === 'category' && item.productId.category && item.productId.category.isOfferActive === true && item.productId.category.offerEndDate > new Date() ) { %>
                                         <% effectivePrice = item.productId.offerPrice; %>
                                     <% } %>
                         
@@ -846,7 +846,6 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                     applyCouponBtn.style.display = 'none';
                 });
             } else {
-                // Show error messages returned from the backend
                 let errorMessage = data.message || "An error occurred";
                 Swal.fire({
                     icon: 'error',

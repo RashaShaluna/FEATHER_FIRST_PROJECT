@@ -1,5 +1,11 @@
 const Category = require("../models/category");
 
+const messages = {
+  NAME_DESCRIPTION_REQUIRED: "Name and Description are required!",
+  CAT_EXIST: "Category already exists",
+  CAT_ADDED: "Category added successfully!",
+  CAT_UPDATE: "Category updated successfully",
+};
 // =========================================================== Category ========================================================================================
 const categoryInfo = async (req, res) => {
   try {
@@ -7,7 +13,6 @@ const categoryInfo = async (req, res) => {
     if (req.query.search) {
       search = req.query.search;
     }
-
     const categories = await Category.find({
       name: { $regex: search, $options: "i" },
       isDeleted: false,
@@ -26,10 +31,9 @@ const categoryInfo = async (req, res) => {
 
 // ========================================================== Add Category page ==========================================================================================
 const addCategoryPage = async (req, res) => {
-  const categoryId = req.params.id;
-  const categories = await Category.findById(categoryId);
   try {
-    console.log("in add");
+    const categoryId = req.params.id;
+    const categories = await Category.findById(categoryId);
 
     res.render("admin/addCategory", { title: "Add Category", categories });
   } catch (error) {
@@ -39,33 +43,24 @@ const addCategoryPage = async (req, res) => {
 
 // ======================================================= Add category ======================================================================================================
 const addCategory = async (req, res) => {
-  console.log("in add cat1");
-
-  const { name, description, offerPercentage, offerStartDate, offerEndDate } =
-    req.body;
   try {
+    const { name, description, offerPercentage, offerStartDate, offerEndDate } =
+      req.body;
     const lowerCaseName = name.toLowerCase();
 
-    console.log("in add cat 2");
-
     if (!name || !description) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Name and Description are required!",
-        });
+      return res.status(400).json({
+        success: false,
+        message: messages.NAME_DESCRIPTION_REQUIRED,
+      });
     }
 
-    console.log("in add cat 3");
     const existingCategory = await Category.findOne({
       name: { $regex: new RegExp(`^${lowerCaseName}$`, "i") },
     });
-    console.log("in add cat 4");
     if (existingCategory) {
-      return res.status(400).json({ message: "Category already exists" });
+      return res.status(400).json({ message: messages.CAT_EXIST });
     }
-    console.log("in add cat 5");
 
     const newCategory = new Category({
       name,
@@ -77,18 +72,10 @@ const addCategory = async (req, res) => {
 
     const result = await newCategory.save();
 
-    console.log("saved");
-    res
-      .status(201)
-      .json({ success: true, message: "Category added successfully!" });
+    res.json({ success: true, message: messages.CAT_ADDED });
   } catch (error) {
     console.log("error in adding", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Server Error. Please try again later.",
-      });
+    res.redirect("/serverError");
   }
 };
 
@@ -96,10 +83,8 @@ const addCategory = async (req, res) => {
 
 const listCategory = async (req, res) => {
   try {
-    console.log("list");
     let id = req.query.id;
     await Category.updateOne({ _id: id }, { $set: { islisted: true } });
-    console.log("listed");
 
     res.redirect("/admin/category");
   } catch (error) {
@@ -111,12 +96,8 @@ const listCategory = async (req, res) => {
 
 const unListCategory = async (req, res) => {
   try {
-    console.log("unlist");
-
     let id = req.query.id;
     await Category.updateOne({ _id: id }, { $set: { islisted: false } });
-    console.log("unlisted");
-
     res.redirect("/admin/category");
   } catch (error) {
     console.log(error);
@@ -144,15 +125,12 @@ const editCategory = async (req, res) => {
     });
 
     if (existingCategory) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Another category with this name already exists",
-        });
-    };
+      return res.json({
+        success: false,
+        message: messages.CAT_EXIST,
+      });
+    }
 
-      
     await Category.updateOne(
       { _id: categoryId },
       {
@@ -166,10 +144,10 @@ const editCategory = async (req, res) => {
       }
     );
 
-    res.json({ success: true, message: "Category updated successfully" });
+    res.json({ success: true, message: messages.CAT_UPDATE });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.redirect("/serverError");
   }
 };
 
@@ -193,7 +171,7 @@ const checkCategory = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.redirect("/serverError");
   }
 };
 
@@ -204,9 +182,7 @@ const softDeleteCategory = async (req, res) => {
 
     // Validate categoryId
     if (!categoryId || categoryId === "null") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid category ID" });
+      return res.json({ success: false, message: "Invalid category ID" });
     }
 
     console.log("Delete category with ID:", categoryId);
@@ -228,7 +204,7 @@ const softDeleteCategory = async (req, res) => {
     }
   } catch (error) {
     console.error("Error deleting category:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.redirect("/serverError");
   }
 };
 

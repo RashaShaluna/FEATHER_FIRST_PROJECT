@@ -178,7 +178,7 @@ const applyCoupon = async (req, res) => {
     if (discountAmount > subtotal) {
       return res.json({
         success: false,
-        messages: Messages.DISCOUNT_GREATER,
+        message: Messages.DISCOUNT_GREATER,
       });
     }
 

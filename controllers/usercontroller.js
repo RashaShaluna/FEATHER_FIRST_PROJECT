@@ -4,13 +4,34 @@ const Category = require("../models/category");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
-// const crypto = require('crypto');
 const Otp = require("../models/otp");
 const jwt = require("jsonwebtoken");
 const { log } = require("console");
 const flash = require("connect-flash");
 const Cart = require("../models/cartModel");
 const Wishlist = require("../models/wishlistModel");
+
+const messages = {
+  emailRequired: "Email is required",
+  passwordNotMatch: "Password do not match",
+  incorrectPass: "Incorrect Password",
+  userExists: "User already exists",
+  userNot: "User not found",
+  blockedUser: "User is blocked by admin",
+  numberExist: "Phone number already exists",
+  feildRequired: "All fields are required",
+  mailFailed: "Email sending failed. Please try again.",
+  invalidOtp: "Invalid OTP , please try again",
+  invalidId: "Invalid Id",
+  otpResend: "OTP resent successfully",
+  otpFailed: "Failed to send OTP, please try again",
+  emailRequired: "Email is required",
+  passRequired: "Password required",
+  mailAndPassReq: "Email and Password are required",
+  invalidToken: "Invalid or expired token",
+  newPassNotMatch: "New password do not match",
+};
+
 //=============================================404 page========================================================================
 const pageNotFound = async (req, res) => {
   try {
@@ -33,7 +54,6 @@ const serverError = async (req, res) => {
 // =================================================landing page===============================================================
 const loadlandingpage = async (req, res) => {
   try {
-    console.log(req.session); // Check if session is being persisted
     const categories = await Category.find({
       islisted: true,
       isDeleted: false,
@@ -42,7 +62,7 @@ const loadlandingpage = async (req, res) => {
       isBlocked: false,
       isDeleted: false,
     }).limit(4);
-    // log('product',products)
+
     res.render("users/landingpage", {
       title: "Feather - Homepage",
       products: products,
@@ -50,7 +70,7 @@ const loadlandingpage = async (req, res) => {
     });
     console.log("landing page loaded");
   } catch (error) {
-    console.log("Home page not found", error.message); // backend error
+    console.log("Home page not found", error.message);
     res.redirect("/pageNotFound");
   }
 };
@@ -59,7 +79,6 @@ const loadlandingpage = async (req, res) => {
 
 const loadHome = async (req, res) => {
   try {
-    console.log("home page loaded");
     const user = req.session.user;
 
     const [categories, products, wishlist] = await Promise.all([
@@ -96,8 +115,6 @@ const loadHome = async (req, res) => {
 };
 // ====================================register load=================================================================
 const loadregister = async (req, res) => {
-  console.log("welcome to register");
-
   try {
     const categories = await Category.find({
       islisted: true,
@@ -122,11 +139,10 @@ const registerVerify = async (req, res) => {
       User.findOne({ phone: req.body.phone }),
     ]);
 
-    console.log("verfying1");
     if (req.body.password !== req.body.cpassword) {
       return res.render("users/register", {
         title: "Feather - registerpage",
-        message: "Password do not match",
+        message: messages.passwordNotMatch,
         categories,
       });
     }
@@ -134,14 +150,14 @@ const registerVerify = async (req, res) => {
     if (findUser) {
       return res.render("users/register", {
         title: "Feather - registerpage",
-        message: "User already exists",
+        message: messages.userExists,
         categories,
       });
     }
     if (findPhone) {
       return res.render("users/register", {
         title: "Feather - registerpage",
-        message: "Phone already exists",
+        message: messages.numberExist,
         categories,
       });
     }
@@ -153,13 +169,13 @@ const registerVerify = async (req, res) => {
     if (!req.body.email || req.body.email.trim() === "") {
       return res.render("users/register", {
         title: "Feather - registerpage",
-        message: "All feilds required",
+        message: messages.feildRequired,
       });
     }
     if (!emailSent) {
       return res.render("users/register", {
         title: "Feather - registerpage",
-        message: "Email sending failed. Please try again.",
+        message: messages.mailFailed,
         categories,
       });
     }
@@ -171,13 +187,11 @@ const registerVerify = async (req, res) => {
       phone: req.body.phone,
     };
 
-    console.log("User session data:", req.session.userData);
-
     console.log("otp is ", otp);
 
     res.render("users/otp", { title: "OTP Verification" });
   } catch (error) {
-    console.log("Verifying register has a problem", error); // backend error
+    console.log("Verifying register has a problem", error);
     res.redirect("/pageNotFound");
   }
 };
@@ -238,23 +252,18 @@ const verifyOtp = async (req, res) => {
         phone: user.phone,
       });
 
-      await saveUserData.save(); // Save the user only if OTP is valid
-      req.session.user = saveUserData._id; // Store user ID in session
+      await saveUserData.save();
+      req.session.user = saveUserData._id;
       return res.json({ success: true, redirectUrl: "/home" });
     } else {
-      // OTP is invalid, handle the error
-      console.log("Invalid OTP entered.");
       return res.json({
         success: false,
-        message: "Invalid OTP, please try again.",
+        message: messages.invalidOtp,
       });
     }
   } catch (error) {
-    console.error(error.message + " error in verifyOtp");
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error.",
-    });
+    console.log("Error in verifying OTP", error);
+    res.redirect("/serverError");
   }
 };
 
@@ -266,7 +275,7 @@ const resendOtp = async (req, res) => {
     if (!email) {
       return res
         .status(400)
-        .json({ success: false, message: "Email is not found in session " });
+        .json({ success: false, message: messages.invalidId });
     }
 
     const otp = generateOtp();
@@ -277,14 +286,12 @@ const resendOtp = async (req, res) => {
 
     if (emailSent) {
       console.log("OTP resent successfully:", otp);
-      res
-        .status(200)
-        .json({ success: true, message: "OTP resent successfully" });
+      res.status(200).json({ success: true, message: messages.otpResend });
     } else {
       console.error("Failed to resend OTP");
       res.status(500).json({
         success: false,
-        message: "Failed to send OTP, please try again",
+        message: messages.otpFailed,
       });
     }
   } catch (error) {
@@ -295,7 +302,6 @@ const resendOtp = async (req, res) => {
 
 // ==============================================Login load====================================================================
 const loadLogin = async (req, res) => {
-  console.log("welcome to login");
   try {
     const categories = await Category.find({
       islisted: true,
@@ -305,7 +311,6 @@ const loadLogin = async (req, res) => {
       title: "Feather - loginpage",
       categories: categories,
     });
-    console.log("login page");
   } catch (error) {
     console.log("Login page not found", error.message);
     res.redirect("/pageNotFound");
@@ -314,22 +319,25 @@ const loadLogin = async (req, res) => {
 
 //===================================================Verify login================================================================
 const loginVerify = async (req, res) => {
-  const categories = await Category.find({ islisted: true, isDeleted: false });
-  const products = await Product.find({
-    isBlocked: false,
-    isDeleted: false,
-  }).limit(4);
-
   try {
     const { email, password } = req.body;
+
+    const [categories, products, findUser] = await Promise.all([
+      Category.find({ islisted: true, isDeleted: false }),
+      Product.find({
+        isBlocked: false,
+        isDeleted: false,
+      }).limit(4),
+      User.findOne({ isAdmin: 0, email: email }),
+    ]);
 
     if (!email || !password) {
       const message =
         !email && !password
-          ? "Email and Password are required"
+          ? messages.mailAndPassReq
           : !email
-          ? "Email is required"
-          : "Password is required";
+          ? messages.emailRequired
+          : messages.passRequired;
       return res.render("users/login", {
         title: "Feather - loginpage",
         message,
@@ -338,12 +346,10 @@ const loginVerify = async (req, res) => {
       });
     }
 
-    const findUser = await User.findOne({ isAdmin: 0, email: email });
-
     if (!findUser) {
       return res.render("users/login", {
         title: "Feather - loginpage",
-        message: "User not found",
+        message: messages.userNot,
         categories,
         products,
       });
@@ -352,7 +358,7 @@ const loginVerify = async (req, res) => {
     if (findUser.isBlocked) {
       return res.render("users/login", {
         title: "Feather - loginpage",
-        message: "User is blocked by admin",
+        message: messages.blockedUser,
         categories,
         products,
       });
@@ -363,18 +369,14 @@ const loginVerify = async (req, res) => {
     if (!passwordMatch) {
       return res.render("users/login", {
         title: "Feather - loginpage",
-        message: "Incorrect Password",
+        message: messages.incorrectPass,
         categories,
         products,
       });
     }
 
     req.session.user = findUser._id;
-    // req.session.user.save();
-    log("saved");
     res.redirect("/home");
-
-    // res.render('users/homepage', { title: 'Home page -Feather',categories, products});
   } catch (error) {
     console.log("Login page not found", error.message);
     res.render("users/login", {
@@ -391,7 +393,6 @@ const logOut = async (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        console.log("Error in logout the session");
         return res.redirect("/pageNotFound");
       }
       return res.redirect("/");
@@ -419,13 +420,13 @@ const forgot = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.json({ success: false, message: "Email is required" });
+      return res.json({ success: false, message: messages.emailRequired });
     }
 
     const findUser = await User.findOne({ email });
 
     if (!findUser) {
-      return res.json({ success: false, message: "User not found" });
+      return res.json({ success: false, message: messages.userNot });
     }
 
     const secret = process.env.JWT_SECRET + findUser.password;
@@ -447,7 +448,7 @@ const forgot = async (req, res) => {
     } else {
       return res
         .status(500)
-        .json({ success: false, message: "Failed to send email" });
+        .json({ success: false, message: messages.mailFailed });
     }
   } catch (error) {
     console.log("Error in forgot password:", error);
@@ -492,7 +493,9 @@ const resetPass = async (req, res) => {
   try {
     const user = await User.findById(_id);
     if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid Id" });
+      return res
+        .status(400)
+        .json({ success: false, message: messages.invalidId });
     }
 
     const secret = process.env.JWT_SECRET + user.password;
@@ -503,10 +506,9 @@ const resetPass = async (req, res) => {
         title: "Feather - reset password",
       });
     } catch (error) {
-      console.log("Token verification error:", error);
       return res
         .status(400)
-        .json({ success: false, message: "Invalid or expired token" });
+        .json({ success: false, message: messages.invalidToken });
     }
   } catch (error) {
     console.log("Error in reset password:", error);
@@ -522,24 +524,25 @@ const confirmpass = async (req, res) => {
 
     const user = await User.findById(_id);
     if (!user) {
-      return res.status(400).json({ success: false, message: "Invalid Id" });
+      return res
+        .status(400)
+        .json({ success: false, message: messages.invalidId });
     }
 
     const secret = process.env.JWT_SECRET + user.password;
     try {
       const payLoad = jwt.verify(token, secret);
-      // res.render('users/resetpass', { email: user.email,title:"Feather - reset password" });
     } catch (error) {
       console.log("Token verification error:", error);
       return res
         .status(400)
-        .json({ success: false, message: "Invalid or expired token" });
+        .json({ success: false, message: messages.invalidToken });
     }
 
     if (password !== confirmPassword) {
       return res
         .status(400)
-        .json({ success: false, message: "Passwords do not match" });
+        .json({ success: false, message: messages.passwordNotMatch });
     }
     const hashnew = await bcrypt.hash(password, 10);
     user.password = hashnew;
@@ -658,8 +661,6 @@ const shop = async (req, res) => {
     ]);
     const cart = (await Cart.findOne({ userId: userId })) || { items: [] };
 
-    log(cart);
-
     colors.sort((a, b) => a.localeCompare(b));
 
     const totalPages = Math.ceil(totalProducts / limit);
@@ -722,7 +723,6 @@ const productView = async (req, res) => {
       }).limit(4),
       Wishlist.findOne({ userId: user }),
     ]);
-    log(wishlist);
     let isInCart = false;
     let isInWishlist = false;
 
@@ -767,16 +767,16 @@ const productView = async (req, res) => {
 // ======================================================== User profile ===================================================
 const userProfile = async (req, res) => {
   try {
-    log("in profile");
-
     const userId = req.session.user;
 
     if (userId) {
-      const user = await User.findOne({ _id: userId, isBlocked: false });
-      const categories = await Category.find({
-        islisted: true,
-        isDeleted: false,
-      });
+      const [user, categories] = await Promise.all([
+        User.findOne({ _id: userId, isBlocked: false }),
+        Category.find({
+          islisted: true,
+          isDeleted: false,
+        }),
+      ]);
       return res.render("users/userProfile", {
         title: "Account - Feather",
         activeTab: "account-details",
@@ -798,11 +798,14 @@ const editProfile = async (req, res) => {
     const userId = req.session.user;
 
     if (userId) {
-      const user = await User.findOne({ _id: userId, isBlocked: false });
-      const categories = await Category.find({
-        islisted: true,
-        isDeleted: false,
-      });
+      const [user, categories] = await Promise.all([
+        User.findOne({ _id: userId, isBlocked: false }),
+        Category.find({
+          islisted: true,
+          isDeleted: false,
+        }),
+      ]);
+
       return res.render("users/editprofile", {
         title: "Edit account - Feather",
         activeTab: "account-details",
@@ -826,12 +829,13 @@ const updateprofile = async (req, res) => {
     const { name, email, phone, password, confirmPassword, currentPassword } =
       req.body;
 
-    const categories = await Category.find({
-      islisted: true,
-      isDeleted: false,
-    });
-
-    const user = await User.findById(userId);
+    const [user, categories] = await Promise.all([
+      await User.findById(userId),
+      Category.find({
+        islisted: true,
+        isDeleted: false,
+      }),
+    ]);
     if (!user) {
       return res.redirect("/serverError");
     }
@@ -841,7 +845,7 @@ const updateprofile = async (req, res) => {
       if (!isMatch) {
         return res.render("users/editprofile", {
           title: "Account - Feather",
-          message: "Current password is incorrect",
+          message: messages.incorrectPass,
           activeTab: "account-details",
           categories: categories,
           user: user,
@@ -853,7 +857,7 @@ const updateprofile = async (req, res) => {
       if (password !== confirmPassword) {
         return res.render("users/editprofile", {
           title: "Account - Feather",
-          message: "New passwords do not match",
+          message: messages.newPassNotMatch,
           activeTab: "account-details",
           categories: categories,
           user: user,

@@ -5,10 +5,16 @@ const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 const PDFDocument = require("pdfkit");
 
+const messages = {
+  mailAndPassReq: "Email and Password are required",
+  passRequired: "Password required",
+  emailRequired: "Email is required",
+  incorrectPass: "Incorrect Password",
+  loginFailed: "Login failed, please try again",
+};
 // =======================Load admin login page=======================
 const Login = async (req, res) => {
   try {
-    console.log("admin Login");
     res.render("admin/adminLogin", { title: "Admin login" });
   } catch (error) {
     res.redirect("/pageNotPage");
@@ -18,37 +24,33 @@ const Login = async (req, res) => {
 
 // =======================Verify admin login ================================
 const admincheck = async (req, res) => {
-  console.log("Verifying admin cre.");
   try {
     const { email, password } = req.body;
-    console.log("Request body:", req.body);
 
     if (!email && !password) {
       return res.render("admin/adminLogin", {
         title: "Feather-Admin Login",
-        message: "Password and Email required!",
+        message: messages.mailAndPassReq,
       });
     }
 
     if (!email) {
       return res.render("admin/adminLogin", {
         title: "Feather-Admin Login",
-        message: " Email required!",
+        message: messages.emailRequired,
       });
     }
 
     if (!password) {
       return res.render("admin/adminLogin", {
         title: "Feather-Admin Login",
-        message: "Password required!",
+        message: messages.passRequired,
       });
     }
     const admin = await User.findOne({ isAdmin: true, email: email });
-    console.log("Admin from DB:", admin);
 
     if (admin) {
       const isMatch = await bcrypt.compare(password, admin.password);
-      console.log("Password Match:", isMatch);
 
       if (isMatch) {
         req.session.admin = true;
@@ -56,24 +58,14 @@ const admincheck = async (req, res) => {
       } else {
         return res.render("admin/adminLogin", {
           title: "Feather-Admin Login",
-          message: "Incorrect password",
+          message: messages.incorrectPass,
         });
       }
-      // if (isMatch) {
-      //     // Set session for admin user
-      //     req.session.admin = true;
-      //     return res.redirect('/admin/dashboard');
-      // } else {
-      //     return res.render('admin/adminLogin', {
-      //         title: 'Feather-Admin Login',
-      //         message: 'Incorrect password'
-      //     });
-      // }
     } else {
       console.log("Not an admin");
       return res.render("admin/adminLogin", {
         title: "Feather-Admin Login",
-        message: "Login failed, please try again",
+        message: messages.loginFailed,
       });
     }
   } catch (error) {
@@ -85,7 +77,6 @@ const admincheck = async (req, res) => {
 //==============================Load  dashboard============================
 const dashboard = async (req, res) => {
   try {
-    console.log("req.query:", req.query);
     const currentDate = new Date();
     const month = req.query.month
       ? parseInt(req.query.month)
@@ -105,10 +96,6 @@ const dashboard = async (req, res) => {
       endDate = new Date(year + 1, 0, 0);
     }
 
-    console.log("startDate:", startDate);
-    console.log("endDate:", endDate);
-
-    // Top Products
     const topProducts = await Order.aggregate([
       { $unwind: "$orderitems" },
       {
@@ -134,7 +121,6 @@ const dashboard = async (req, res) => {
 
     console.log("topProducts:", topProducts);
 
-    // Top Categories
     const topCategories = await Order.aggregate([
       { $unwind: "$orderitems" },
       {
@@ -167,8 +153,6 @@ const dashboard = async (req, res) => {
       { $limit: 10 },
     ]);
 
-    console.log("topCategories:", topCategories);
-    console.log("1) Order Status Data");
     const statusData = await Order.aggregate([
       { $unwind: "$orderitems" },
       { $match: { createdOn: { $gte: startDate, $lte: endDate } } },
@@ -180,9 +164,6 @@ const dashboard = async (req, res) => {
       },
     ]);
 
-    console.log("1) statusData:", statusData);
-
-    // Format Status Data
     const orderStatus = {
       Pending: 0,
       Processing: 0,
@@ -191,8 +172,6 @@ const dashboard = async (req, res) => {
       Cancelled: 0,
       Returned: 0,
     };
-
-    console.log("1) orderStatus:", orderStatus);
 
     statusData.forEach((item) => {
       console.log("1) item:", item);
@@ -204,9 +183,6 @@ const dashboard = async (req, res) => {
       }
     });
 
-    console.log("1) orderStatus after loop:", orderStatus);
-
-    // Render Dashboard
     res.render("admin/dashboard", {
       title: "Dashboard - Feather",
       topProducts,
@@ -216,8 +192,6 @@ const dashboard = async (req, res) => {
       year,
       chartType,
     });
-
-    console.log("Admin dashboard loaded");
   } catch (error) {
     console.error("Error loading admin dashboard:", error);
     res.redirect("/admin/pageerror");
@@ -238,7 +212,6 @@ const pageerror = async (req, res) => {
 
 const adminLogout = async (req, res) => {
   try {
-    console.log("in log out admin");
     req.session.destroy((err) => {
       if (err) {
         console.log("Error in logout session");
@@ -348,8 +321,7 @@ const salesReport = async (req, res) => {
           model: User,
         }),
     ]);
-    log(orders, "orders");
-    log(totalOrders, "totalOrders");
+
     const totalPages = Math.ceil(totalOrders / pageSize);
 
     res.render("admin/salesPage", {

@@ -8,18 +8,17 @@ const fs = require("fs");
 const { log } = require("console");
 const mongoose = require("mongoose");
 
+const messages = {
+  EXISTING_PRODUCT: "Product already in wishlist",
+  PRODUCT_ADDED: "Product added to wishlist",
+  WISHLIST_NOT_FOUND: "Wishlist not found",
+  PRODUCT_REMOVED: "Product removed from wishlist",
+};
 // add to wishlist
 const addToWishlist = async (req, res) => {
   try {
-    log("in add");
     const { productId } = req.body;
     const userId = req.session.user;
-
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
 
     let wishlist = await Wishlist.findOne({ userId });
 
@@ -34,37 +33,28 @@ const addToWishlist = async (req, res) => {
     if (existingProduct) {
       return res
         .status(400)
-        .json({ success: false, message: "Product already in wishlist" });
+        .json({ success: false, message: messages.EXISTING_PRODUCT });
     }
 
     wishlist.products.push({ productsId: productId });
     await wishlist.save();
     log("saved");
-    res.json({ success: true, message: "Product added to wishlist" });
+    res.json({ success: true, message: messages.PRODUCT_ADDED });
   } catch (error) {
     console.error("Error adding to wishlist:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status("/serverError");
   }
 };
 // Remove from Wishlist
 const removeFromWishlist = async (req, res) => {
   try {
-    log("inremove");
     const { productId } = req.body;
     const userId = req.session.user;
-
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
 
     const wishlist = await Wishlist.findOne({ userId });
 
     if (!wishlist) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Wishlist not found" });
+      return res.json({ success: false, message: messages.WISHLIST_NOT_FOUND });
     }
 
     wishlist.products = wishlist.products.filter(
@@ -73,22 +63,16 @@ const removeFromWishlist = async (req, res) => {
 
     await wishlist.save();
     log("done");
-    res.json({ success: true, message: "Product removed from wishlist" });
+    res.json({ success: true, message: messages.PRODUCT_REMOVED });
   } catch (error) {
     console.error("Error removing from wishlist:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.redirect("/serverError");
   }
 };
 
 const getWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
-
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ success: false, message: "User not logged in" });
-    }
 
     const [wishlist, categories, cart] = await Promise.all([
       Wishlist.findOne({ userId }).populate({
@@ -114,7 +98,7 @@ const getWishlist = async (req, res) => {
     });
   } catch (error) {
     console.error("Error getting wishlist:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.redirect("/serverError");
   }
 };
 module.exports = {

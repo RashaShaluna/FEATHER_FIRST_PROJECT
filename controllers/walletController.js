@@ -15,14 +15,10 @@ const walletPage = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const user = req.session.user;
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
+ 
 
-    console.log("Fetching wallet...");
 
-    // Fetch wallet including all transactions
-    const wallet = await Wallet.findOne({ userId: req.session.user }).populate("transactions");
+    const wallet = await Wallet.findOne({ userId: req.session.user });
 
     if (!wallet) {
       const newWallet = new Wallet({
@@ -31,7 +27,6 @@ const walletPage = async (req, res) => {
         transactions: [],
       });
       await newWallet.save();
-      console.log("New wallet created");
 
       return res.render("users/walletPage", {
         title: "My Wallet - Feather",
@@ -43,12 +38,11 @@ const walletPage = async (req, res) => {
       });
     }
 
+    wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     const totalTransactions = wallet.transactions.length;
     const totalPages = Math.ceil(totalTransactions / limit);
-
     const paginatedTransactions = wallet.transactions.slice(skip, skip + limit);
-
-    console.log(`Total transactions: ${totalTransactions}, Showing page ${page}`);
 
     return res.render("users/walletPage", {
       title: "My Wallet - Feather",
@@ -66,6 +60,7 @@ const walletPage = async (req, res) => {
     res.redirect("/serverError");
   }
 };
+
 
 module.exports = {
   walletPage,

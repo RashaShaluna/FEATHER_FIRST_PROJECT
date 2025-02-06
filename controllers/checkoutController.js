@@ -21,10 +21,16 @@ const calculateEstimatedDeliveryDate = (daysToAdd) => {
   return date;
 };
 
+const messages = {
+  ADDRESS_NOT_FOUND: "Address not found",
+  WALLET_BALANCE_ZERO: "Your wallet balance is zero.",
+  INSUFFICIENT_BALANCE: "Insufficient wallet balance.",
+  PAYMENT_FAILED: "Payment failed.",
+  ORDER_PLACED: "Order placed successfully.",
+};
 // ============================ checkout ===============================
 const checkout = async (req, res) => {
   try {
-    log("in checkout");
     const userId = req.session?.user;
     const [user, products, categories, addresses, cart, coupons] =
       await Promise.all([
@@ -105,7 +111,7 @@ const editAddress = async (req, res) => {
     );
 
     if (!updatedAddress) {
-      return res.status(404).send({ message: "Address not found" });
+      return res.send({ message: messages.ADDRESS_NOT_FOUND });
     }
 
     res.redirect("/checkout");
@@ -168,15 +174,10 @@ const addAddress = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    log("in place order");
     const userId = req.session.user;
-    log("1");
 
     const { selectedAddress, paymentMethod, products, couponCode } = req.body;
     const orderPrice = parseFloat(req.body.orderPrice);
-    log("1", req.body);
-
-    log("1");
 
     const [address, cart, coupon] = await Promise.all([
       Address.findById(selectedAddress),
@@ -189,17 +190,7 @@ const placeOrder = async (req, res) => {
         : null,
     ]);
 
-    if (!address) {
-      return res.status(400).send("Invalid address selected.");
-    }
-    log("2");
-
-    //wallet payment
-
-    log("2");
-
     const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-    log("2");
 
     const orderItems = products.map((product) => ({
       productId: product.productId,
@@ -230,18 +221,20 @@ const placeOrder = async (req, res) => {
       ),
       couponApplied: coupon ? coupon._id : null,
     });
+
     if (paymentMethod === "wallet") {
       const wallet = await Wallet.findOne({ userId });
       log("in wallet");
-      if (!wallet || wallet.balance <= 0 || wallet.balance < orderPrice) {
       if (!wallet || wallet.balance < orderPrice) {
         return res.status(400).json({
           success: false,
-          message: wallet.balance <= 0 ? "Your wallet balance is zero." : "Insufficient wallet balance.",
-          message: "Insufficient wallet balance.",
+          message:
+            wallet.balance <= 0
+              ? messages.WALLET_BALANCE_ZERO
+              : messages.INSUFFICIENT_BALANCE,
+          message: messages.INSUFFICIENT_BALANCE,
         });
       }
-      log("in wallet");
 
       wallet.balance -= orderPrice;
 
@@ -253,7 +246,6 @@ const placeOrder = async (req, res) => {
 
       await wallet.save();
     }
-  }
     log(newOrder);
     await Promise.all([
       newOrder.save(),
@@ -289,15 +281,9 @@ const razorpay = new Razorpay({
 });
 
 const createOrder = async (req, res) => {
-  console.log("createOrder called");
   try {
     const userId = req.session.user;
-    console.log("userId:", userId);
     const { selectedAddress, orderPrice, products, couponCode } = req.body;
-    console.log("selectedAddress:", selectedAddress);
-    console.log("orderPrice:", orderPrice);
-    console.log("products:", products);
-    console.log("couponCode:", couponCode);
 
     const [address, cart] = await Promise.all([
       Address.findById(selectedAddress),
@@ -306,8 +292,6 @@ const createOrder = async (req, res) => {
         model: Product,
       }),
     ]);
-    console.log("address:", address);
-    console.log("cart:", cart);
 
     const coupon = couponCode
       ? await Coupon.findOne({
@@ -316,10 +300,8 @@ const createOrder = async (req, res) => {
           isDeleted: false,
         })
       : null;
-    console.log("coupon:", coupon);
 
     const estimatedDeliveryDate = calculateEstimatedDeliveryDate(7);
-    console.log("estimatedDeliveryDate:", estimatedDeliveryDate);
 
     const orderItems = products.map((product) => ({
       productId: product.productId,
@@ -349,7 +331,6 @@ const createOrder = async (req, res) => {
       ),
       couponApplied: coupon ? coupon._id : null,
     });
-    console.log("newOrder:", newOrder);
 
     await Promise.all([
       newOrder.save(),
@@ -373,7 +354,6 @@ const createOrder = async (req, res) => {
           })
         : null,
     ]);
-    console.log("order saved");
     const razorpayOrder = await razorpay.orders.create({
       amount: orderPrice * 100,
       currency: "INR",
@@ -388,16 +368,12 @@ const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
-    res.status(500).send("Error creating Razorpay order.");
+    res.redirect("/serverError");
   }
 };
 
-// verifying the razorpay and saving the order
 const verifyRazorpay = async (req, res) => {
   try {
-    console.log("verifyRazorpay called");
-    console.log("req.body:", req.body);
-
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -405,17 +381,12 @@ const verifyRazorpay = async (req, res) => {
       orderId,
     } = req.body;
 
-    console.log("orderId:", orderId);
-
     const body = razorpay_order_id + "|" + razorpay_payment_id;
-    console.log("body:", body);
 
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_SECRET_KEY)
       .update(body)
       .digest("hex");
-
-    console.log("expectedSignature:", expectedSignature);
 
     const order = await Order.findById(orderId);
 
@@ -423,7 +394,7 @@ const verifyRazorpay = async (req, res) => {
       console.log("Signatures do not match");
 
       order.paymentStatus = "Failed";
-      order.status = "Failed"; 
+      order.status = "Failed";
       order.orderitems.forEach((item) => {
         item.paymentStatus = "Failed";
       });
@@ -432,14 +403,12 @@ const verifyRazorpay = async (req, res) => {
 
       return res.status(400).json({
         success: false,
-        message: "Payment verification failed. Order status updated to Failed.",
+        message: messages.PAYMENT_FAILED,
       });
     }
 
-    console.log("Signatures match");
-
     order.paymentStatus = "Paid";
-    order.status = "Pending"; 
+    order.status = "Pending";
     order.orderitems.forEach((item) => {
       item.paymentStatus = "Paid";
     });
@@ -448,38 +417,28 @@ const verifyRazorpay = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Order placed successfully",
+      message: messages.ORDER_PLACED,
     });
   } catch (error) {
     console.error("Error verifying payment:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error during payment verification.",
+      message: messages.PAYMENT_FAILED,
     });
   }
 };
 
 const retryPayment = async (req, res) => {
   try {
-    log("in retry payment");
     const { orderId } = req.body;
 
     const order = await Order.findById(orderId);
-    if (!order) {
-      console.error("Order not found for orderId:", orderId);
-      return res.status(404).send("Order not found");
-    }
 
     const razorpayOrder = await razorpay.orders.create({
       amount: order.orderPrice * 100,
       currency: "INR",
       receipt: `receipt_${order._id}`,
     });
-
-    console.log("Razorpay order created:", razorpayOrder);
-
- 
-    console.log("Order updated with new Razorpay order ID:", order._id);
 
     res.json({
       success: true,
@@ -489,14 +448,12 @@ const retryPayment = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in retryPayment:", error);
-    res.status(500).send("Error while retrying payment.");
+    res.redirect("/serverError");
   }
 };
-
 // payment failed
 const paymentFailed = async (req, res) => {
   try {
-    log("in payment failed");
     res.render("pages/paymentFailed");
   } catch (error) {
     log(error);

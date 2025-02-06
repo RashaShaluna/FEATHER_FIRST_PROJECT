@@ -113,12 +113,12 @@
                                                 <td></td>
                                                 <% }else{ %>
                                                     <% let cartPrice %>
-                                                    <% if(item.productId.activeOfferSource === 'product' && item.productId.isOfferActive) { %>
+                                                    <% if(item.productId.activeOfferSource === 'product' && item.productId.isOfferActive && item.productId.offerEndDate > new Date()) { %>
                                                      <% cartPrice = item.productId.offerPrice %>
                                                     <td class="price-col">
                                                        <%= '₹' + cartPrice %>%>
                                                     </td>
-                                                <% } else if(item.productId.activeOfferSource === 'category' && item.productId.category?.isOfferActive) { %>
+                                                <% } else if(item.productId.activeOfferSource === 'category' && item.productId.category?.isOfferActive && item.productId.category.offerEndDate > new Date()) { %>
                                                     <% cartPrice = item.productId.offerPrice %>
                                                     <td class="price-col">
                                                         <%= '₹' + cartPrice %>%>
