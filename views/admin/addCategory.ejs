@@ -131,51 +131,51 @@
           document.getElementById('name-error').style.display = 'block';
           valid = false;
       }
-  
+      
       if (!description) {
           document.getElementById('description-error').innerText = 'Description is required!';
           document.getElementById('description-error').style.display = 'block';
           valid = false;
       }
-  
+      
       if (!valid) {
           return;
       }
-  
+      
       const formData = {
           name: name,
           description: description,
-          offerPercentage:offerPercentage,
-         offerEndDate:offerEndDate,
-         offerStartDate:offerStartDate
+          offerPercentage: offerPercentage,
+          offerEndDate: offerEndDate,
+          offerStartDate: offerStartDate
       };
-  
+      
       try {
           const response = await fetch('/admin/addCategory', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(formData)
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
           });
-  
+      
           const result = await response.json();
-  
-          if (response.status === 201) {
-              Swal.fire({
-                  icon: 'success',
-                  title: 'Success',
-                  text: result.message,
-              }).then(() => {
-                  window.location.reload(); 
-              });
-          } else if (response.status === 400) {
-              if (result.error === 'Category already exists') {
-                  Swal.fire({
-                      icon: 'warning',
-                      title: 'Warning',
-                      text: 'Category already exists!',
-                  });
+      
+          if (result.success) {
+          Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          timer : 2000,
+          text: result.message,
+          }).then(() => {
+          window.location.reload(); 
+          });
+           //  } else if (result.error === 'Category already exists') {
+            //     Swal.fire({
+            //       icon: 'warning',
+            //       title: 'Warning',
+            //       text: 'Category already exists!',
+            //       });
               } else {
                   Swal.fire({
                       icon: 'error',
@@ -183,13 +183,7 @@
                       text: result.message,
                   });
               }
-          } else {
-              Swal.fire({
-                  icon: 'error',
-                  title: 'Server Error',
-                  text: 'Please try again later.',
-              });
-          }
+         
   
       } catch (error) {
           Swal.fire({

@@ -1,4 +1,5 @@
 const Category = require("../models/category");
+const {log} = require('console');
 
 const messages = {
   NAME_DESCRIPTION_REQUIRED: "Name and Description are required!",
@@ -46,10 +47,11 @@ const addCategory = async (req, res) => {
   try {
     const { name, description, offerPercentage, offerStartDate, offerEndDate } =
       req.body;
+      log(req.body)
     const lowerCaseName = name.toLowerCase();
 
     if (!name || !description) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: messages.NAME_DESCRIPTION_REQUIRED,
       });
@@ -59,18 +61,19 @@ const addCategory = async (req, res) => {
       name: { $regex: new RegExp(`^${lowerCaseName}$`, "i") },
     });
     if (existingCategory) {
-      return res.status(400).json({ message: messages.CAT_EXIST });
+      return res.json({ message: messages.CAT_EXIST });
     }
 
     const newCategory = new Category({
       name,
       description,
-      offerPercentage,
-      offerStartDate,
-      offerEndDate,
+      offerPercentage: offerPercentage || 0,
+      offerStartDate: offerStartDate || null,
+      offerEndDate: offerEndDate || null,
     });
 
     const result = await newCategory.save();
+    log(result)
 
     res.json({ success: true, message: messages.CAT_ADDED });
   } catch (error) {

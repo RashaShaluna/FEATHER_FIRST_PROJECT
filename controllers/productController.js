@@ -80,6 +80,8 @@ const productAdding = async (req, res) => {
       quantity,
       offerPercentage,
       color,
+      offerStartDate,
+      offerEndDate,
     } = req.body;
     const images = req.files.map((file) => `${file.filename}`);
 
@@ -87,7 +89,7 @@ const productAdding = async (req, res) => {
       name: { $regex: `${name}`, $options: "i" },
       category,
     });
-    if (isNaN(offer) || offer < 0 || offer >= 100) {
+    if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage >= 100) {
       return res.json({
         success: false,
         message: messages.INVALID_OFFER_PRICE,

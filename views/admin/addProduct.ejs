@@ -559,7 +559,8 @@ return isValid;
           icon: 'success',
           title: 'Product Added',
           text: 'The product was added successfully!',
-          confirmButtonText: 'OK'
+          timer:2000,
+          showConfirmButton: false, 
         }).then(()=>{
           location.reload();
         })
