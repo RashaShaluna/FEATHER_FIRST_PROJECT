@@ -132,7 +132,7 @@
         <% } %>
         
         <div class="cancel-form">
-            <form action="/cancelOrder/<%= order._id %>/<%= orderItem._id %>" method="POST">
+            <form action="/cancelOrder/<%= orderCode %>/<%= itemCode %>" method="POST">
               
                 <label for="cancelReason">Reason for Cancellation:</label>
                 <select name="cancelReason" id="cancelReason" required>
@@ -176,21 +176,15 @@
     <script>
   document.getElementById('cancelOrderForm').addEventListener('click', async (event) => {
     event.preventDefault();
-    console.log('1. event.preventDefault() called');
-    const orderId = "<%= orderId %>";
-    console.log('2. orderId:', orderId);
-    const orderItemId = "<%= orderItemId %>";
-    console.log('3. orderItemId:', orderItemId);
+    const orderCode = "<%= orderCode %>";
+    const itemCode = "<%= itemCode %>";
     const cancelReason = document.getElementById('cancelReason').value;
-    console.log('4. cancelReason:', cancelReason);
     const cancellationComments = document.getElementById('comments').value;
-    console.log('5. cancellationComments:', cancellationComments);
     const refundMode = document.querySelector('input[name="refundMode"]:checked').id;
-    console.log('6. refundMode:', refundMode);
 
     try {
         console.log('7. try block started');
-        const response = await fetch(`/cancelOrder/${orderId}/${orderItemId}`, {
+        const response = await fetch(`/cancelOrder/${orderCode}/${itemCode}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -211,7 +205,7 @@
         } else {
             console.log('11. result.success is true');
             // Proceed without showing SweetAlert on success
-            window.location.href = `/orderDetail/${orderId}`;
+            window.location.href = `/orderDetail/${orderCode}`;
         }
     } catch (error) {
         console.error('12. error caught:', error);

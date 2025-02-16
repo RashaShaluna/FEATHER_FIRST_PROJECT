@@ -131,9 +131,9 @@
                                                     <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
                                                         <span class="product-label label-out">Out of stock</span>
                                                     <% }else{ %>
-                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product' && product.offerEndDate > new Date())  { %>
+                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product' && product.offerEndDate >= new Date())  { %>
                                                       <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
-                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category' && product.category.offerEndDate > new Date()){ %>
+                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category' && product.category.offerEndDate >= new Date()){ %>
                                                         <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
 
                                                         <% } %>
@@ -190,16 +190,29 @@
                                                   <% if (product.quantity <=0 || product.status === 'Out of stock') { %>
                                                     <span class="new-price"><%= '₹' + product.salesPrice %></span>
                                                   <% } else { %>
-                                                    <% if (product.activeOfferSource === 'product' && product.offerEndDate > new Date()) { %>
-                                                      <span class="old-price"><%= '₹' + product.salesPrice %></span>
-                                                      <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                                    <% } else if (product.activeOfferSource === 'category' && product.category?.isOfferActive && product.category.offerEndDate > new Date()) { %>
-                                                      <span class="old-price"><%= '₹' + product.salesPrice %></span>
-                                                      <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                                    <% } else { %>
-                                                        <span class="new-price"><%= '₹' + product.salesPrice %></span>
-                                                    <% } %>                                                 
-                                                   <% } %>
+                                                    <% if (product.activeOfferSource === 'product' && 
+                                                    new Date(product.offerEndDate) >= new Date() && 
+                                                    new Date(product.offerStartDate) <= new Date() &&
+                                                    product.isOfferActive === true) { %>
+                                             
+                                                 <span class="old-price"><%= '₹' + product.salesPrice %></span>
+                                                 <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                             
+                                             <% } else if (product.activeOfferSource === 'category' && 
+                                                          product.category && product.category.isOfferActive === true && 
+                                                          new Date(product.category.offerEndDate) >= new Date() && 
+                                                          new Date(product.category.offerStartDate) <= new Date()) { %>
+                                             
+                                                 <span class="old-price"><%= '₹' + product.salesPrice %></span>
+                                                 <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                             
+                                             <% } else { %>
+                                             
+                                                 <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                             
+                                             <% } %>
+                                             <%}%>
+                                             
                                                   
                                                   
                                               </div>

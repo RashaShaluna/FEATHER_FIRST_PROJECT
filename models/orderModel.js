@@ -11,8 +11,25 @@ const orderSchema = new mongoose.Schema({
     default: () => uuidv4(),
     unique: true,
   },
+  orderCode: {
+    type: String,
+    unique: true,
+    default: function () {
+      const randomNumbers = Math.floor(1000000 + Math.random() * 9000000); // 7-digit number
+      return `ORD${randomNumbers}`;
+    },
+  },
+  
   orderitems: [
     {
+      itemCode: {
+        type: String,
+        unique: true,
+        default: function () {
+          return `ITM${Math.floor(1000000 + Math.random() * 9000000)}`;
+        },
+      },
+    
       productId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
@@ -155,6 +172,15 @@ const orderSchema = new mongoose.Schema({
     default: Date.now, // Store the created date
   },
 });
+
+// orderSchema.pre("save", function (next) {
+//   if (!this.orderCode) {
+//     const datePart = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+//     const randomPart = Math.random().toString(36).substring(2, 7).toUpperCase(); 
+//     this.orderCode = `ORD-${datePart}-${randomPart}`;
+//   }
+//   next();
+// });
 
 const Order = mongoose.model("Order", orderSchema);
 module.exports = Order;

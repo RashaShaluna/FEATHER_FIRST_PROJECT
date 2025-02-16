@@ -21,10 +21,15 @@ const messages = {
 const productPage = async (req, res) => {
   try {
     let search = "";
+    let page = req.query.page ||1;
+    let limit = 10 ;
+    let skip = (page-1)*limit
+
     if (req.query.search) {
       search = req.query.search;
     }
-    const [category, product] = await Promise.all([
+
+    const [category, product,totalProducts] = await Promise.all([
       await Category.find({ islisted: true, isDeleted: false }),
       Product.find({
         isDeleted: false,
@@ -34,7 +39,11 @@ const productPage = async (req, res) => {
         ],
       })
         .populate("category")
-        .sort({ name: -1 }),
+        .sort({ name: -1 })
+        .skip(skip)
+        .limit(limit),
+        Product.countDocuments()
+
     ]);
 
     if (category) {
@@ -42,6 +51,9 @@ const productPage = async (req, res) => {
         title: "Product - Feather",
         searchQuery: search,
         data: product,
+        currentPage: page,
+        totalPage: Math.ceil(totalProducts / limit),
+        totalProducts
       });
     } else {
       res.redirect("/admin/pageerror");

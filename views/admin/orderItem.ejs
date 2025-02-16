@@ -20,7 +20,7 @@
     <div class="main-panel">
         <div class="content-wrapper">
           <div class="page-header">
-            <h3 class="page-title fw-bold"> Order :#<%=order._id%></h3>
+            <h3 class="page-title fw-bold"> Order :#<%=order.orderCode%></h3>
     
           </div>
     <div class="container my-5 main-con">
@@ -48,17 +48,33 @@
                                             <td><%= orderitem.originalQuantity %></td>
                                             <!-- changing status of order by select -->
                                             <td>
-                                                <select class="form-control" style="width: 89px;" onchange="updateStatus(this, '<%= order._id %>', '<%= orderitem._id %>')"  >
-                                                    <option value="Pending" <%=(orderitem.status === ' Pending') ? 'selected':''%>>Pending</option>
-                                                    <option value="Processing" <%= (orderitem.status === 'Processing') ? 'selected' : '' %>>Processing</option>
-                                                    <option value="Shipped" <%= (orderitem.status === 'Shipped') ? 'selected' : '' %>>Shipped</option>
-                                                    <option value="Delivered" <%= (orderitem.status === 'Delivered') ? 'selected' : '' %>>Delivered</option>
-                                                    <option value="Return Request"<%= (orderitem.status === 'Return Request') ? 'selected':'' %>>Return Request</option>
-                                                    <option value="Returned"<%= (orderitem.status === 'Returned') ? 'selected':'' %>> Returned</option>
-                                                    <option value="Refunded" <%= (orderitem.status === 'Refunded') ? 'selected':'' %>>Refunded</option>
-                                                    <option value="Cancelled"<%= (orderitem.status === 'Cancelled') ? 'selected':'' %>>Cancelled</option>
-                                                </select>
+                                                <% if (orderitem.status === 'Cancelled' || orderitem.status === 'Returned') { %>
+                                                    <span><%= orderitem.status %></span>
+                                                <% } else { %>
+                                                    <select class="form-control" style="width: 120px;" onchange="updateStatus(this, '<%= order._id %>', '<%= orderitem._id %>')">
+                                                        <% if (orderitem.status === 'Pending') { %>
+                                                            <option value="Pending" selected>Pending</option>
+                                                            <option value="Processing">Processing</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        <% } else if (orderitem.status === 'Processing') { %>
+                                                            <option value="Processing" selected>Processing</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        <% } else if (orderitem.status === 'Shipped') { %>
+                                                            <option value="Shipped" selected>Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                        <% } else if (orderitem.status === 'Delivered') { %>
+                                                            <option value="Delivered" selected>Delivered</option>
+                                                            <option value="Returned">Returned</option>
+                                                        <% } %>
+                                                    </select>
+                                                <% } %>
                                             </td>
+                                            
+                                            
                                             <td class="text-end">₹<%= orderitem.productPrice %></td>
                                         </tr>
                                     <% }); %>
@@ -94,21 +110,7 @@
                                 <p class="mb-0"><strong>Refunded Date:</strong> <%= order.refundDate ? order.refundDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
                             <% } %>
                         
-                        <!-- <p class="mb-0"><strong>Status:</strong> 
-                            <% if(order.status === 'Pending'){ %>
-                                <span class="badge rounded-pill bg-warning text-dark">Pending</span>
-                            <% } else if(order.status === 'Processing'){ %>
-                                <span class="badge rounded-pill bg-primary">Processing</span>
-                            <% } else if(order.status === 'Shipped'){ %>
-                                <span class="badge rounded-pill bg-info text-dark">Shipped</span>
-                            <% } else if(order.status === 'Delivered'){ %>
-                                <span class="badge rounded-pill bg-success">Delivered</span>
-                            <% } else if(order.status === 'Cancelled'){ %>
-                                <span class="badge rounded-pill bg-danger">Cancelled</span>
-                            <% } else if(order.status === 'Returned'){ %>
-                                <span class="badge rounded-pill bg-secondary">Returned</span>
-                            <% } %>
-                        </p> -->
+                       
                     </div>
                   </div>
                       <div class="card mt-4">
@@ -136,7 +138,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Order</span>
-                            <span>#<%= order._id %></span>
+                            <span>#<%= order.orderCode%></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Order Date</span>
@@ -201,6 +203,7 @@
     })
     .then(data => {
         console.log('Status updated successfully:', data);
+        location.reload()
     })
     .catch(error => {
         console.error('There was a problem with the fetch operation:', error);

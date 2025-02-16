@@ -37,7 +37,7 @@ const categorySchema = new Schema({
   },
   isOfferActive: {
     type: Boolean,
-    default: false,
+    default:true,
   },
   offerStartDate: {
     type: Date,

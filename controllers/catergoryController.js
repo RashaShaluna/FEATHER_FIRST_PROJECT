@@ -1,28 +1,41 @@
 const Category = require("../models/category");
-const {log} = require('console');
+const { log } = require("console");
 
 const messages = {
   NAME_DESCRIPTION_REQUIRED: "Name and Description are required!",
   CAT_EXIST: "Category already exists",
   CAT_ADDED: "Category added successfully!",
   CAT_UPDATE: "Category updated successfully",
+  INVALID_CAT_ID: "Invalid category ID",
 };
 // =========================================================== Category ========================================================================================
 const categoryInfo = async (req, res) => {
   try {
-    let search = "";
-    if (req.query.search) {
-      search = req.query.search;
-    }
-    const categories = await Category.find({
-      name: { $regex: search, $options: "i" },
-      isDeleted: false,
-    }).sort({ name: -1 });
+    let search = req.query.search || "";
+    let page = parseInt(req.query.page) || 1;
+    let limit = 10;
+    let skip = (page - 1) * limit;
+
+    const [categories, totalCats] = await Promise.all([
+      Category.find({
+        name: { $regex: search, $options: "i" },
+        isDeleted: false,
+      })
+        .sort({ name: -1 })
+        .skip(skip)
+        .limit(limit),
+      Category.countDocuments({
+        name: { $regex: search, $options: "i" },
+        isDeleted: false,
+      }),
+    ]);
 
     res.render("admin/category", {
       categories,
       title: "Category - Feather",
       searchQuery: search,
+      currentPage: page,
+      totalPage: Math.ceil(totalCats / limit),
     });
   } catch (error) {
     console.log(error);
@@ -47,7 +60,7 @@ const addCategory = async (req, res) => {
   try {
     const { name, description, offerPercentage, offerStartDate, offerEndDate } =
       req.body;
-      log(req.body)
+    log(req.body);
     const lowerCaseName = name.toLowerCase();
 
     if (!name || !description) {
@@ -73,7 +86,7 @@ const addCategory = async (req, res) => {
     });
 
     const result = await newCategory.save();
-    log(result)
+    log(result);
 
     res.json({ success: true, message: messages.CAT_ADDED });
   } catch (error) {
@@ -154,8 +167,7 @@ const editCategory = async (req, res) => {
   }
 };
 
-// ====================================== Check Category  ========================================================================================================================
-
+// ====================================== Check Category  ===========================================================
 const checkCategory = async (req, res) => {
   try {
     const { editedName, categoryId } = req.body;
@@ -183,26 +195,19 @@ const softDeleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.categoryId;
 
-    // Validate categoryId
-    if (!categoryId || categoryId === "null") {
-      return res.json({ success: false, message: "Invalid category ID" });
-    }
-
-    console.log("Delete category with ID:", categoryId);
-
+   
     const updateResult = await Category.updateOne(
       { _id: categoryId },
       { $set: { isDeleted: true, deletedAt: new Date() } }
     );
 
-    console.log("Update result:", updateResult);
 
     if (updateResult.modifiedCount > 0) {
-      res.json({ success: true, message: "Category deleted successfully" });
+      res.json({ success: true, message:messages.CAT_UPDATE});
     } else {
       res.json({
         success: false,
-        message: "Category not found or already deleted",
+        message: messages.CAT_EXIST,
       });
     }
   } catch (error) {

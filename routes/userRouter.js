@@ -146,15 +146,15 @@ router.post(
 );
 
 // order
-router.get("/orderconfirmation/:orderId", orderController.orderConfirmation);
+router.get("/orderconfirmation/:orderCode", orderController.orderConfirmation);
 router.get(
-  "/cancelOrder/:orderId/:orderItemId",
+  "/cancelOrder/:orderCode/:itemCode",
   userAuth.isLogin,
   userAuth.isBlocked,
   orderController.cancelPage
 );
 router.post(
-  "/cancelOrder/:orderId/:orderItemId",
+  "/cancelOrder/:orderCode/:itemCode",
   userAuth.isLogin,
   userAuth.isBlocked,
   orderController.cancelOrder
@@ -166,19 +166,19 @@ router.get(
   orderController.orderPage
 );
 router.get(
-  "/orderDetail/:orderId",
+  "/orderDetail/:orderCode",
   userAuth.isLogin,
   userAuth.isBlocked,
   orderController.orderDetail
 );
 router.get(
-  "/returnPage/:orderId/:orderItemId",
+  "/returnPage/:orderCode/:itemCode",
   userAuth.isLogin,
   userAuth.isBlocked,
   orderController.returnPage
 );
 router.post(
-  "/returnOrder/:orderId/:orderItemId",
+  "/returnOrder/:orderCode/:itemCode",
   userAuth.isLogin,
   userAuth.isBlocked,
   orderController.returnOrder

@@ -32,7 +32,7 @@ const messages = {
 const checkout = async (req, res) => {
   try {
     const userId = req.session?.user;
-    const [user, products, categories, addresses, cart, coupons] =
+    const [user, products, categories, addresses, cart, coupons,wallet] =
       await Promise.all([
         User.findById(req.session.user),
         Product.find({ isBlocked: false, isDeleted: false }).populate({
@@ -54,6 +54,7 @@ const checkout = async (req, res) => {
           isDeleted: false,
           $or: [{ usedBy: { $exists: false } }, { usedBy: { $ne: userId } }],
         }),
+        Wallet.findOne({userId})
       ]);
     const totalPrice = cart.items.reduce(
       (total, item) => total + item.totalPrice,
@@ -68,6 +69,7 @@ const checkout = async (req, res) => {
       totalPrice,
       cart,
       coupons,
+      wallet
     });
   } catch (error) {
     log(error);
@@ -268,7 +270,7 @@ const placeOrder = async (req, res) => {
         : null,
     ]);
 
-    res.json({ orderId: newOrder._id });
+    res.json({ orderId: newOrder._id , orderCode: newOrder.orderCode });
   } catch (error) {
     console.log("Error placing order:", error);
     res.redirect("/serverError");
@@ -354,6 +356,7 @@ const createOrder = async (req, res) => {
           })
         : null,
     ]);
+    
     const razorpayOrder = await razorpay.orders.create({
       amount: orderPrice * 100,
       currency: "INR",
@@ -365,6 +368,7 @@ const createOrder = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
       orderPrice,
       orderId: newOrder._id,
+      orderCode: newOrder.orderCode 
     });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -378,7 +382,7 @@ const verifyRazorpay = async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderId,
+      orderCode
     } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -388,7 +392,7 @@ const verifyRazorpay = async (req, res) => {
       .update(body)
       .digest("hex");
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({orderCode:orderCode})
 
     if (expectedSignature !== razorpay_signature) {
       console.log("Signatures do not match");
@@ -421,18 +425,15 @@ const verifyRazorpay = async (req, res) => {
     });
   } catch (error) {
     console.error("Error verifying payment:", error);
-    res.status(500).json({
-      success: false,
-      message: messages.PAYMENT_FAILED,
-    });
+   res.redirect('/serverError')
   }
 };
 
 const retryPayment = async (req, res) => {
   try {
-    const { orderId } = req.body;
+    const { orderCode } = req.body;
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({orderCode})
 
     const razorpayOrder = await razorpay.orders.create({
       amount: order.orderPrice * 100,
@@ -445,6 +446,7 @@ const retryPayment = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
       orderPrice: order.orderPrice,
       orderId: order._id,
+      orderCode
     });
   } catch (error) {
     console.error("Error in retryPayment:", error);

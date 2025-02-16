@@ -166,7 +166,7 @@ adminRouter.post(
   orderController.changeStatus
 );
 adminRouter.get(
-  "/orderItem/:orderId",
+  "/orderItem/:orderCode",
   adminAuth.isAdmin,
   orderController.orderItem
 );

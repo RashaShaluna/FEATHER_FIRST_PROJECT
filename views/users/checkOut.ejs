@@ -515,7 +515,7 @@ input[type="radio"]:checked {
                             </h2>
                         </div> 
                         <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
-                            <div class="card-body">
+                            <div class="card-body" style="font-weight: bolder;"> Wallet balance = ₹<%= wallet.balance  %>
                             </div>
                         </div>
                     </div>
@@ -558,7 +558,6 @@ input[type="radio"]:checked {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- <link rel="stylesheet" href="https://cdnjs.clou    dflare.com/ajax/libs/limonte-sweetalert2/11.1.9/sweetalert2.min.css" integrity="sha512-cyIc54u5RXujmHkxPyOp5L04e6vjRNR9GWR3aTRkbT8P4n9Ka9SO0lU9L1+uoKaRfYLeuFi7pEJRDXbjg1DWmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
 <!-- razorpay  -->
 
 <!-- address modal -->
@@ -1098,9 +1097,9 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
             });
 
             if (response.ok) {
-                const { orderId } = await response.json();
-                console.log('orderid',orderId)
-                window.location.href = `/orderConfirmation/${orderId}`;
+                const { orderCode } = await response.json();
+                console.log('orderCode',orderCode)
+                window.location.href = `/orderConfirmation/${orderCode}`;
             } else {
                 Swal.fire({
                     icon: 'error',
@@ -1126,11 +1125,11 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
 
                 console.log('response:', response);
 
-                const { razorpayOrderId,orderId } = await response.json();
+                const { razorpayOrderId,orderCode } = await response.json();
 
                 console.log('razorpayOrderId:', razorpayOrderId);
                 // console.log('orderPrice:', orderPrice);
-                console.log('orderId:', orderId);
+                console.log('orderId:', orderCode);
 
                 const options = {
                     key: 'rzp_test_QClWP75u7ELl6o',
@@ -1146,7 +1145,7 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                  ...paymentDetails,
-                                 orderId
+                                orderCode
                                 }),
                        });
 
@@ -1155,7 +1154,7 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
                         if (verifyResponse.ok) {
                             const { message} = await verifyResponse.json();
                             console.log('orderId:', message);
-                            window.location.href = `/orderConfirmation/${orderId}`;
+                            window.location.href = `/orderConfirmation/${orderCode}`;
                         } else {
                             window.location.href = '/paymentFailed';
                         }
@@ -1193,9 +1192,9 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
 
             const responseData = await response.json();
             if (response.ok) {
-                const { orderId } = responseData;
-                console.log('orderid',orderId)
-                window.location.href = `/orderConfirmation/${orderId}`;
+                const { orderCode } = responseData;
+                console.log('orderCode',orderCode)
+                window.location.href = `/orderConfirmation/${orderCode}`;
             } else {
                 Swal.fire({
                     icon: 'error',

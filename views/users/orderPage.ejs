@@ -112,9 +112,9 @@
                     <% if (orders && orders.length > 0) { %>
                         <% orders.forEach(order => { %>
 
-                            <a href="/orderDetail/<%= order._id %>" class="product-card-link">
+                            <a href="/orderDetail/<%= order.orderCode %>" class="product-card-link">
                                 <div class="product-card">
-                                    <p style="font-size: 12px; margin-bottom: 10px;">Order Id: #<%= order._id %></p>
+                                    <p style="font-size: 12px; margin-bottom: 10px;">Order Id: #<%= order.orderCode %></p>
 
                                     <div class="product-info d-flex flex-column flex-md-row">
                                         <div class="order-items-container">

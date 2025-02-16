@@ -6,10 +6,8 @@ const User = require("../models/userSchema");
 const PDFDocument = require("pdfkit");
 const { log } = require("console");
 const ExcelJS = require("exceljs");
-const cron = require("node-cron");
-const Category = require("../models/category");
+const Address = require("../models/addressModel");
 
-//pdf download
 const downloadPdf = async (req, res) => {
   try {
     const { startDate, endDate, filterBy = "all" } = req.query;
@@ -54,7 +52,7 @@ const downloadPdf = async (req, res) => {
       "Payment Status",
     ];
 
-    const colWidths = [70, 100, 80, 90, 40, 60, 40, 60, 60];
+    const colWidths = [70, 100, 80, 90, 40, 60, 60, 60];
     let y = doc.y;
 
     // Draw Table Header
@@ -72,11 +70,26 @@ const downloadPdf = async (req, res) => {
     });
     doc.moveDown(2);
 
+    // Initialize summary variables
+    let totalOrders = 0;
+    let totalQuantity = 0;
+    let totalPrice = 0;
+
     doc.font("Helvetica").fontSize(9);
     orders.forEach((order) => {
+      let orderTotalPrice = 0;
+      let orderTotalQuantity = 0;
+      let hasDeliveredItems = false;
+
       order.orderitems
         .filter((item) => item.status === "Delivered")
         .forEach((item) => {
+          hasDeliveredItems = true;
+          totalQuantity += item.originalQuantity;
+          orderTotalQuantity += item.originalQuantity;
+          orderTotalPrice += item.productPrice * item.originalQuantity;
+          totalPrice += item.productPrice * item.originalQuantity;
+
           const row = [
             order.orderDate.toLocaleDateString("en-GB"),
             order._id,
@@ -102,14 +115,34 @@ const downloadPdf = async (req, res) => {
               }
             );
           });
-          doc.moveDown();
+          doc.moveDown(1.5);
         });
+
+      if (hasDeliveredItems) {
+        totalOrders += 1;
+      }
     });
+
+    doc.moveDown(2);
+
+    // Add a horizontal line before summary
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
+    doc.moveDown(1);
+
+    // Order Summary Row
+    doc.fontSize(10).font("Helvetica-Bold");
+
+    doc.text(`Total Orders : ${totalOrders}`, 50, doc.y);
+    doc.moveDown();
+    doc.text(`Total Quantity : ${totalQuantity}`, 50, doc.y);
+    doc.moveDown();
+    doc.text(`Order Price : ₹${totalPrice.toFixed(2)}`, 50, doc.y);
 
     doc.end();
   } catch (error) {
     console.error("Error in downloadSalesReport:", error);
-    res.status(500).send("Error generating PDF");
+    res.redirect("/serverError");
   }
 };
 
@@ -148,6 +181,10 @@ const downloadExcel = async (req, res) => {
       { header: "Payment Status", key: "paymentStatus", width: 25 },
     ];
 
+    let totalOrders = 0;
+    let totalQuantity = 0;
+    let totalPrice = 0;
+
     orders.forEach((order) => {
       const deliveredItems = order.orderitems.filter(
         (item) => item.status === "Delivered"
@@ -169,8 +206,25 @@ const downloadExcel = async (req, res) => {
           paymentMethod: order.paymentMethod || "NA",
           paymentStatus: item.paymentStatus || "NA",
         });
+        totalOrders += 1;
+        totalQuantity += item.originalQuantity || 0;
+        totalPrice += item.productPrice || 0;
       });
     });
+
+    worksheet.addRow({});
+
+    // Add Summary Rows
+    worksheet.addRow(["Order Summary"]);
+    worksheet.addRow(["Total Orders", totalOrders]);
+    worksheet.addRow(["Total Quantity", totalQuantity]);
+    worksheet.addRow(["Total Price", `₹${totalPrice.toFixed(2)}`]);
+
+    // Apply Bold Styling to Summary Headers
+    const summaryStartRow = worksheet.rowCount - 3;
+    for (let i = summaryStartRow; i <= worksheet.rowCount; i++) {
+      worksheet.getRow(i).font = { bold: true };
+    }
 
     res.setHeader(
       "Content-Type",
@@ -190,235 +244,128 @@ const downloadExcel = async (req, res) => {
 };
 
 //invoice
+
 const invoicePDF = async (req, res) => {
   try {
-    const { orderId } = req.query;
-    const order = await Order.findById(orderId).populate({
-      path: "orderitems.productId",
-      model: Product,
-    });
-    log(order);
+    const { orderCode } = req.query;
+    const order = await Order.findOne({orderCode:orderCode})
+      .populate({
+        path: "userId",
+        model: User, 
+      })
+      .populate({
+        path: "orderitems.productId",
+        model: Product,
+      })
+      .populate({
+        path: "address",
+        model: Address,
+      });
 
     if (!order) {
       return res.status(404).send("Order not found");
     }
-    log("1");
-    // Filter only delivered items with matching tracking number
+
+    // Filter only delivered items
     const deliveredItems = order.orderitems.filter(
       (item) => item.status === "Delivered"
     );
-    log("1");
 
     if (deliveredItems.length === 0) {
-      return res
-        .status(400)
-        .send(
-          "No delivered items for this order with the given tracking number"
-        );
+      return res.status(400).send("No delivered items available for invoice.");
     }
 
-    console.log("deliveredItems", deliveredItems);
-    log("1");
-
-    // Create a PDF document
-    const doc = new PDFDocument();
+    // Set response headers
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=invoice-${order.orderId}.pdf`
+      `attachment; filename=invoice-${order.orderCode}.pdf`
     );
     res.setHeader("Content-Type", "application/pdf");
+
+    // Create a PDF document
+    const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
-    log("1");
 
-    // Header of the invoice
-    doc.fontSize(20).text("Invoice", { align: "center" });
-    doc.text("---------------------------------------------");
-    doc.fontSize(12).text(`Order ID: ${order.orderId}`);
-    doc.text(
-      `Order Date: ${new Date(order.orderDate).toLocaleDateString("en-GB")}`
-    );
-    // doc.text(`Delivery Date: ${new Date(order.deliveryDate).toLocaleDateString('en-GB')}`);
-    doc.text("---------------------------------------------");
+    // ---- HEADER ----
+    doc
+      .fontSize(22)
+      .text("INVOICE", { align: "center", underline: true })
+      .moveDown();
 
-    // Adding product details
-    deliveredItems.forEach((item) => {
-      doc.text(`Product: ${item.productId.name}`, { continued: true });
-      doc.text(` | Quantity: ${item.originalQuantity}`, { continued: true });
-      doc.text(` | Unit Price: ₹${item.unitPrice}`);
-      doc.text("---------------------------------------------");
+    // ---- USER DETAILS ----
+    doc.fontSize(14).text(`User Name: ${order.userId.name}`, { align: "left" });
+    doc
+      .fontSize(14)
+      .text(`Customer Name: ${order.address.name}`)
+      .text(`Mobile: ${order.address.phone}`)
+      .text(`Alternate Mobile: ${order.address.alternatePhone}`)
+      .text(`Address: ${order.address.address}`)
+      .text(`Locality: ${order.address.locality}`)
+      .text(`District: ${order.address.district}`)
+      .text(`State: ${order.address.state}`)
+      .text(`Pincode: ${order.address.pincode}`)
+      .text(`Landmark: ${order.address.landmark || " "}`)
+      .moveDown();
+
+    // .moveDown();
+
+    // ---- ORDER DETAILS ----
+    doc
+      .text(`Order ID: ${order.orderCode}`, { align: "left" })
+      .text(
+        `Order Date: ${new Date(order.orderDate).toLocaleDateString("en-GB")}`,
+        { align: "left" }
+      )
+      .text("---------------------------------------------")
+      .moveDown();
+
+    // ---- PRODUCT DETAILS ----
+    doc
+      .fontSize(12)
+      .text("Ordered Products:", { align: "left", underline: true });
+
+    deliveredItems.forEach((item, index) => {
+      doc
+        .text(`${index + 1}. Product: ${item.productId.name}`)
+        .text(`   - Quantity: ${item.originalQuantity}`)
+        .text(`   - Unit Price: ${item.unitPrice}`)
+        .text("---------------------------------------------");
     });
 
-    // Add totals
-    const totalAmount = deliveredItems.reduce(
-      (sum, item) => sum + item.originalQuantity * item.unitPrice,
-      0
-    );
-    doc.text(
-      `Delivery Charge: ${
-        order.deliveryCharge ? `₹${order.deliveryCharge}` : "Free Delivery"
-      }`,
-      { align: "right" }
-    );
-    doc.text(`Final Total: ₹${order.orderPrice}`, { align: "right" });
+    // ---- TOTAL COST ----
 
-    // Payment Details
-    doc.text("---------------------------------------------");
-    doc.text(`Payment Method: ${order.paymentMethod}`, { align: "left" });
-    doc.text(`Payment Status: ${order.paymentStatus}`, { align: "left" });
+    doc
+      .fontSize(14)
+      .text(
+        `Delivery Charge: ${
+          order.deliveryCharge ? `${order.deliveryCharge}` : "Free Delivery"
+        }`,
+        { align: "right" }
+      )
+      .text(`Final Total: ${order.orderPrice}`, { align: "right" })
+      .moveDown();
 
-    // Footer
-    doc.text("---------------------------------------------");
-    doc.text("Thank you for shopping with us!", { align: "center" });
+    // ---- PAYMENT DETAILS ----
+    doc
+      .text(`Payment Method: ${order.paymentMethod}`, { align: "left" })
+      .text(`Payment Status: ${order.paymentStatus}`, { align: "left" })
+      .moveDown();
 
-    doc.end(); // End the PDF document
+    // ---- FOOTER ----
+    doc
+      .moveDown()
+      .text("Thank you for shopping with us!", { align: "center" })
+      .moveDown();
+
+    doc.end(); // Finalize the PDF document
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Error generating invoice PDF");
+    console.error(error);
+    res.redirect("serverError");
   }
 };
-
-//------------[node -scheduler] for scheduling the date ---------
-const dateScheduler = () => {
-  // Run every minute - using '* * * * *'
-  cron.schedule(
-    "* * * * *",
-    async () => {
-      try {
-        const currentDate = new Date();
-        log("scheduled job started at:", currentDate);
-
-        // Add index check to ensure all documents are found
-        const [productsToActive, productsToDeactive] = await Promise.all([
-          Product.find(
-            {
-              offerStartDate: { $lte: currentDate },
-              offerEndDate: { $gte: currentDate },
-              isOfferActive: false,
-            },
-            "_id isOfferActive"
-          ).exec(), // Using exec() for better promise handling
-
-          Product.find(
-            {
-              offerEndDate: { $lte: currentDate },
-              isOfferActive: true,
-            },
-            "_id isOfferActive"
-          ).exec(),
-        ]);
-
-        // Activate products
-        for (const product of productsToActive) {
-          try {
-            await Promise.all([
-              Product.updateOne(
-                { _id: product._id },
-                { $set: { isOfferActive: true } }
-              ),
-              setOfferPrice(product._id),
-            ]);
-            log(`Activated offer for product with ID ${product._id}`);
-          } catch (err) {
-            log(`Error activating product ${product._id}:`, err);
-          }
-        }
-
-        // Deactivate products
-        for (const product of productsToDeactive) {
-          try {
-            await Promise.all([
-              Product.updateOne(
-                { _id: product._id },
-                { $set: { isOfferActive: false } }
-              ),
-              setOfferPrice(product._id),
-            ]);
-            log(`Deactivated offer for product with ID ${product._id}`);
-          } catch (err) {
-            log(`Error deactivating product ${product._id}:`, err);
-          }
-        }
-
-        //======================= category ==================
-        const [categoriesToActive, categoriesToDeactive] = await Promise.all([
-          Category.find(
-            {
-              offerStartDate: { $lte: currentDate },
-              offerEndDate: { $gte: currentDate },
-              isOfferActive: false,
-            },
-            "_id isOfferActive"
-          ).exec(),
-
-          Category.find(
-            {
-              offerEndDate: { $lte: currentDate },
-              isOfferActive: true,
-            },
-            "_id isOfferActive"
-          ).exec(),
-        ]);
-
-        // Activate categories
-        for (const category of categoriesToActive) {
-          try {
-            await Category.updateOne(
-              { _id: category._id },
-              { $set: { isOfferActive: true } }
-            );
-            log(`Activated offer for category with ID ${category._id}`);
-
-            const products = await Product.find(
-              { category: category._id },
-              "_id"
-            );
-            await Promise.all(
-              products.map((product) => setOfferPrice(product._id))
-            );
-          } catch (err) {
-            log(`Error activating category ${category._id}:`, err);
-          }
-        }
-
-        // Deactivate categories
-        for (const category of categoriesToDeactive) {
-          try {
-            await Category.updateOne(
-              { _id: category._id },
-              { $set: { isOfferActive: false } }
-            );
-            log(`Deactivated offer for category with ID ${category._id}`);
-
-            const products = await Product.find(
-              { category: category._id },
-              "_id"
-            );
-            await Promise.all(
-              products.map((product) => setOfferPrice(product._id))
-            );
-          } catch (err) {
-            log(`Error deactivating category ${category._id}:`, err);
-          }
-        }
-
-        log("scheduled job done at:", new Date());
-      } catch (error) {
-        log("Main scheduler error:", error);
-      }
-    },
-    {
-      scheduled: true,
-      timezone: "Asia/Kolkata", // Add your timezone here
-    }
-  );
-};
-
-// dateScheduler();
-// dateScheduler(); //invoking that func
 
 module.exports = {
   downloadPdf,
   downloadExcel,
-  dateScheduler,
   invoicePDF,
 };

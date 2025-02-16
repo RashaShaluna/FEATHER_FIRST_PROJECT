@@ -84,9 +84,6 @@ const addToCart = async (req, res) => {
     const { productId, quantity = 1 } = req.body;
 
     const user = req.session.user;
-    if (!user) {
-      return res.status(401).json({ message: messages.USER_NOT_LOGGED });
-    }
 
     let cart = await Cart.findOne({ userId: user });
     if (!cart) {
@@ -99,9 +96,6 @@ const addToCart = async (req, res) => {
     if (existingProductIndex >= 0) {
       cart.items[existingProductIndex].quantity += parseInt(quantity);
     } else {
-      if (!productId) {
-        return res.status(400).json({ message: message.PRODUCT_ID_REQUIRED });
-      }
       cart.items.push({ productId, quantity: parseInt(quantity) });
     }
 
@@ -119,45 +113,35 @@ const addToCart = async (req, res) => {
 const updateQuantity = async (req, res) => {
   try {
     const { productId } = req.params;
-    const quantity = parseInt(req.body.quantity);
+    const cartQuantity = parseInt(req.body.cartQuantity);
     const userId = req.session.user;
-    const cartPrice = req.body.cartPrice;
+    const cartPrice = parseFloat(req.body.cartPrice);
 
     const product = await Product.findById(productId);
-    if (!product) {
-      return res.json({ success: false, message: messages.PRODUCT_NOT_FOUND });
-    }
 
-    const totalPrice = quantity * cartPrice;
+    const availableStock = product.quantity;
+
+    const totalPrice = cartQuantity * cartPrice;
 
     const cart = await Cart.findOneAndUpdate(
       { userId: userId, "items.productId": productId },
       {
         $set: {
-          "items.$.quantity": quantity,
+          "items.$.quantity": cartQuantity,
           "items.$.totalPrice": totalPrice,
         },
       },
       { new: true }
     );
 
-    if (!cart) {
-      return res.json({ success: false, message: messages.CART_NOT_FOUND });
-    }
-
-    let grandTotal = 0;
-    cart.items.forEach((item) => {
-      const itemTotalPrice = Number(item.totalPrice);
-      if (!isNaN(itemTotalPrice)) {
-        grandTotal += itemTotalPrice;
-      }
-    });
-
+    let grandTotal = cart.items.reduce(
+      (sum, item) => sum + Number(item.totalPrice),
+      0
+    );
     cart.grandTotal = grandTotal;
+    await cart.save();
 
-    const result = await cart.save();
-
-    return res.status(200).json({ success: true, cart, grandTotal });
+    return res.json({ success: true, cart, grandTotal });
   } catch (error) {
     console.error(error);
     res.redirect("/serverError");
@@ -165,6 +149,7 @@ const updateQuantity = async (req, res) => {
 };
 
 // ================ Remove product from the cart ==================
+
 const removeFromCart = async (req, res) => {
   const { productId } = req.body;
   const user = req.session.user;

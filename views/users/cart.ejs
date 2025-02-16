@@ -1,70 +1,83 @@
 <%- include('../layouts/header') %>
-<style>
- /* Toast container */
-.toast {
-    position: fixed;
-    bottom: 30px; /* Bottom center */
-    left: 50%;
-    transform: translateX(-50%); /* Center it horizontally */
-    background-color: black; /* Black background */
-    color: white; /* White text */
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add some shadow */
-    opacity: 0; /* Hidden by default */
-    transition: opacity 0.5s ease-in-out; /* Smooth fade in/out */
-    z-index: 1000; /* Ensure it appears above other elements */
-}
+    <style>
+        /* Toast container */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            /* Bottom center */
+            left: 50%;
+            transform: translateX(-50%);
+            /* Center it horizontally */
+            background-color: black;
+            /* Black background */
+            color: white;
+            /* White text */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            /* Add some shadow */
+            opacity: 0;
+            /* Hidden by default */
+            transition: opacity 0.5s ease-in-out;
+            /* Smooth fade in/out */
+            z-index: 1000;
+            /* Ensure it appears above other elements */
+        }
 
-/* Toast icon */
-.toast-icon {
-    color: white; /* Tick mark color */
-    font-size: 18px;
-    display: inline-block;
-}
+        /* Toast icon */
+        .toast-icon {
+            color: white;
+            /* Tick mark color */
+            font-size: 18px;
+            display: inline-block;
+        }
 
-/* When the toast is visible */
-.toast.show {
-    opacity: 1; /* Show the toast */
-}
-.mt-100{
-   margin-top:100px;
+        /* When the toast is visible */
+        .toast.show {
+            opacity: 1;
+            /* Show the toast */
+        }
 
-}
+        .mt-100 {
+            margin-top: 100px;
 
+        }
 
+        .image-container {
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
+            height: 150px;
+            /* Adjust height as needed */
+        }
 
+        .card .card-body {
+            padding: 30px;
+            background-color: transparent;
+        }
 
-.image-container {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    height: 150px; /* Adjust height as needed */
-}
+        .btn-cart,
+        .btn-cart.disabled,
+        .btn-cart:disabled {
+            background-color: #1cc0a0 !important;
+            border-color: #1cc0a0 !important;
+        }
+    </style>
 
-.card .card-body {
-    padding: 30px;
-    background-color: transparent;
-}
+    <body>
 
-.btn-cart, .btn-cart.disabled, .btn-cart:disabled {
-    background-color:#1cc0a0!important;
-    border-color: #1cc0a0!important;
-}
-
-</style>
-<body>
- 
         <main class="main">
-        	<div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
-        		<div class="container">
-        			<h1 class="page-title">Shopping Cart<span>Shop</span></h1>
-        		</div><!-- End .container -->
-        	</div><!-- End .page-header -->
+            <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Shopping Cart<span>Shop</span></h1>
+                </div><!-- End .container -->
+            </div><!-- End .page-header -->
             <nav aria-label="breadcrumb" class="breadcrumb-nav">
                 <div class="container">
                     <ol class="breadcrumb">
@@ -73,97 +86,112 @@
                     </ol>
                 </div><!-- End .container -->
             </nav><!-- End .breadcrumb-nav -->
-            <% if (products && products.length > 0) { %>
-            <div class="page-content">
-            	<div class="cart">
-	                <div class="container">
-	                	<div class="row">
-	                		<div class="col-lg-9">
-	                			<table class="table table-cart table-mobile">
-									<thead>
-										<tr>
-											<th>Product</th>
-											<th>Price</th>
-											<th>Quantity</th>
-											<th>Total</th>
-											<th></th>
-										</tr>
-									</thead>
-
-									<tbody>
-                                        <% products.forEach(item => { %>
-
+            <% if (products && products.length> 0) { %>
+                <div class="page-content">
+                    <div class="cart">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-9">
+                                    <table class="table table-cart table-mobile">
+                                        <thead>
                                             <tr>
-											<td class="product-col">
-												<div class="product">
-													<figure class="product-media">
-														<a href="/product/<%= item.productId._id %>">
-                                            <img src="/uploads/<%= item.productId.images[0] %>" alt="Product image">
-														</a>
-													</figure>
+                                                <th>Product</th>
+                                                <th>Price</th>
+                                                <th>Quantity</th>
+                                                <th>Total</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
 
-													<h3 class="product-title">
-														<a href="/product/<%= item.productId._id %>"><%= item.productId.name %></a>
-													</h3><!-- End .product-title -->
-												</div><!-- End .product -->
-											</td>
-                                            <% if(item.productId.quantity <= 0 || item.productId.status == 'Out of stock') { %>
-                                                <td></td>
-                                                <td class="out-of-stock-col"><span class="out-of-stock" style="font-weight:bold" >OUT OF STOCK</span></td>
-                                                <td></td>
-                                                <% }else{ %>
-                                                    <% let cartPrice %>
-                                                    <% if(item.productId.activeOfferSource === 'product' && item.productId.isOfferActive && item.productId.offerEndDate > new Date()) { %>
-                                                     <% cartPrice = item.productId.offerPrice %>
-                                                    <td class="price-col">
-                                                       <%= '₹' + cartPrice %>%>
+                                        <tbody>
+                                            <% products.forEach(item=> { %>
+
+                                                <tr>
+                                                    <td class="product-col">
+                                                        <div class="product">
+                                                            <figure class="product-media">
+                                                                <a href="/product/<%= item.productId._id %>">
+                                                                    <img src="/uploads/<%= item.productId.images[0] %>"
+                                                                        alt="Product image">
+                                                                </a>
+                                                            </figure>
+
+                                                            <h3 class="product-title">
+                                                                <a href="/product/<%= item.productId._id %>">
+                                                                    <%= item.productId.name %>
+                                                                </a>
+                                                            </h3><!-- End .product-title -->
+                                                        </div><!-- End .product -->
                                                     </td>
-                                                <% } else if(item.productId.activeOfferSource === 'category' && item.productId.category?.isOfferActive && item.productId.category.offerEndDate > new Date()) { %>
-                                                    <% cartPrice = item.productId.offerPrice %>
-                                                    <td class="price-col">
-                                                        <%= '₹' + cartPrice %>%>
-                                                     </td>
-                                                <% } else { %>
-                                                    <!-- No active offer: Show regular sales price -->
-                                                     <%cartPrice = item.productId.salesPrice%>
-                                                    <td class="price-col">
-                                                       <%= '₹' + cartPrice %>
-                                                    </td>
-                                                <% } %>
-                                                <td class="quantity-col">
-                                                    <div class="cart-product-quantity">
-                                                        <input 
-                                                            type="number" 
-                                                            class="form-control" 
-                                                            value="<%= item.quantity %>" 
-                                                            min="1" 
-                                                            max="<%= Math.min(item.productId.quantity, 10) %>" 
-                                                            step="1" 
-                                                            data-product-id="<%= item.productId._id %>"
-                                                            data-cart-price="<%=cartPrice %>"
-                                                            data-available-stock="<%= item.productId.quantity %>"
-                                                            onChange="updateQuantity(this, '<%= item.productId._id %>', '<%= item.productId.quantity %>', '<%= item.productId.name %>', '<%= cartPrice%>')">
-                                                      <%   console.log('Product ID:', item.productId._id, 'Quantity:', item.quantity,'Cart price:', cartPrice); %>
-                                                    
-                                                
-                                                    </div>
-                                                </td>
-                                                <td class="total-col" id="total-<%= item.productId._id %>">
-                                                    ₹<%= (cartPrice * item.quantity).toFixed(2) %>
+                                                    <% if(item.productId.quantity <=0 ||
+                                                        item.productId.status=='Out of stock' ) { %>
+                                                        <td></td>
+                                                        <td class="out-of-stock-col"><span class="out-of-stock"
+                                                                style="font-weight:bold">OUT OF STOCK</span></td>
+                                                        <td></td>
+                                                        <% }else{ %>
+                                                            <% let cartPrice %>
+                                                                <% if(item.productId.activeOfferSource==='product' &&
+                                                                    item.productId.isOfferActive &&
+                                                                    item.productId.offerEndDate> new Date()) { %>
+                                                                    <% cartPrice=item.productId.offerPrice %>
+                                                                        <td class="price-col">
+                                                                            <%= '₹' + cartPrice %>%>
+                                                                        </td>
+                                                                        <% } else
+                                                                            if(item.productId.activeOfferSource==='category'
+                                                                            && item.productId.category?.isOfferActive &&
+                                                                            item.productId.category.offerEndDate> new
+                                                                            Date()) { %>
+                                                                            <% cartPrice=item.productId.offerPrice %>
+                                                                                <td class="price-col">
+                                                                                    <%= '₹' + cartPrice %>%>
+                                                                                </td>
+                                                                                <% } else { %>
+                                                                                    <!-- No active offer: Show regular sales price -->
+                                                                                    <%cartPrice=item.productId.salesPrice%>
+                                                                                        <td class="price-col">
+                                                                                            <%= '₹' + cartPrice %>
+                                                                                        </td>
+                                                                                        <% } %>
+                                                                                            <td class="quantity-col">
+                                                                                                <div
+                                                                                                    class="cart-product-quantity">
+                                                                                                    <input type="number"
+                                                                                                        class="form-control"
+                                                                                                        value="<%= item.quantity %>"
+                                                                                                        min="1"
+                                                                                                        max="<%= Math.min(10, item.productId.quantity) %>"
+                                                                                                        data-product-id="<%= item.productId._id %>"
+                                                                                                        data-cart-quantity="<%= item.quantity %>"
+                                                                                                        data-cart-price="<%= cartPrice %>"
+                                                                                                        data-available-stock="<%= item.productId.quantity %>"
+                                                                                                        onChange="updateCartQuantity(this)">
+                                                                                                </div>
+                                                                                            </td>
+                                                                                            <td class="total-col"
+                                                                                                id="total-<%= item.productId._id %>">
+                                                                                                ₹<%= (cartPrice *
+                                                                                                    item.quantity).toFixed(2)
+                                                                                                    %>
+                                                                                            </td>
 
-                                                </td>
-                                                
-											<% } %>
-											<td class="remove-col"><button class="btn-remove" onclick="removeFromCart('<%= item.productId._id %>')"><i class="icon-close"></i></button></td>
-										</tr>
-										<% }); %>
-                                      
+                                                                                            <% } %>
+                                                                                                <td class="remove-col">
+                                                                                                    <button
+                                                                                                        class="btn-remove"
+                                                                                                        onclick="removeFromCart('<%= item.productId._id %>')"><i
+                                                                                                            class="icon-close"></i></button>
+                                                                                                </td>
+                                                </tr>
+                                                <% }); %>
 
-									</tbody>
-								</table><!-- End .table table-wishlist -->
 
-	                			<div class="cart-bottom">
-			            			<!-- <div class="cart-discount">
+                                        </tbody>
+                                    </table><!-- End .table table-wishlist -->
+
+                                    <div class="cart-bottom">
+                                        <!-- <div class="cart-discount">
 			            				<form action="#">
 			            					<div class="input-group">
 				        						<input type="text" class="form-control" required placeholder="coupon code">
@@ -174,280 +202,268 @@
 			            				</form>
 			            			</div>End .cart-discount -->
 
-		            			</div><!-- End .cart-bottom -->
-	                		</div><!-- End .col-lg-9 -->
-	                		<aside class="col-lg-3">
-	                			<div class="summary summary-cart">
-	                				<h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
+                                    </div><!-- End .cart-bottom -->
+                                </div><!-- End .col-lg-9 -->
+                                <aside class="col-lg-3">
+                                    <div class="summary summary-cart">
+                                        <h3 class="summary-title">Cart Total</h3><!-- End .summary-title -->
 
-	                				<table class="table table-summary">
-	                					<tbody>
+                                        <table class="table table-summary">
+                                            <tbody>
 
-	                						<tr class="summary-total">
+                                                <tr class="summary-total">
 
-	                							<td>Total:</td>
-                                              <td id="grand-total"></td> 	                						
-                                            </tr><!-- End .summary-total -->
-	                					</tbody>
-	                				</table><!-- End .table table-summary -->
+                                                    <td>Total:</td>
+                                                    <td id="grand-total"></td>
+                                                </tr><!-- End .summary-total -->
+                                            </tbody>
+                                        </table><!-- End .table table-summary -->
 
-	                				<a href="/checkout" class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a>
-	                			</div><!-- End .summary -->
+                                        <a href="/checkout"
+                                            class="btn btn-outline-primary-2 btn-order btn-block">PROCEED TO
+                                            CHECKOUT</a>
+                                    </div><!-- End .summary -->
 
 
-	                </div><!-- End .container -->
-                        <div id="toast" class="toast" style="display: none;">
-                            <span class="toast-icon">&#10004;</span> <!-- Success Tick -->
-                            <span id="toast-message">Quantity updated successfully!</span>
-                        </div>
-                </div><!-- End .cart -->
-            </div><!-- End .page-content -->
-            <% }else{ %>
-                <div class="container-fluid ">
-                    <div class="row cart-row">
-        
-                       <div class="col-md-12">
-                       
-                               <!-- <div class="card"> -->
-                          
-                           <div class="cart mb-5">
-                                   <div class="col-sm-12 empty-cart-cls text-center">
-                                    <div class="image-container">
-                                        <img src="\assets\images\empty-cart.png" width="130" height="130" class="img-fluid">
+                            </div><!-- End .container -->
+                            <div id="toast" class="toast" style="display: none;">
+                                <span class="toast-icon">&#10004;</span> <!-- Success Tick -->
+                                <span id="toast-message">Quantity updated successfully!</span>
+                            </div>
+                        </div><!-- End .cart -->
+                    </div><!-- End .page-content -->
+                    <% }else{ %>
+                        <div class="container-fluid ">
+                            <div class="row cart-row">
+
+                                <div class="col-md-12">
+
+                                    <!-- <div class="card"> -->
+
+                                    <div class="cart mb-5">
+                                        <div class="col-sm-12 empty-cart-cls text-center">
+                                            <div class="image-container">
+                                                <img src="\assets\images\empty-cart.png" width="130" height="130"
+                                                    class="img-fluid">
+                                            </div>
+                                            <h3><strong>Your Cart is Empty</strong></h3>
+                                            <h4>Add something to make me happy :)</h4>
+                                            <!-- <a href="#" class=" cart-btn-transform m-3" data-abc="true">Continue Shopping</a> -->
+                                            <!-- <a href="/checkout" class="btn btn-cart btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a> -->
+                                            <a href="/home" class="btn btn-outline-primary-2">Countinue Shopping</a>
+
+                                            <!-- </div> -->
+                                        </div>
                                     </div>
-                                        <h3><strong>Your Cart is Empty</strong></h3>
-                                       <h4>Add something to make me happy :)</h4>
-                                       <!-- <a href="#" class=" cart-btn-transform m-3" data-abc="true">Continue Shopping</a> -->
-                                       <!-- <a href="/checkout" class="btn btn-cart btn-outline-primary-2 btn-order btn-block">PROCEED TO CHECKOUT</a> -->
-                                        <a href="/home" class="btn btn-outline-primary-2">Countinue Shopping</a>
-                                       
-                                   <!-- </div> -->
-                           </div>
-                   </div>
-                           
-                        
-                       </div>
-                    
-                    </div>
-                   
-                   </div>
-                <% } %>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <% } %>
         </main><!-- End .main -->
 
-     
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="path/to/your/script.js"></script>
 
-<script>
+        <script>
 
-async function removeFromCart(productId) {
-    const { value: confirmDelete } = await Swal.fire({
-        text: "Are you sure you want to remove this item?",
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!'
-    });
+            async function removeFromCart(productId) {
+                const { value: confirmDelete } = await Swal.fire({
+                    text: "Are you sure you want to remove this item?",
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                });
 
-    if (confirmDelete) {
-        try {
-            const response = await fetch('/removeFromCart', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId }),
+                if (confirmDelete) {
+                    try {
+                        const response = await fetch('/removeFromCart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ productId }),
+                        });
+
+                        const data = await response.json();
+                        if (response.ok) {
+                            // Successfully removed the item, update the UI accordingly
+                            document.getElementById(`total-${productId}`).closest('tr').remove();
+                            // Show success alert
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Product removed from cart successfully.',
+                                icon: 'success',
+                            }).then(() => {
+                                // Reload the page after the alert is closed
+                                location.reload();
+                            });
+                        } else {
+                            // Handle errors
+                            Swal.fire('Error!', data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire('Error!', 'An error occurred while trying to remove the product from the cart.', 'error');
+                    }
+                }
+            }
+
+
+
+            function updateGrandTotal() {
+                const totalElements = document.querySelectorAll('.total-col');
+                console.log('in upate gt')
+                console.log('Total elements:', totalElements);  // Check if the total elements are found
+
+                if (totalElements.length === 0) {
+                    console.log('No total price elements found. Check your HTML structure.');
+                }
+
+                let grandTotal = 0;
+                totalElements.forEach(totalElement => {
+                    const totalPrice = parseFloat(totalElement.textContent.replace('₹', ''));
+                    console.log('Price found:', totalPrice);  // Log each price found
+
+                    if (!isNaN(totalPrice)) {
+                        grandTotal += totalPrice;
+                    }
+                });
+
+                console.log('Grand Total calculated:', grandTotal);
+
+                const grandTotalElement = document.getElementById('grand-total');
+                if (grandTotalElement) {
+                    grandTotalElement.innerHTML = `₹${grandTotal.toFixed(2)}`;
+                }
+            }
+
+
+            window.onload = function () {
+                updateGrandTotal();
+            };
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                // Select all quantity inputs
+                const quantityInputs = document.querySelectorAll('.form-control[type="number"]');
+
+                // Add event listeners to each input
+                quantityInputs.forEach(input => {
+                    input.addEventListener('change', function () {
+                        const productId = this.dataset.productId;
+                        const availableStock = parseInt(this.dataset.availableStock);
+                        const cartPrice = parseFloat(this.dataset.cartPrice);
+
+
+
+                        updateQuantity(this, productId, availableStock, cartPrice);
+                    });
+                });
             });
 
-            const data = await response.json();
-            if (response.ok) {
-                // Successfully removed the item, update the UI accordingly
-                document.getElementById(`total-${productId}`).closest('tr').remove();
-                // Show success alert
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'Product removed from cart successfully.',
-                    icon: 'success',
-                }).then(() => {
-                    // Reload the page after the alert is closed
-                    location.reload();
-                });
-            } else {
-                // Handle errors
-                Swal.fire('Error!', data.message, 'error');
+            function updateTotalPrice(quantityInput) {
+                const quantity = parseInt(quantityInput.value);
+                const productId = quantityInput.dataset.productId;
+                const cartPrice = parseFloat(quantityInput.dataset.cartPrice);
+                const total = quantity * cartPrice;
+                const totalCell = document.getElementById(`total-${productId}`);
+                console.log('in updatetta')
+
+                if (totalCell) {
+                    totalCell.innerHTML = `₹${total.toFixed(2)}`; // Format to two decimal places
+                } else {
+                    console.error(`Total price cell for product ID ${productId} not found`);
+                }
             }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire('Error!', 'An error occurred while trying to remove the product from the cart.', 'error');
-        }
-    }
-}
 
 
-
-function updateGrandTotal() {
-    const totalElements = document.querySelectorAll('.total-col');
-    console.log('in upate gt')
-    console.log('Total elements:', totalElements);  // Check if the total elements are found
-
-    if (totalElements.length === 0) {
-        console.log('No total price elements found. Check your HTML structure.');
-    }
-
-    let grandTotal = 0;
-    totalElements.forEach(totalElement => {
-        const totalPrice = parseFloat(totalElement.textContent.replace('₹', ''));
-        console.log('Price found:', totalPrice);  // Log each price found
-
-        if (!isNaN(totalPrice)) {
-            grandTotal += totalPrice;
-        }
-    });
-
-    console.log('Grand Total calculated:', grandTotal);
-
-    const grandTotalElement = document.getElementById('grand-total');
-    if (grandTotalElement) {
-        grandTotalElement.innerHTML = `₹${grandTotal.toFixed(2)}`;
-    }
-}
+            function updateCartQuantity(quantityInput) {
+                let cartQuantity = parseInt(quantityInput.value);
+                const productId = quantityInput.dataset.productId;
+                const availableStock = parseInt(quantityInput.dataset.availableStock);
+                const cartPrice = parseFloat(quantityInput.dataset.cartPrice);
+                const maxLimit = Math.min(availableStock, 10);
+                const previousQuantity = parseInt(quantityInput.dataset.cartQuantity);
 
 
-window.onload = function() {
-    updateGrandTotal(); 
-};
+                if (previousQuantity === 1 && cartQuantity === 1) {
+                    quantityInput.value = 1;
+                    showToast("Minimum quantity is 1", "error");
+                    return;
+                }
 
+                if (previousQuantity === maxLimit && cartQuantity === maxLimit) {
+                    quantityInput.value = maxLimit;
+                    showToast("Quantity cannot exceed available  max limit", "error");
+                    return;
+                }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Select all quantity inputs
-    const quantityInputs = document.querySelectorAll('.form-control[type="number"]');
+                if (previousQuantity === availableStock && cartQuantity === availableStock) {
+                    quantityInput.value = availableStock;
+                    showToast("Quantity cannot exceed available stock ", "error");
+                    return;
+                }
+                // Update UI for total price
+                const totalPriceElement = document.getElementById(`total-${productId}`);
+                const newTotalPrice = cartQuantity * cartPrice;
+                if (totalPriceElement) {
+                    totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;
+                }
 
-    // Add event listeners to each input
-    quantityInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const productId = this.dataset.productId;
-            const availableStock = parseInt(this.dataset.availableStock);
-            const cartPrice = parseFloat(this.dataset.cartPrice);
-
-
-            console.log('Dataset:', this.dataset);
-           console.log('Quantity:', this.value, 'Product ID:', productId, 'Price:',cartprice, 'Available Stock:', availableStock);
-            updateQuantity(this, productId, availableStock,cartPrice);
-        });
-    });
-});
-
-function updateTotalPrice(quantityInput) {
-    const quantity = parseInt(quantityInput.value);
-    const productId = quantityInput.dataset.productId;
-    const cartPrice = parseFloat(quantityInput.dataset.cartPrice);
-    const total = quantity * cartPrice;
-    const totalCell = document.getElementById(`total-${productId}`);
-    console.log('in updatetta')
-console.log('cartprice',cartPrice)
-    if (totalCell) {
-        totalCell.innerHTML = `₹${total.toFixed(2)}`; // Format to two decimal places
-    } else {
-        console.error(`Total price cell for product ID ${productId} not found`);
-    }
-}
+                updateGrandTotal()
+                // Send update request to server
+                fetch(`/cart/update-quantity/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cartQuantity, cartPrice })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            quantityInput.dataset.cartQuantity = cartQuantity;
+                            showToast(`Quantity updated successfully `, "success");
+                        } else {
+                            showToast(data.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error updating quantity:", error);
+                        showToast("Something went wrong. Please try again.", "error");
+                    });
+            }
 
 
 
 
 
-function updateQuantity(quantityInput, productId, availableStock, productName,cartPrice) {
-  const quantity = parseInt(quantityInput.value);
-    availableStock = parseInt(availableStock);
-    cartPrice = parseFloat(cartPrice);
+            function showToast(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
 
-  const maxLimit = Math.min(availableStock, 10);
-  console.log('in updatequqnty')
-console.log('cartprice',cartPrice)
-  console.log('Input value:', quantityInput.value);
-  console.log('Parsed quantity:', quantity);
+                toastMessage.innerText = message;
 
-  // Ensure valid input
-  if (isNaN(quantity) || quantity < 1) {
-    alert('Quantity must be at least 1.');
-    quantityInput.value = 1; // Reset to 1
-    return;
-  }
+                toast.style.display = 'flex';
+                toast.classList.add('show');
 
-  if (quantity > maxLimit) {
-    alert(`You cannot select more than ${maxLimit} items.`);
-    quantityInput.value = maxLimit;
-    return;
-  }
-
-  if (quantity > availableStock) {
-    alert(`Sorry, you cannot select more than ${availableStock} units for "${productName}".`);
-    quantityInput.value = availableStock;
-    return;
-  }
-
-  console.log('1',cartPrice)
-
-  const totalPriceElement = document.querySelector(`#total-${productId}`);
-  const newTotalPrice = quantity * cartPrice;
-
-  if (totalPriceElement) {
-    totalPriceElement.innerText = `₹${newTotalPrice.toFixed(2)}`;
-  } else {
-    console.error(`Element with ID #total-${productId} not found`);
-  }
-
-  updateGrandTotal();
-
-  fetch(`/cart/update-quantity/${productId}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ quantity ,cartPrice}),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        console.log('Quantity updated successfully:', data);
-        showToast(`Quantity updated successfully for ${productName}`);
-      } else {
-        alert('Failed to update quantity');
-        console.error(data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error updating quantity:', error);
-    });
-}
-
-        
-
-
-function showToast(message) {
-    const toast = document.getElementById('toast');
-    const toastMessage = document.getElementById('toast-message');
-
-    toastMessage.innerText = message;
-
-    toast.style.display = 'flex';
-    toast.classList.add('show');
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, 500); 
-    }, 2000); 
-}
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 500);
+                }, 2000);
+            }
 
 
 
 
 
-</script>
-<!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->
-</html>
-<%- include('../layouts/footer') %>
-</body>
+        </script>
+        <!-- molla/cart.html  22 Nov 2019 09:55:06 GMT -->
+        <%- include('../layouts/footer') %>
+    </body>

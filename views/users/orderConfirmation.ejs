@@ -90,26 +90,7 @@
         display: flex;
         align-items: center;
     }
-    .cancel-btn {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #1cc0a0;
-        }
-        .cancel-btn .icon-wrapper {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: #1cc0a0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 4px;
-        }
-        .cancel-btn i {
-            color: white;
-            font-size: 12px;
-        }
+ 
     .fa-truck {
         color: #565656;
     }
@@ -187,7 +168,6 @@
             </div>
             <div class="price-details">
 
-                <!-- <p class="price para">₹<%= orderitem.productPrice %></p> -->
             </div>
             
 
@@ -196,34 +176,7 @@
     </div>
     </div>
 
-    <script>
-        // Select the cancel button
-        document.getElementById('cancelBtn').addEventListener('click', function (event) {
-            event.preventDefault(); // Prevent the default action
     
-            // Get the URL from the href attribute of the clicked link
-            const cancelUrl = this.href;
-    
-            // Get the product name from the data attribute
-            const name = this.getAttribute('data-product-name');
-    
-            // Show the SweetAlert2 confirmation dialog with the product name
-            Swal.fire({
-                title: 'Are you sure?',
-                text: `Do you want to cancel the order?`,
-                showCancelButton: true,
-                confirmButtonColor: '#1cc0a0',
-                cancelButtonColor: '',
-                confirmButtonText: 'Yes, cancel it!',
-                cancelButtonText: 'No, keep it'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If the user confirmed, redirect to the cancel order URL
-                    window.location.href = cancelUrl;
-                }
-            });
-        });
-    </script>
     
     
     <%- include('../layouts/footer') %>

@@ -4,11 +4,12 @@ const Product = require("../models/productModel");
 const User = require("../models/userSchema");
 const { log } = require("console");
 const Wallet = require("../models/walletSchema");
+const Address = require("../models/addressModel");
 
 const messages = {
   ORDER_WALLET: "Order item cancelled and wallet updated successfully.",
-  NO_REFUND: "No refund is applicable for Cash on Delivery orders.",
-  NO_REFUND_PAID: "No refund is not  applicable for Paid orders.",
+  NO_REFUND: "No refund is applicable for non-paid orders.",
+  NO_REFUND_PAID: "No refund  is not  applicable for Paid orders.",
   ORDER_CANCALLED: "Order item cancelled successfully.",
   ORDER_RETURNED:
     "Order item returned successfully and wallet updated succesfully",
@@ -19,10 +20,10 @@ const messages = {
 // ================================= order cofirmation page  in user side =========================
 const orderConfirmation = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { orderCode } = req.params;
 
     const [order, categories] = await Promise.all([
-      Order.findById(orderId)
+      Order.findOne({ orderCode: orderCode })
         .populate("address")
         .populate({
           path: "orderitems",
@@ -49,11 +50,11 @@ const orderConfirmation = async (req, res) => {
 
 const cancelPage = async (req, res) => {
   try {
-    const { orderId, orderItemId } = req.params;
+    const { orderCode, itemCode } = req.params;
 
     const [userData, order, categories] = await Promise.all([
       User.findOne({ _id: req.session.user }),
-      Order.findById(orderId).populate("address").populate({
+      Order.findOne({ orderCode }).populate("address").populate({
         path: "orderitems.productId",
         model: Product,
       }),
@@ -61,9 +62,8 @@ const cancelPage = async (req, res) => {
     ]);
 
     const orderItem = order.orderitems.find(
-      (item) => item._id.toString() === orderItemId
+      (item) => item.itemCode === itemCode
     );
-
     res.render("users/orderCancellation", {
       userData,
       order,
@@ -71,8 +71,8 @@ const cancelPage = async (req, res) => {
       orderItem,
       paymentStatus: order.paymentStatus,
       title: "Order Detail - Feather",
-      orderId,
-      orderItemId,
+      orderCode,
+      itemCode,
     });
   } catch (error) {
     console.error("Error fetching order details:", error);
@@ -84,16 +84,16 @@ const cancelPage = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const { orderId, orderItemId } = req.params;
+    const { orderCode, itemCode } = req.params;
     const { cancelReason, cancellationComments, refundMode } = req.body;
 
     const [order, user] = await Promise.all([
-      Order.findById(orderId),
+      Order.findOne({ orderCode }),
       User.findById(req.session.user),
     ]);
 
     const orderItem = order.orderitems.find(
-      (item) => item._id.toString() === orderItemId
+      (item) => item.itemCode === itemCode
     );
 
     orderItem.status = "Cancelled";
@@ -122,7 +122,6 @@ const cancelOrder = async (req, res) => {
 
       // Ensure transactions is an array
       if (!Array.isArray(wallet.transactions)) {
-        console.error("Wallet transactions is not an array, initializing.");
         wallet.transactions = [];
       }
 
@@ -130,13 +129,13 @@ const cancelOrder = async (req, res) => {
       wallet.transactions.push({
         type: "credit",
         amount: refundAmount,
-        description: `Refund for order item ${orderId.slice(-4)}`,
+        description: `Refund for order item ${orderCode}`,
       });
 
       // Update the wallet balance
       wallet.balance += refundAmount;
 
-      await Promise.all([wallet.save(), product.save(), order.save()]);
+      await await Promise.all([wallet.save(), product.save(), order.save()]);
 
       return res.json({
         success: true,
@@ -170,17 +169,18 @@ const cancelOrder = async (req, res) => {
 
 const orderDetail = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { orderCode } = req.params;
 
     const [userData, order, categories] = await Promise.all([
       User.findOne({ _id: req.session.user }),
-      Order.findById(orderId).populate("address").populate({
-        path: "orderitems.productId",
-        model: Product,
-      }),
+      Order.findOne({ orderCode })
+        .populate({ path: "address", model: Address })
+        .populate({
+          path: "orderitems.productId",
+          model: Product,
+        }),
       Category.find({ islisted: true, isDeleted: false }),
     ]);
-
     res.render("users/orderDetail", {
       userData,
       order,
@@ -222,21 +222,19 @@ const orderPage = async (req, res) => {
 // return order page
 const returnPage = async (req, res) => {
   try {
-    const { orderId, orderItemId } = req.params;
+    const { orderCode, itemCode } = req.params;
 
     const [userData, order, categories] = await Promise.all([
       User.findOne({ _id: req.session.user }),
-      Order.findById(orderId).populate("address").populate({
+      Order.findOne({ orderCode }).populate("address").populate({
         path: "orderitems.productId",
         model: Product,
       }),
       Category.find({ islisted: true, isDeleted: false }),
     ]);
-
     const orderItem = order.orderitems.find(
-      (item) => item._id.toString() === orderItemId
+      (item) => item.itemCode === itemCode
     );
-
     res.render("users/returnPage", {
       title: "Return - Feather",
       userData,
@@ -244,28 +242,27 @@ const returnPage = async (req, res) => {
       categories,
       orderItem,
       paymentStatus: order.paymentStatus,
-      orderId,
-      orderItemId,
+      orderCode,
+      itemCode,
     });
   } catch (error) {
     log(error);
-    res.status(404).redirect("/pageNotFound");
+    res.redirect("/pageNotFound");
   }
 };
 
 //return proccess
 const returnOrder = async (req, res) => {
   try {
-    log(req.body);
-    const { orderId, orderItemId, reason } = req.body; // Extract orderId and orderItemId from the POST request body
+    const { orderCode, itemCode, reason } = req.body;
 
     const [order, user] = await Promise.all([
-      Order.findById(orderId),
+      Order.findOne({ orderCode }),
       User.findById(req.session.user),
     ]);
 
     const orderItem = order.orderitems.find(
-      (item) => item._id.toString() === orderItemId
+      (item) => item.itemCode === itemCode
     );
 
     // Update order item status to "returned"
@@ -287,7 +284,6 @@ const returnOrder = async (req, res) => {
     product.quantity += orderItem.originalQuantity;
 
     if (!wallet) {
-      console.log("Wallet not found, creating a new one.");
       wallet = new Wallet({
         userId: user._id,
         balance: 0,
@@ -303,16 +299,14 @@ const returnOrder = async (req, res) => {
     wallet.transactions.push({
       type: "credit",
       amount: refundAmount,
-      description: `Refund for order item ${orderId.slice(-4)}`,
+      description: `Refund for order ${orderCode}`,
     });
 
     // Update the wallet balance
     wallet.balance += refundAmount;
 
     await wallet.save();
-    console.log("Wallet updated successfully");
     await Promise.all([product.save(), order.save()]);
-    log("done   ");
 
     return res.json({
       success: true,
@@ -417,37 +411,6 @@ const changeStatus = async (req, res) => {
         orderItem.paymentStatus = "Pending";
       }
     }
-    // await order.save();
-    // log('Order item status updated', orderItem);
-
-    // const allStatuses = order.orderitems.map(item => item.status);
-
-    // if (allStatuses.every(status => status === 'Cancelled')) {
-    //     order.status = 'Cancelled';
-    //     order.cancelDate = new Date();
-    // }
-    // else if (allStatuses.includes('Delivered')) {
-    //     order.status = 'Delivered';
-    //     orderItem.paymentStatus = 'Paid';
-    //     order.deliveredDate = new Date();
-    // }
-    // else if (allStatuses.every(status => status === 'Returned')) {
-    //     order.status = 'Retunrned';
-    //     orderItem.paymentStatus = 'Refunded';
-    //     order.returnDate = new Date();
-    // }
-    // else if (allStatuses.some(status => status === 'Shipped')) {
-    //     order.status = 'Shipped';
-    //     order.shippedDate = new Date();
-    // }
-    // else if (allStatuses.some(status => status === 'Processing')) {
-    //     order.status = 'Processing';
-    //     order.processingDate = new Date();
-    // }
-    // else if (allStatuses.some(status => status === 'Pending')) {
-    //     order.status = 'Pending';
-    //     order.pendingDate = new Date();
-    // }
 
     await order.save();
 
@@ -462,10 +425,10 @@ const changeStatus = async (req, res) => {
 
 const orderItem = async (req, res) => {
   try {
-    const { orderId, orderItemId } = req.params;
+    const { orderCode } = req.params;
 
     const [order] = await Promise.all([
-      Order.findById(orderId)
+      Order.findOne({orderCode})
         .populate({
           path: "userId",
           select: "name email phone",
@@ -478,7 +441,7 @@ const orderItem = async (req, res) => {
         }),
     ]);
 
-    const orderItem = order.orderitems.id(orderItemId);
+    // const orderItem = order.orderitems.id(orderItemId);
 
     return res.render("admin/orderItem", {
       title: "Order Details",

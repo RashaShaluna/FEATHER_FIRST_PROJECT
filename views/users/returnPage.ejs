@@ -112,10 +112,10 @@
         </div><!-- End .container -->
     </div><!-- End .page-header -->
     <nav aria-label="breadcrumb" class="breadcrumb-nav">
-        <div class="container">
+        <div class="container">                                                                          
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/orderDetail/:orderId/:orderItemId">Order</a></li>
+                <li class="breadcrumb-item"><a href="/orderDetail/:orderCode">Order</a></li>
 
                 <li class="breadcrumb-item active" aria-current="page">Order Return</li>
             </ol>
@@ -134,7 +134,7 @@
         <% } %>
         
         <div class="cancel-form">
-            <form action="/return/<%= order._id %>/<%= orderItem._id %>" method="POST">
+            <form action="/return/<%=orderCode %>/<%=itemCode %>" method="POST">
               
                
         
@@ -161,10 +161,10 @@
   document.getElementById('returnBtn').addEventListener('click', async (event) => {
     event.preventDefault();
     console.log('1. event.preventDefault() called');
-    const orderId = "<%= orderId %>";
-    console.log('2. orderId:', orderId);
-    const orderItemId = "<%= orderItemId %>";
-    console.log('3. orderItemId:', orderItemId);
+    const orderCode = "<%= orderCode %>";
+    console.log('2. orderCode:', orderCode);
+    const itemCode = "<%= itemCode %>";
+    console.log('3. itemCode:', itemCode);
     const reason = document.getElementById('reason').value;
     console.log('4. reason:', reason);
    
@@ -172,12 +172,12 @@
 
     try {
         console.log('7. try block started');
-        const response = await fetch(`/returnOrder/${orderId}/${orderItemId}`, {
+        const response = await fetch(`/returnOrder/${orderCode}/${itemCode}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ orderId, orderItemId, reason }),
+            body: JSON.stringify({ orderCode, itemCode, reason }),
         });
         console.log('8. fetch completed');
         const result = await response.json();
@@ -193,7 +193,7 @@
         } else {
             console.log('11. result.success is true');
             // Proceed without showing SweetAlert on success
-            window.location.href = `/orderDetail/${orderId}`;
+            window.location.href = `/orderDetail/${orderCode}`;
         }
     } catch (error) {
         console.error('12. error caught:', error);
