@@ -204,7 +204,6 @@ const placeOrder = async (req, res) => {
       unitPrice: parseFloat(product.effectivePrice),
       status: "Pending",
     }));
-    log(orderItems);
     const newOrder = new Order({
       userId,
       orderUserDetails: userId,
@@ -226,7 +225,6 @@ const placeOrder = async (req, res) => {
 
     if (paymentMethod === "wallet") {
       const wallet = await Wallet.findOne({ userId });
-      log("in wallet");
       if (!wallet || wallet.balance < orderPrice) {
         return res.status(400).json({
           success: false,
@@ -248,7 +246,6 @@ const placeOrder = async (req, res) => {
 
       await wallet.save();
     }
-    log(newOrder);
     await Promise.all([
       newOrder.save(),
       ...orderItems.map((item) =>
@@ -314,7 +311,6 @@ const createOrder = async (req, res) => {
       paymentMethod: "razorpay",
       paymentStatus: "Failed",
     }));
-    console.log("orderItems:", orderItems);
 
     const newOrder = new Order({
       userId,
@@ -362,7 +358,7 @@ const createOrder = async (req, res) => {
       currency: "INR",
       receipt: `receipt_${newOrder._id}`,
     });
-    console.log("razorpay order created:", razorpayOrder);
+
     res.json({
       success: true,
       razorpayOrderId: razorpayOrder.id,
@@ -395,7 +391,6 @@ const verifyRazorpay = async (req, res) => {
     const order = await Order.findOne({orderCode:orderCode})
 
     if (expectedSignature !== razorpay_signature) {
-      console.log("Signatures do not match");
 
       order.paymentStatus = "Failed";
       order.status = "Failed";

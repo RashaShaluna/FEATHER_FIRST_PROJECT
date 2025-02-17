@@ -165,7 +165,6 @@ const registerVerify = async (req, res) => {
     const otp = generateOtp();
 
     const emailSent = await sendVerificationEmail(req.body.email, otp);
-    console.log("verfying1");
     if (!req.body.email || req.body.email.trim() === "") {
       return res.render("users/register", {
         title: "Feather - registerpage",

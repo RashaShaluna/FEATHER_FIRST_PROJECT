@@ -62,7 +62,6 @@ const admincheck = async (req, res) => {
         });
       }
     } else {
-      console.log("Not an admin");
       return res.render("admin/adminLogin", {
         title: "Feather-Admin Login",
         message: messages.loginFailed,
@@ -174,12 +173,9 @@ const dashboard = async (req, res) => {
     };
 
     statusData.forEach((item) => {
-      console.log("1) item:", item);
       if (orderStatus.hasOwnProperty(item._id)) {
-        console.log("1) updating orderStatus:", item._id);
         orderStatus[item._id] = item.count;
       } else {
-        console.log("1) skipping orderStatus:", item._id);
       }
     });
 
@@ -214,10 +210,8 @@ const adminLogout = async (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        console.log("Error in logout session");
         return res.redirect("/pageerror");
       } else {
-        console.log("session destroyed");
         return res.redirect("/admin/log");
       }
     });

@@ -125,10 +125,8 @@ const deleteAddress = async (req, res) => {
 //   ============ edit address ===============
 const editAddress = async (req, res) => {
   try {
-    log("in edit address");
     const addressId = req.params.id;
-    log(addressId);
-    log(addressId);
+ 
     const userId = req.session.user;
 
     const [user, categories, addresses] = await Promise.all([
@@ -193,7 +191,6 @@ const editAddressVerify = async (req, res) => {
     if (!updateAddress) {
       return res.redirect("/serverError");
     }
-    log(updateAddress);
     res.redirect("/address");
   } catch (error) {
     console.log("error:", error);

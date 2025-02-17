@@ -131,11 +131,17 @@
                                                     <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
                                                         <span class="product-label label-out">Out of stock</span>
                                                     <% }else{ %>
-                                                   <%  if(product.isOfferActive===true && product.activeOfferSource === 'product' && product.offerEndDate >= new Date())  { %>
+                                                      <% if (product.activeOfferSource === 'product' && 
+                                                      new Date(product.offerEndDate) >= new Date() && 
+                                                      new Date(product.offerStartDate) <= new Date() &&
+                                                      product.isOfferActive === true) { %>
                                                       <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
-                                                      <% } else if(product.category.isOfferActive===true && product.activeOfferSource === 'category' && product.category.offerEndDate >= new Date()){ %>
-                                                        <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
-
+                                                      <% } else if (product.activeOfferSource === 'category' && 
+                                                           product.category.isOfferActive === true && 
+                                                          new Date(product.category.offerEndDate) >= new Date() && 
+                                                          new Date(product.category.offerStartDate) <= new Date()) { %>
+                                                        <span class="product-label label-disc">-<%= product.category.offerPercentage %> % </span>
+                                                        
                                                         <% } %>
                                                         <% } %>
 
@@ -199,13 +205,13 @@
                                                  <span class="new-price"><%= '₹' + product.offerPrice %></span>
                                              
                                              <% } else if (product.activeOfferSource === 'category' && 
-                                                          product.category && product.category.isOfferActive === true && 
+                                                           product.category.isOfferActive === true && 
                                                           new Date(product.category.offerEndDate) >= new Date() && 
                                                           new Date(product.category.offerStartDate) <= new Date()) { %>
                                              
                                                  <span class="old-price"><%= '₹' + product.salesPrice %></span>
                                                  <span class="new-price"><%= '₹' + product.offerPrice %></span>
-                                             
+                                                            
                                              <% } else { %>
                                              
                                                  <span class="new-price"><%= '₹' + product.salesPrice %></span>
@@ -250,7 +256,7 @@
                                     </li>
                                 </ul>
                             </nav>
-                        </div><!-- End .col-lg-9 -->
+                        </div>
                 		<aside class="col-lg-3 order-lg-first">
                 			<div class="sidebar sidebar-shop">
                 				<div class="widget widget-clean">

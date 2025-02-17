@@ -60,7 +60,6 @@ const addCategory = async (req, res) => {
   try {
     const { name, description, offerPercentage, offerStartDate, offerEndDate } =
       req.body;
-    log(req.body);
     const lowerCaseName = name.toLowerCase();
 
     if (!name || !description) {
@@ -86,7 +85,6 @@ const addCategory = async (req, res) => {
     });
 
     const result = await newCategory.save();
-    log(result);
 
     res.json({ success: true, message: messages.CAT_ADDED });
   } catch (error) {

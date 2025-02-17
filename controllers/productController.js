@@ -113,13 +113,7 @@ const productAdding = async (req, res) => {
         .status(400)
         .json({ success: false, message: messages.PRODUCT_EXIST });
     }
-    console.log(
-      "name price offerPercentage images:",
-      name,
-      salesPrice,
-      offerPercentage,
-      images
-    );
+   
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -142,7 +136,6 @@ const productAdding = async (req, res) => {
 
     const productData = await newProduct.save();
 
-    console.log("product", productData);
     res.json({ success: true, message: messages.PRODUCT_ADDED });
   } catch (error) {
     log("Error:", error);

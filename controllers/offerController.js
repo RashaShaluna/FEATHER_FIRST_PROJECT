@@ -4,62 +4,45 @@ const Category = require("../models/category");
 
 const setOfferPrice = async (productId) => {
   try {
-    const product = await Product.findById(productId).populate("category");
+    const product = await Product.findById(productId)
+      .populate({
+        path: "category",
+        model: Category,
+      });
 
-    
-    log(`Product: ${product.name} with ID ${productId}`);
-    log(`Product offer active: ${product.isOfferActive}`);
-    log(`Product offer percentage: ${product.offerPercentage}`);
+    log('pro', product);
 
-    log(`Category: ${product.category.name} with ID ${product.category._id}`);
-    log(`Category offer active: ${product.category.isOfferActive}`);
-    log(`Category offer percentage: ${product.category.offerPercentage}`);
-
-    const productOfferPercentage = product.isOfferActive
-      ? product.offerPercentage
-      : 0;
-    const categoryOfferPercentage = product.category?.isOfferActive
-      ? product.category.offerPercentage
-      : 0;
-
-    log(`productOfferPercentage: ${productOfferPercentage}`);
-    log(`categoryOfferPercentage: ${categoryOfferPercentage}`);
+    const productOfferPercentage = product.isOfferActive ? product.offerPercentage : 0;
+    const categoryOfferPercentage = product.category?.isOfferActive ? product.category.offerPercentage : 0;
 
     const activeOfferSource =
       productOfferPercentage > categoryOfferPercentage ? "product" : "category";
-    log(activeOfferSource);
+    const largerOfferPercentage = Math.max(productOfferPercentage, categoryOfferPercentage);
 
-    const largerOfferPercentage = Math.max(
-      productOfferPercentage,
-      categoryOfferPercentage
-    );
-    log(`largerOfferPercentage: ${largerOfferPercentage}`);
+    log('ac', activeOfferSource);
+    log('lar', largerOfferPercentage);
 
+let price =  Math.floor(product.salesPrice * (1 - largerOfferPercentage / 100));
     if (largerOfferPercentage > 0) {
-      product.offerPrice = Math.floor(
-        product.salesPrice * (1 - largerOfferPercentage / 100)
-      );
+      product.offerPrice = price
     } else {
-      product.offerPrice = null; // No active offers
+      product.offerPrice = null;
     }
 
     product.activeOfferSource = activeOfferSource;
-    const result = await product.save();
-    log(result);
-    log(
-      `Offer price updated for product ID ${productId}: ${product.offerPrice}`
-    );
-    log(result);
+    const result =  await product.save();
+    log('set offer report',result)
   } catch (error) {
     log(`Error in setOfferPrice: ${error.message}`);
   }
 };
 
+
 const offerActive = async (req, res) => {
   try {
     const productId = req.query.id;
 
-    const product = await Product.findById(productId);
+    const product = await Product.findOne({productId,isDeleted:false});
 
     if (
       !product ||
@@ -69,7 +52,7 @@ const offerActive = async (req, res) => {
       !product.offerEndDate
     ) {
       console.log(
-        "Product with ID",
+        "Product with ID", 
         productId,
         "does not have a valid offer percentage or dates"
       );
@@ -79,7 +62,6 @@ const offerActive = async (req, res) => {
     product.isOfferActive = true;
     await product.save();
 
-    console.log("Updating offer price for product with ID", productId);
     await setOfferPrice(productId);
 
     res.redirect("/admin/product");
@@ -93,9 +75,7 @@ const offerActive = async (req, res) => {
 const offerDeactive = async (req, res) => {
   try {
     const productId = req.query.id;
-    log("111");
 
-    log("Deactivating offer for product with ID", productId);
 
     const product = await Product.findByIdAndUpdate(
       productId,
@@ -104,7 +84,6 @@ const offerDeactive = async (req, res) => {
     );
 
     if (product) {
-      log("Resetting offer price for product with ID", productId);
       await setOfferPrice(productId); // Reset offer price
     }
 
@@ -119,40 +98,26 @@ const offerDeactive = async (req, res) => {
 const offerCategoryActive = async (req, res) => {
   try {
     const categoryId = req.query.id;
-
     log("Activating offer for category with ID", categoryId);
 
-    const category = await Category.findByIdAndUpdate(
-      categoryId,
-      { $set: { isOfferActive: true } },
-      { new: true }
-    );
+    const category = await Category.findById(categoryId);
 
-    if (
-      !category ||
-      !category.offerPercentage ||
-      category.offerPercentage <= 0
-    ) {
-      log(
-        "Category with ID",
-        categoryId,
-        "does not have a valid offer percentage"
-      );
+   log(category)
+
+    if (!category.offerPercentage || category.offerPercentage <= 0 || !category.offerStartDate || !category.offerEndDate) {
       return res.redirect(`/admin/category?error=missing-percentage`);
     }
 
-    if (category) {
-      log(
-        "Updating offer price for all products in category with ID",
-        categoryId
-      );
-      const products = await Product.find({ category: categoryId });
+    category.isOfferActive = true;
+    const result = await category.save();
+    log('offer cat',result)
+    log("Updating offer prices for all products in category with ID", categoryId);
 
-      // Update offer price for all products in the category
-      for (const product of products) {
-        log("Updating offer price for product with ID", product._id);
-        await setOfferPrice(product._id);
-      }
+    const products = await Product.find({ category: categoryId ,isDeleted:false});
+log(products)
+    for (const product of products) {
+      log("Updating offer price for product with ID", product._id);
+      await setOfferPrice(product._id);
     }
 
     res.redirect("/admin/category");
@@ -162,26 +127,31 @@ const offerCategoryActive = async (req, res) => {
   }
 };
 
-// Deactivate category offer and reset all related products' offer prices
 const offerCategoryDeactive = async (req, res) => {
   try {
     const categoryId = req.query.id;
+    log("Deactivating offer for category with ID", categoryId);
 
-    const category = await Category.findByIdAndUpdate(
-      categoryId,
-      { $set: { isOfferActive: false } },
-      { new: true }
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.redirect(`/admin/category?error=category-not-found`);
+    }
+
+    category.isOfferActive = false;
+    await category.save();
+
+    log(
+      "Resetting offer price for all products in category with ID",
+      categoryId
     );
 
-    if (category) {
-      const products = await Product.find({ category: categoryId });
+    const products = await Product.find({ category: categoryId ,isDeleted:false});
 
-      // Reset offer price for all products in the category
-      for (const product of products) {
-        await setOfferPrice(product._id);
-      }
+    for (const product of products) {
+      await setOfferPrice(product._id);
     }
-    log("done category offer    ");
+
+    log("All category products have been updated");
     res.redirect("/admin/category");
   } catch (error) {
     log("Error in offerCategoryDeactive: ", error);

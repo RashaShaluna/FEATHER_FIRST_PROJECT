@@ -22,7 +22,6 @@ const cart = async (req, res) => {
       isDeleted: false,
     });
 
-    log(user);
     if (!user) {
       return res.json({ message: messages.USER_NOT_LOGGED });
     }
@@ -50,7 +49,6 @@ const cart = async (req, res) => {
       return product && !product.isBlocked && !product.isDeleted;
     });
 
-    log(cartData);
     res.render("users/cart", {
       title: "Cart - Feather",
       user,

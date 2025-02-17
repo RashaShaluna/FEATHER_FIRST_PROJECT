@@ -208,7 +208,6 @@ const removeCoupon = async (req, res) => {
 
     req.session.appliedCoupons = req.session.appliedCoupons || [];
     const couponIndex = req.session.appliedCoupons.indexOf(couponCode);
-    log(couponIndex);
 
     req.session.appliedCoupons.splice(couponIndex, 1);
 
