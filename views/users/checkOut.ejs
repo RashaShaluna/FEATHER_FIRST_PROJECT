@@ -124,6 +124,13 @@
     margin-left: 1px;
     display: inline-block;
 }
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+        
 
 /* Change the color of the selected radio button */
 input[type="radio"]:checked {
@@ -555,7 +562,7 @@ input[type="radio"]:checked {
 <!-- razorpay  -->
 
 <!-- address modal -->
-<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true">
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header border-bottom-0">
@@ -570,31 +577,31 @@ input[type="radio"]:checked {
                         <div class="col-sm-6">
                             <label for="name">Name*</label>
                             <input type="text" name="name" id="name" class="form-control">
-                            <div id="error1" class="error-message" style="display:none;"></div>
+                            <div id="error1" class="error-message"></div>
                         </div>
                         <div class="col-sm-6">
                             <label for="phone">Phone Number*</label>
                             <input type="text" name="phone" id="phone" class="form-control">
-                            <div id="error2" class="error-message" style="display:none;"></div>
+                            <div id="error2" class="error-message"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-6">
                             <label for="locality">Locality*</label>
                             <input type="text" name="locality" id="locality" class="form-control">
-                            <div id="error3" class="error-message" style="display:none;"></div>
+                            <div id="error3" class="error-message"></div>
                         </div>
                         <div class="col-sm-6">
                             <label for="district">District*</label>
                             <input type="text" name="district" id="district" class="form-control">
-                            <div id="error4" class="error-message" style="display:none;"></div>
+                            <div id="error4" class="error-message"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
                             <label for="address">Address*</label>
                             <input type="text" name="address" id="address" class="form-control">
-                            <div id="error5" class="error-message" style="display:none;"></div>
+                            <div id="error5" class="error-message"></div>
                         </div>
                     </div>
                     <div class="row">
@@ -640,29 +647,29 @@ input[type="radio"]:checked {
                                 <option value="Uttarakhand">Uttarakhand</option>
                                 <option value="West Bengal">West Bengal</option>
                             </select>
-                            <div id="error6" class="error-message" style="display:none;"></div>
+                            <div id="error6" class="error-message"></div>
                         </div>
                         <div class="col-sm-6">
                             <label for="pincode">Pincode*</label>
                             <input type="text" name="pincode" id="pincode" class="form-control">
-                            <div id="error7" class="error-message" style="display:none;"></div>
+                            <div id="error7" class="error-message"></div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-6">
                             <label for="alternate_phone">Alternate Phone Number*</label>
                             <input type="text" name="alternatePhone" id="alternate_phone" class="form-control">
-                            <div id="error8" class="error-message" style="display:none;"></div>
+                            <div id="error8" class="error-message"></div>
                         </div>
                         <div class="col-sm-6">
                             <label for="landmark">Landmark*</label>
                             <input type="text" name="landmark" id="landmark" class="form-control">
-                            <div id="error9" class="error-message" style="display:none;"></div>
+                            <div id="error9" class="error-message"></div>
                         </div>
                     </div>
                     <div class="row mt-2">
                         <div class="col-sm-12">
-                            <button type="submit" class="btn btn-outline-primary-2" >
+                            <button type="submit" class="btn btn-outline-primary-2" id="addingfrom" >
                                 <span>ADD ADDRESS</span>
                                 <i class="icon-long-arrow-right"></i>
                             </button>
@@ -677,7 +684,6 @@ input[type="radio"]:checked {
 <!-- modal for the payment error -->
 
 <script>
-console.log('')
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -879,8 +885,7 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
 });
 
 
-    // To edit address
-
+//to delete coupon
     document.getElementById('deleteCouponBtn').addEventListener('click', function () {
     console.log('Delete coupon button clicked');
     const couponCode = document.getElementById('manualCouponCode').value;
@@ -969,90 +974,116 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
         alert('Error removing coupon');
     });
 });
-    const editLinks = document.querySelectorAll("[id^='editLink']"); 
+  
+
+const editLinks = document.querySelectorAll("[id^='editLink']"); 
     editLinks.forEach(link => {
         link.addEventListener("click", function() {
             const index = this.id.replace('editLink', ''); 
             console.log("Edit link clicked for address index: " + index);
         });
     });
-
-    // To check address valid 
+   
     document.getElementById("addform").addEventListener("submit", function (event) {
-        event.preventDefault(); 
+    event.preventDefault();
 
-        document.querySelectorAll('.error-message').forEach(el => {
-            el.style.display = 'none'; 
-        });
-
-        let isValid = true;
-
-        const name = document.getElementById('name');
-        const phone = document.getElementById('phone');
-        const locality = document.getElementById('locality');
-        const district = document.getElementById('district');
-        const address = document.getElementById('address');
-        const state = document.getElementById('state');
-        const pincode = document.getElementById('pincode');
-        const alternatePhone = document.getElementById('alternate_phone');
-
-        // Validation checks
-        if (name.value.trim() === '') {
-            document.getElementById('error1').textContent = 'Name is required.';
-            document.getElementById('error1').style.display = 'block';
-            isValid = false;
-        }
-
-        if (phone.value.trim() === '') {
-            document.getElementById('error2').textContent = 'Phone number is required.';
-            document.getElementById('error2').style.display = 'block';
-            isValid = false;
-        }
-
-        if (locality.value.trim() === '') {
-            document.getElementById('error3').textContent = 'Locality is required.';
-            document.getElementById('error3').style.display = 'block';
-            isValid = false;
-        }
-
-        if (district.value.trim() === '') {
-            document.getElementById('error4').textContent = 'District is required.';
-            document.getElementById('error4').style.display = 'block';
-            isValid = false;
-        }
-
-        if (address.value.trim() === '') {
-            document.getElementById('error5').textContent = 'Address is required.';
-            document.getElementById('error5').style.display = 'block';
-            isValid = false;
-        }
-
-        if (state.value.trim() === '') {
-            document.getElementById('error6').textContent = 'State is required.';
-            document.getElementById('error6').style.display = 'block';
-            isValid = false;
-        }
-
-        if (pincode.value.trim() === '') {
-            document.getElementById('error7').textContent = 'Pincode is required.';
-            document.getElementById('error7').style.display = 'block';
-            isValid = false;
-        }
-
-        if (alternatePhone.value.trim() === '') {
-            document.getElementById('error8').textContent = 'Alternate phone number is required.';
-            document.getElementById('error8').style.display = 'block';
-            isValid = false;
-        }
-
-        // Submit the form if all validations pass
-        if (isValid) {
-            console.log("Form is valid, submitting...");
-            event.target.submit(); 
-        } else {
-            console.log("Form is invalid, not submitting.");
-        }
+    console.log('Form submitted');
+   
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
     });
+
+
+          const name = document.getElementById('name');
+            const phone = document.getElementById('phone');
+            const locality = document.getElementById('locality');
+            const district = document.getElementById('district');
+            const address = document.getElementById('address');
+            const state = document.getElementById('state');
+            const pincode = document.getElementById('pincode');
+            const alternatePhone = document.getElementById('alternate_phone');
+
+            const error1 = document.getElementById('error1');
+            const error2 = document.getElementById('error2');
+            const error3 = document.getElementById('error3');
+            const error4 = document.getElementById('error4');
+            const error5 = document.getElementById('error5');
+            const error6 = document.getElementById('error6');
+            const error7 = document.getElementById('error7');
+            const error8 = document.getElementById('error8');
+
+            console.log("name",name.value);
+            console.log("phone",phone.value);
+            console.log("locality",locality.value);
+            console.log("district",district.value);
+            console.log("address",address.value);
+            console.log("state",state.value);
+            console.log("pincode",pincode.value);
+            console.log("alternatePhone",alternatePhone.value);
+
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+            let isValid = true;
+            console.log("Is Valid:", isValid);
+
+
+            if (name.value.trim() === '') {
+                error1.textContent = 'Name is required.';
+                error1.style.display = 'block';
+                isValid = false;
+            }
+
+            if (phone.value.trim() === '') {
+                error2.textContent = 'Phone number is required.';
+                error2.style.display = 'block';
+                isValid = false;
+            }
+
+            if (locality.value.trim() === '') {
+                error3.textContent = 'Locality is required.';
+                error3.style.display = 'block';
+                isValid = false;
+            }
+
+            if (district.value.trim() === '') {
+                error4.textContent = 'District is required.';
+                error4.style.display = 'block';
+                isValid = false;
+            }
+
+            if (address.value.trim() === '') {
+                error5.textContent = 'Address is required.';
+                error5.style.display = 'block';
+                isValid = false;
+            }
+
+            if (state.value === '') {
+                error6.textContent = 'State is required.';
+                error6.style.display = 'block';
+                isValid = false;
+            }
+
+            if (pincode.value.trim() === '') {
+                error7.textContent = 'Pincode is required.';
+                error7.style.display = 'block';
+                isValid = false;
+            }
+
+            if (alternatePhone.value.trim() === '') {
+                error8.textContent = 'Alternate phone number is required.';
+                error8.style.display = 'block';
+                isValid = false;
+            }
+
+            console.log('Is Valid:', isValid);
+
+
+            if (isValid) {
+                event.target.submit(); 
+            }
+});
+
 
     // For placing order
     document.getElementById('proceed-btn').addEventListener('click', async (event) => {
@@ -1180,15 +1211,16 @@ document.querySelector('.modalCoupon .close').addEventListener('click', function
                 body: JSON.stringify({ selectedAddress, paymentMethod: 'wallet', orderPrice: orderPrice  ,products ,couponCode}),
             });
 
+            const responseData = await response.json();
             if (response.ok) {
-                const { orderId } = await response.json();
+                const { orderId } = responseData;
                 console.log('orderid',orderId)
                 window.location.href = `/orderConfirmation/${orderId}`;
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Order Failed',
-                    text: 'Failed to place order. Please try again.',
+                    text: responseData.message,
                 });
             }
         }

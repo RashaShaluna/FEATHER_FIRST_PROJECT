@@ -91,6 +91,11 @@ const productAdding = async (req, res) => {
       name: { $regex: `${name}`, $options: "i" },
       category,
     });
+    if (isNaN(offer) || offer < 0 || offer >= 100) {
+      return res
+        .json({ success: false, message: "Offer percentage must be between 0 and 100" });
+    }
+
     if (existingProduct) {
       return res
         .status(400)
@@ -231,7 +236,7 @@ const editProduct = async (req, res) => {
     }
 
     const product = await Product.findById(productId);
-    const categories = await Category.find();
+    const categories = await Category.find({ islisted: true, isDeleted: false });
     // console.log('Product:', product);
     if (!product) {
       return res.status(404).send("Product not found");
@@ -268,6 +273,8 @@ const editingProduct = async (req, res) => {
         return res.status(400).json({ message: "Category not found" });
       }
     }
+   
+
 
     product.name = req.body.name;
     product.salesPrice = req.body.salesPrice;
@@ -278,6 +285,8 @@ const editingProduct = async (req, res) => {
     product.quantity = req.body.quantity;
     product.color = req.body.color;
     product.category = categoryId;
+
+ 
 
     const images = [
       files["image1"] ? files["image1"][0].filename : product.images[0] || null,
@@ -290,7 +299,12 @@ const editingProduct = async (req, res) => {
     const result = await product.save();
     log(result);
 
-    res.redirect("/admin/product");
+    // res.redirect("/admin/product");
+    return res.json({ 
+      success: true, 
+      message: "Product updated successfully",
+      product: result 
+    });
   } catch (error) {
     console.error("Error updating product:", error);
     res.redirect("/serverError");

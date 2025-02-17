@@ -43,11 +43,10 @@ const addCoupon = async (req, res) => {
       limit,
     } = req.body;
 
-    // Check if coupon already exists
     const existingCoupon = await Coupon.findOne({
       couponName: { $regex: new RegExp(`^${couponName}$`, "i") },
     });
-
+    
     if (existingCoupon) {
       return res.status(200).json({
         success: false,
@@ -183,9 +182,7 @@ const applyCoupon = async (req, res) => {
     const minPurchaseAmount = coupon.minPurchaseAmount || 0;
     log(discountAmount, "discount amount in apply code");
 
-    if (coupon.usedBy && coupon.usedBy.includes(userId)) {
-      return res.json({ success: false, message: "Coupon already applied" });
-    }
+
 
     res.json({
       success: true,
