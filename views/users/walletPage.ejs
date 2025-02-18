@@ -3,6 +3,16 @@
 div#tab-address {
     width: 67%;
 }
+.pagination .page-item.active .page-link {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+  color: white;
+}
+
+.pagination .page-link {
+  color: #1cc0a0;
+}
+
 </style>
 
 
@@ -90,13 +100,34 @@ div#tab-address {
                         <% } %>
 
                     </div>
+                    <div class="pagination mt-3">
+                        <ul class="pagination justify-content-center">
+                          <% if (currentPage > 1) { %>
+                            <li class="page-item">
+                              <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>">Previous</a>
+                            </li>
+                          <% } %>
+                      
+                          <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                              <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
+                            </li>
+                          <% } %>
+                      
+                          <% if (currentPage < totalPages) { %>
+                            <li class="page-item">
+                              <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>">Next</a>
+                            </li>
+                          <% } %>
+                        </ul>
+                      </div>
             </div>
         </div>
     <!-- </div> -->
         </div><!-- End .row -->
                 </div><!-- End .tab-pane -->
                     </div><!-- End .row -->
-                            </div><!-- End .container -->
+                            </div><!-- End .container -->                 
                                     </div><!-- End .dashboard -->
                                         </div><!-- End .page-content -->
                                         </main><!-- End .main -->

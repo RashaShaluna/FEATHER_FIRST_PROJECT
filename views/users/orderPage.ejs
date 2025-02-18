@@ -118,6 +118,9 @@
 
                                     <div class="product-info d-flex flex-column flex-md-row">
                                         <div class="order-items-container">
+                                            <% if (order.paymentStatus === 'Failed') { %>
+                                                <p style="color: rgb(255, 153, 0);">Payment Failed</p>
+                                            <% } %>
                                             <% order.orderitems.forEach((orderitem, index) => { %>
                                                 <div class="product-item">
                                                     <!-- Display image for each order item -->

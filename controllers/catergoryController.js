@@ -150,8 +150,9 @@ const editCategory = async (req, res) => {
           success: false,
           message: "Another category with this name already exists",
         });
-    }
+    };
 
+      
     await Category.updateOne(
       { _id: categoryId },
       {

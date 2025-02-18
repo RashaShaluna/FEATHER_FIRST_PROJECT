@@ -6,120 +6,54 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 
 
 //============================================ gogole ============================================================================
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: "http://localhost:4000/auth/google/callback",
-//     },
-//     // Fetch details of user
-//     // async (accessToken, refreshToken, profile, done) => {
-//     //   try {
-//     //     let user = await User.findOne({ 
-//     //       $or: [
-//     //         { googleId: profile.id }, 
-//     //         { email: profile.emails[0].value }
-//     //       ] 
-//     //     });
-    
-//     //     if (user) {
-//     //       // If user exists but doesn't have a Google ID, update it
-//     //       if (!user.googleId) {
-//     //         user.googleId = profile.id;
-//     //         await user.save();
-//     //       }
-//     //       return done(null, user);
-//     //     }
-    
-//     //     // Create new user if not found
-//     //     user = new User({
-//     //       name: profile.displayName,
-//     //       email: profile.emails[0].value,
-//     //       googleId: profile.id,
-//     //     });
-//     //     await user.save();
-//     //     return done(null, user);
-//     //   } catch (error) {
-//     //     return done(error, null);
-//     //   }
-//     // }
-//     async (accessToken,refreshToken,profile,done)=>{
-//       try {
-//         let user = await User.findOne({ 
-//                 $or: [
-//                   { googleId: profile.id }, 
-//                   { email: profile.emails[0].value }
-//                 ] 
-//               });
-//           if(user){
-//               return done(null,user);
-//           }else{
-//               user = new User({
-//                   name:profile.displayName,
-//                   email:profile.emails[0].value,
-//                   googleId:profile.id,
-//               })
-//               await user.save();
-//               return done(null,user)
-//           }
-//       } catch (error) {
-//         console.error('Google OAuth Error:', error);
 
-//           return done(error,null)
-//       }
-//   }
-  
-//   ))
-passport.use(new GoogleStrategy({
-  clientID : process.env.GOOGLE_CLIENT_ID,
-  clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:'http://localhost:4000/auth/google/callback'
-},
-//   to fetch details of user
-async(accessToken,refreshToken,profile,done)=>{
-  console.log(profile)
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:4000/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if user already exists
+        let user = await User.findOne({
+          $or: [{ googleId: profile.id }, { email: profile.emails[0].value }],
+        });
 
-  try {
-      let user = await User.findOne({googleId:profile.id});
-      if(user){
-          return done(null,user);
+        if (user) {
+          if (!user.googleId) {
+            user.googleId = profile.id; // Update if Google ID isn't set
+            await user.save();
+          }
+          return done(null, user); // User exists
+        }
 
-      }else{
-          user = new User({
-              name:profile.displayName,
-              email:profile.emails[0].value,
-              googleId:profile.id
-          });
-          await user.save();
-          return done(null,user);
+        // If user doesn't exist, create a new one
+        user = new User({
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          googleId: profile.id,
+        });
+        await user.save();
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
       }
-  } catch (error) {
-      console.error('Google OAuth Error:', error);
-        return done(error,null)
-  }
-}
+    }
+  )
+);
 
+// Serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
 
-));
-
-// To assign user to session -  serialization
-
-passport.serializeUser((user,done)=>{
-  done(null,user.id);
-})
-
-// Used to fetch user details -deserialization
-
-passport.deserializeUser((id,done)=>{
+passport.deserializeUser((id, done) => {
   User.findById(id)
-  .then(user =>{
-      done(null,user)
-  })
-  .catch(err =>{
-      done(err,null)
-  })
-})
+    .then((user) => done(null, user))
+    .catch((err) => done(err, null));
+});
 
 // ======================================== facebook =======================================================================
 

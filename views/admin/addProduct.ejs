@@ -1,8 +1,5 @@
 <%- include('../adminlayouts/header') %>
-<head>
-  <!-- <link href="./node_modules/cropperjs/dist/cropper.min.css" rel="stylesheet"> -->
 
-</head>
 <style>
   input[type="text"],
   input[type="number"],
@@ -154,7 +151,7 @@ input[type="file"]::-webkit-file-upload-text {
 
 #image {
     max-width: 100%;
-    max-height: 80vh; /* To limit the height within the viewport */
+    max-height: 80vh;
     display: block;
 }
 
@@ -184,10 +181,18 @@ input[type="file"]::-webkit-file-upload-text {
   }
 }
 
+.image-container {
+    position: relative;
+    display: inline-block;
+  }
 
-.image-card{
+  .image-div{
+    margin-bottom: 10px;
+padding: 10px;
+  }
+/* .image-card{
   height: 100%;
-}
+} */
 </style>
 <body>
   
@@ -245,11 +250,11 @@ input[type="file"]::-webkit-file-upload-text {
                 <div id="offerEndDate-error" class="error-message"></div>
             </div>
 
-         <div class="col-lg-4 mb-4">
-                <label class="form-label">Offer Percentage</label>
-                <input  name="offerPercentage" type="number" class="form-control border">
-                <div id="offerPrice-error" class="error-message"></div>
-            </div>
+            <div class="col-lg-4 mb-4">
+              <label class="form-label">Offer Percentage</label>
+              <input id="offerPercentage" name="offerPercentage" type="number" class="form-control border">
+              <div id="offerPercentage-error" class="error-message"></div>
+          </div>
             <div class="row form-section">
               <label class="form-label">Full Description</label>
               <textarea placeholder="Type here" id="descriptionid" name="description" class="form-control borde  w-50"  rows="4" ></textarea>
@@ -269,14 +274,12 @@ input[type="file"]::-webkit-file-upload-text {
               </div>
             </div>
 
-            <div class="card mb-2 image-card">
+            <div class="card mb-2">
               <div class="card-header">
                   <h4>Choose images</h4>
               </div>
-              <!-- <div class="border row">
-                  <div id="addedImagesContainer" class="thumbnails-container"></div>
-              </div> -->
-                  <div class="col-12 col-md-6 mb-3" >
+           <div>
+                  <div class="col-4 col-md-4  ms-5 image-div">
                     <div class="card-body">
                       <label for="input">Upload Image 1:</label>
                       <div class="text-center">
@@ -297,7 +300,7 @@ input[type="file"]::-webkit-file-upload-text {
 
 
                   <!-- Image 2 -->
-                  <div class="col-12 col-md-6 ">
+                  <div class="col-4 col-md-4  ms-5 image-div">
                     <div class="card-body">
                       <label for="input">Upload Image 2:</label>
                       <div class="text-center">
@@ -317,7 +320,7 @@ input[type="file"]::-webkit-file-upload-text {
                   </div>
 
                   <!-- Image 3 -->
-                  <div class="col-12 col-md-6 mb-3">
+                  <div class="col-4 col-md-4 ms-5 image-div">
                     <div class="card-body">
                       <label for="input">Upload Image 3:</label>
                       <div class="text-center">
@@ -334,17 +337,18 @@ input[type="file"]::-webkit-file-upload-text {
                       <button type="button" id="saveButton3" class="btn btn-sm btn-primary">crop</button>
                     </div>
                   </div>
-                  <!-- </div> --> 
+                  </div> 
        </div> <!--card end-->
-            <div class="form-section">
-              <% if (typeof message !== 'undefined' && message) { %>
-                <div class="alert alert-info msg text-center ">
-                    <%= message %>
-                </div>
-            <% } %>
-              <button class="btn btn-md rounded sub-btn"  id="pulish"  type="submit">Submit Product</button>
+        
+      </form>
+
+        <div class="form-section">
+          <% if (typeof message !== 'undefined' && message) { %>
+            <div class="alert alert-info msg text-center ">
+                <%= message %>
             </div>
-          </form>
+        <% } %>
+          <button class="btn btn-md rounded sub-btn"  id="pulish"  type="submit">Submit Product</button>
         </div>
       </div>
     </div>
@@ -394,6 +398,19 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById('salesPrice-error').style.display = 'block';
       isValid = false;
     }
+
+    //offer percentage 
+    const offerPercentage = document.getElementById('offerPercentage').value.trim();
+  const offerPercentageError = document.getElementById('offerPercentage-error');
+
+  if (offerPercentage !== '') {
+    const value = parseFloat(offerPercentage);
+    if (isNaN(value) || value < 0 || value > 100) {
+      offerPercentageError.textContent = 'Offer percentage must be between 0 and 100';
+      offerPercentageError.style.display = 'block';
+      isValid = false;
+    }
+  }
 
     // Validate Quantity
     const quantity = document.getElementById('quantity').value.trim();
@@ -449,9 +466,6 @@ return isValid;
 
 
   }
-
-
-
 
   
   function handleImageUpload(inputId, imgViewId, croppedImgId, saveButtonId, cropperIndex) {
@@ -529,6 +543,7 @@ return isValid;
   document.getElementById('productForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
+   
     if (validateForm()) {
       const formData = new FormData(this);
 
@@ -566,7 +581,7 @@ return isValid;
 
 
  </script>
-</div>
+<!-- </div> -->
  <%- include('../adminlayouts/footer') %>
 
 </body>

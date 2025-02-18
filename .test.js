@@ -2205,3 +2205,23 @@ const getDashboard = async (req, res) => {
   }
 };  
 
+
+const imageInputs = document.querySelectorAll('input[type="file"][name^="image"]'); 
+let imageValid = false;
+
+imageInputs.forEach((input, index) => {
+  let errorElement = document.getElementById(`images-error${index + 1}`);
+
+  if (input.files.length > 0) {
+    imageValid = true;
+    // errorElement.textContent = ''; 
+    // errorElement.style.display = 'none';
+  } else {
+    errorElement.textContent = 'Image is required';
+    errorElement.style.display = 'block';
+  }
+});
+
+if (!imageValid) {
+  isValid = false;
+}
