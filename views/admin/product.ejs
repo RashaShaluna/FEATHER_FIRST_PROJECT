@@ -1,0 +1,289 @@
+<%- include('../adminlayouts/header') %>
+
+
+<style>
+  /* .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-link {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.pagination-link:hover {
+    background-color: #f0f0f0;
+} */
+
+
+</style>
+<body>
+  
+
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <div class="page-header d-flex justify-content-between align-items-center">
+              <h3 class="page-title"> Product Details </h3>
+              <a href="/admin/addProduct" class="btn btn-primary" style="background-color: #1cc0a0; color: white;">Add Product</a>
+            </div>
+            <div class="position-relative mt-4">
+              <form method="GET" action="/admin/product" class="d-flex mb-4">
+                <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="<%= searchQuery %>">
+                <button class="btn btn-outline-success ms-2" type="submit" style="background-color: #1cc0a0; color: white;">Search</button>
+              </form>
+            </div>
+        
+            <div class="row">
+              <div class="col-lg-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-stripped" style="font-size: 14px; color: white;">
+                        <thead>
+                          <tr>
+                            <th>No</th>
+                            <th style="white-space: nowrap;">Product Name</th>
+                            <th>Category</th>
+                            <th>Color</th>
+                            <!-- <th>Price</th> -->
+                            <th style="white-space: nowrap;">Sales Price</th>
+                            <th>Quantity</th>
+                            <th style="white-space: nowrap;">Offer Percent</th>
+                            <th>Offer Active</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% data.reverse().forEach((data, index) => { %>
+                          <tr>
+                            <td><%= index + 1 %></td>
+                            <td style="white-space: nowrap;"><%= data.name %></td>
+                            <td  style="white-space: nowrap;"><%= data.category ? data.category.name : 'N/A' %></td> 
+                            <td><%= data.color %></td>
+                            <td><%= data.salesPrice %></td>
+                            <td><%= data.quantity %></td>
+                            <td><%= data.offerPercentage %></td>
+                            <td>
+                              <% if (data.isOfferActive === true) { %>
+                              <button class="btn" style="white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/offerdeactive?id=<%= data._id %>','offerdeactive')">Offer Active</button>
+                              <% } else { %>
+                              <button class="btn " style="white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/offeractive?id=<%= data._id %>','offeractive')">Offer Deactive</button>
+                              <% } %>
+                            </td>
+                            <td class="text-start">
+                              <div>
+                                <% if (data.status === 'In stock') { %>
+                                <button class="btn " style="white-space: nowrap; border-radius: 20px; padding: 5px 15px; border-color: rgb(165, 142, 41); background-color: white; color: rgb(165, 142, 41);"
+                                onclick="confirmStatus('/admin/outstock?id=<%= data._id %>', 'Out of stock')">
+                                In stock
+                              </button>
+                                <% } else { %>
+                                <button class="btn " style="white-space: nowrap;  border-radius: 20px; padding: 5px 15px; border-color: rgb(189, 27, 27); background-color: white; color:  rgb(189, 27, 27)"    
+                                onclick="confirmStatus('/admin/instock?id=<%= data._id %>', 'In stock')">
+                                Out of stock
+                              </button>
+                                <% } %>
+                              </div>
+                            <td class="text-start">
+                              <div>
+                                <% if (data.isBlocked === false) { %>
+                                <button class="btn btn-success" style="white-space: nowrap;"  onclick="confirmAction('/admin/blockproduct?id=<%= data._id %>','block')">Unblock</button>
+                                <% } else { %>
+                                <button class="btn btn-danger" style="white-space: nowrap;" onclick="confirmAction('/admin/unblockproduct?id=<%= data._id %>','unblock')">Block</button>
+                                <% } %>
+                              </div>
+                            </td>
+                            <td>
+                              <div style="display: flex; align-items: center; gap: 10px;">
+                                <a href="/admin/editproduct/<%= data._id %>" class="edit-product">
+                                <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <a href="#" class="delete-product" data-product-id="<%= data._id %>">
+                                  <i class="fas fa-trash-alt"></i>
+                              </a>
+                              
+                                </a>
+                                
+                              </div>
+                            </td>
+                          </tr>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                      <!-- Pagination -->
+          <div class= "pagination mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Button -->
+                    <li class="page-item <%= (currentPage === 1) ? 'disabled' : '' %>" >
+                        <a class="page-link" href="<%= (currentPage === 1) ? '#' : '?page=' + (currentPage - 1) + '&search=' + searchQuery %>" tabindex="-1">Previous</a>
+                    </li>
+
+                    <!-- Pagination Links -->
+                    <% for(let i = 1; i <= totalPage; i++) { %>
+                        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>" >
+                            <a class="page-link <%= (i === currentPage) ? 'active-page' : '' %>" 
+                                href="?page=<%= i %>&search=<%= searchQuery %>" >
+                                <%= i %>
+                            </a>
+                        </li>
+                    <% } %>
+
+                    <!-- Next Button -->
+                    <li class="page-item <%= (currentPage === totalPage) ? 'disabled' : '' %>">
+                        <a class="page-link" href="<%= (currentPage === totalPage) ? '#' : '?page=' + (currentPage + 1) + '&search=' + searchQuery %>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+          </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- </div> -->
+        
+                               
+                            
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>     
+    <script>
+      // pop for block and unblock
+ function confirmAction(url, action) {
+  console.log("URL: ", url, "Action: ", action);
+
+        const actionText = action === 'block' ? 'block' : action === 'offeractive' ? 'activate offer' : ' deactivate offer ';
+        Swal.fire({
+            title: `Are you sure you want to "${actionText}" this  product ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1cc0a0',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+
+    //pop for  stock and out of stock
+    function confirmStatus(url, status) {
+  Swal.fire({
+    title: `Are you sure you want to mark this product as ${status}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#1cc0a0',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, proceed!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = url;
+    }
+  });
+}
+
+
+// for delete the product
+document.addEventListener("DOMContentLoaded", function() {
+  const deleteButtons = document.querySelectorAll(".delete-product");
+
+  deleteButtons.forEach(function(button) {
+    button.addEventListener("click", async function(event) {
+      event.preventDefault(); 
+
+      const productId = button.getAttribute("data-product-id");
+      console.log(`Deleting product with ID: ${productId}`);
+
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(`/admin/product/delete/${productId}`, {
+            method: 'DELETE'
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            Swal.fire(
+              'Deleted!',
+              'Your product has been deleted.',
+              'success'
+            ).then(() => {
+              const row = button.closest('tr');
+              row.remove();
+              location.reload()
+          });
+          console.log('removed')
+          } else {
+            Swal.fire('Error!', data.message, 'error');
+          }
+        } catch (error) {
+          console.log(error)
+          Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+        }
+      }
+    });
+  });
+});
+
+// edit product
+
+
+
+
+
+
+  // Check for error in the query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('error')) {
+      let errorMessage = '';
+      if (urlParams.get('error') === 'missing-details') {
+          errorMessage = 'This product does not have a valid offer percentage or valid dates. Please ensure both fields are correctly filled.';
+      } else if (urlParams.get('error') === 'missing-percentage') {
+          errorMessage = 'This product does not have a valid offer percentage. Please add a valid offer percentage.';
+      }
+
+      Swal.fire({
+          title: 'Error!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonColor: '#1cc0a0',
+      }).then(() => {
+          window.location.href = '/admin/product';
+      });
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<%- include('../adminlayouts/footer') %>
+</body>

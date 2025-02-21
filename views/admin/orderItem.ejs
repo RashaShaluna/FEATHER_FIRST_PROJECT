@@ -1,0 +1,217 @@
+<%- include('../adminlayouts/header')  %>
+
+    <style>
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+        }
+        .table th {
+            font-weight: normal;
+            color: #6c757d;
+        }
+     
+    </style>
+</head>
+<body>
+    <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="page-header">
+            <h3 class="page-title fw-bold"> Order :#<%=order.orderCode%></h3>
+    
+          </div>
+    <div class="container my-5 main-con">
+        <div class="row g-4">
+            <div class="col-12  col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All items</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Product name</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Price</th>
+                                    </tr>
+                                </thead>    
+                                <tbody>
+                                    <% order.orderitems.forEach(orderitem => { %>
+                                        <tr>
+                                            <td><%= orderitem.productId.name %></td>
+                                            <td><%= orderitem.originalQuantity %></td>
+                                            <!-- changing status of order by select -->
+                                            <td>
+                                                <% if (orderitem.status === 'Cancelled' || orderitem.status === 'Returned') { %>
+                                                    <span><%= orderitem.status %></span>
+                                                <% } else { %>
+                                                    <select class="form-control" style="width: 120px;" onchange="updateStatus(this, '<%= order._id %>', '<%= orderitem._id %>')">
+                                                        <% if (orderitem.status === 'Pending') { %>
+                                                            <option value="Pending" selected>Pending</option>
+                                                            <option value="Processing">Processing</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        <% } else if (orderitem.status === 'Processing') { %>
+                                                            <option value="Processing" selected>Processing</option>
+                                                            <option value="Shipped">Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                            <option value="Cancelled">Cancelled</option>
+                                                        <% } else if (orderitem.status === 'Shipped') { %>
+                                                            <option value="Shipped" selected>Shipped</option>
+                                                            <option value="Delivered">Delivered</option>
+                                                        <% } else if (orderitem.status === 'Delivered') { %>
+                                                            <option value="Delivered" selected>Delivered</option>
+                                                            <option value="Returned">Returned</option>
+                                                        <% } %>
+                                                    </select>
+                                                <% } %>
+                                            </td>
+                                            
+                                            
+                                            <td class="text-end">₹<%= orderitem.productPrice %></td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <!-- status of the order  -->
+                        <h5 class="mb-0">Order Status</h5>
+                    </div>
+                    <div class="card-body">
+                            <p class="mb-0"><strong>Order Date:</strong> <%= order.orderDate ? order.orderDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                            <% if(order.status === 'Delivered'){ %>
+                                <p class="mb-0"><strong>Shipped Date:</strong> <%= order.shippedDate ? order.shippedDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <p class="mb-0"><strong>Delivered Date:</strong> <%= order.deliveredDate ? order.deliveredDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                            <% } %>
+                            <% if(order.status === 'Shipped'){ %>
+                                <p class="mb-0"><strong>Shipped Date:</strong> <%= order.shippedDate ? order.shippedDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <%}%>
+                            <% if(order.status === 'Cancelled'){ %>
+                                <p class="mb-0"><strong>Cancelled Date:</strong> <%= order.cancelDate ? order.cancelDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                            <% } %>
+                            <% if(order.status === 'Returned'){ %>
+                                <p class="mb-0"><strong>Shipped Date:</strong> <%= order.shippedDate ? order.shippedDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <p class="mb-0"><strong>Delivered Date:</strong> <%= order.deliveredDate ? order.deliveredDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <p class="mb-0"><strong>Return Request Date:</strong> <%= order.returnDate ? order.returnDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <p class="mb-0"><strong>Returned Date:</strong> <%= order.returnDate ? order.returnDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                                <p class="mb-0"><strong>Refunded Date:</strong> <%= order.refundDate ? order.refundDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A' %></p>
+                            <% } %>
+                        
+                       
+                    </div>
+                  </div>
+                      <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Delivery Address</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0"><strong>Name:</strong> <%= order.address.name %></p>
+                        <p class="mb-0"><strong>Phone:</strong> <%= order.address.phone %></p>
+                        <p class="mb-0"><strong>Alternative Phone:</strong> <%=  order.address.alternatePhone%></p>
+                        <p class="mb-0"><strong>Address:</strong> <%= order.address.address %></p>
+                        <p class="mb-0"><strong>Locality:</strong> <%= order.address.locality %></p>
+                        <p class="mb-0"><strong>Landmark:</strong> <%= order.address.landmark %></p>
+                        <p class="mb-0"><strong>Pincode:</strong> <%= order.address.pincode %></p>
+                        <p class="mb-0"><strong>State:</strong> <%= order.address.state %></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Order</span>
+                            <span>#<%= order.orderCode%></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Order Date</span>
+                            <span><%= new Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric', month: 'short' ,year:'numeric'}) %></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Total</span>
+                            <span class="text-danger">₹<%= order.orderPrice  %></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">User Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0"><strong>Name:</strong> <%= order.userId.name %></p>
+                        <p class="mb-0"><strong>Email:</strong> <%= order.userId.email %></p>
+                        <p class="mb-0"><strong>Phone:</strong> <%= order.userId.phone %></p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Payment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0"> Payment Method :<%= order.paymentMethod.charAt(0).toUpperCase() + order.paymentMethod.slice(1) %></p>
+                        <p class="mb-0">Payment Status :<%= order.paymentStatus%></p>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+
+        </div>
+    </div>
+    
+           <script>
+            function updateStatus(selectElement, orderId, orderItemId) {
+    const newStatus = selectElement.value;
+
+    const data = {
+        orderId: orderId,
+        orderItemId: orderItemId,
+        status: newStatus
+    };
+
+    fetch('/admin/changeStatus', {
+        method: 'POST', 
+        headers: {
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(data) 
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json(); 
+    })
+    .then(data => {
+        console.log('Status updated successfully:', data);
+        location.reload()
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+           </script>
+    <%- include('../adminlayouts/footer')  %>
+
+</body>
+

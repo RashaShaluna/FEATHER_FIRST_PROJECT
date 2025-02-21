@@ -1,0 +1,452 @@
+<%- include('../adminlayouts/header')  %>
+
+<style>
+ .col-md-3 {
+   padding: 20px;
+   border: 1px solid #ddd;
+   border-radius: 10px;
+   margin: 1px;
+ }
+
+ .pagination .page-item.active .page-link {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+  color: white;
+}
+
+.pagination .page-link {
+  color: #1cc0a0;
+}
+
+ .error-message {
+   color: red;
+   margin-top: 5px;
+ }
+
+
+ .form-label {
+   margin-bottom: 8px;
+ }
+
+
+ .form-control {
+   width: 100%;
+   padding: 8px;
+   margin-bottom: 10px;
+   border: 1px solid #ccc;
+   border-radius: 5px;
+   box-sizing: border-box;
+ }
+
+
+ .d-grid {
+   margin-top: 20px;
+ }
+
+
+ .btn-primary {
+   background-color:#1cc0a0;
+   color: #fff;
+   border: 1px solid  #1cc0a0;
+   border-radius: 5px;
+   padding: 10px 20px;
+   cursor: pointer;
+ }
+
+
+ .btn-primary:hover {
+   background-color:#1cc0a0;
+   border-color:#1cc0a0;
+ }
+ .row-top{
+   margin-right: -4.5rem;
+ }
+ .content-wrapper{
+  padding-left: 0.7rem;
+  width: 113%;
+ }
+ .text-start{
+  font-size: 12px;
+ }
+
+
+ </style>
+
+          <!-- partial -->
+          <div class="main-panel">
+            <div class="content-wrapper">
+              <div class="page-header">
+                <h3 class="page-title fw-bold"> Coupons</h3>
+
+                <!-- <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb"> -->
+                    <!-- <div class="mt-4  ">
+                      <a href="/admin/addCategory" class="btn" style="color: white; background-color: #1cc0a0;">Add Category</a>
+                  </div>                   -->
+                  <!-- </ol>
+                </nav> -->
+              </div>
+           
+            <!-- <div class="card card-top"> -->
+              <!-- <div class="card"> -->
+                <div class=" row row-top">
+                  <div class="col-md-3" style="background-color: white;">
+                    <form method="post" action="/admin/addCoupon" class="form" >
+                      <body onload="">
+                        <div class="mb-4">
+                          <label for="couponName" class="form-label">Coupon Name</label>
+                          <input
+                            type="text"
+                            id="couponName"
+                            name="couponName"
+                            placeholder="Type here"
+                            class="form-control"
+                          />
+                          <div id="error-couponName" class="error-message"></div>
+                        </div>
+           
+           
+                        <div>
+                          <label for="startingDate" class="form-label">Start Date</label>
+                          <input
+                            type="date"
+                            name="startDate"
+                            class="form-control"
+                            id="startingDate"
+                          />
+                          <div id="error-start-date" class="error-message"></div>
+                        </div>
+           
+           
+                        <div>
+                          <label for="expiringDate" class="form-label">End Date</label>
+                          <input
+                            type="date"
+                            name="endDate"
+                            class="form-control"
+                            id="expiringDate"
+                          />
+                          <div id="error-end-date" class="error-message"></div>
+                        </div>
+           
+           
+                        <div>
+                          <label for="offer-price" class="form-label">Offer Price</label>
+                          <input
+                            type="text"
+                            name="offerPrice"
+                            placeholder="Type here"
+                            class="form-control"
+                          />
+                          <div id="error-offer-price" class="error-message"></div>
+                        </div>
+           
+           
+                        <div>
+                          <label for="minimum-price" class="form-label"
+                            >Minimum Price</label
+                          >
+                          <input
+                            type="text"
+                            name="minimumPrice"
+                            placeholder="Type here"
+                            class="form-control"
+                          />
+                          <div id="error-minimum-price" class="error-message"></div>
+                        </div>
+           
+                        <!-- <div>
+                          <label for="limit" class="form-label"
+                            >Usage count</label
+                          >
+                          <input
+                            type="text"
+                            name="limit"
+                            placeholder="Type here"
+                            class="form-control"
+                          />
+                          <div id="error-limit" class="error-message"></div>
+                        </div> -->
+           
+                        <div class="d-grid">
+                          <button
+                            class="btn btn-primary mt-20"
+                            id="couponForm"
+                            type="submit"style="background-color: #1cc0a0; color: white; border"
+                          >
+                            Add Coupon
+                          </button>
+                        </div>
+                        <div id="err-msg" class="error-message"></div>
+                      </body>
+                    </form>
+                  </div>
+                  <div class="col-md-7 ml-105">
+                    <div class="table-responsive" style='width: 105%;'>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="font-size: 12px;">Name</th>
+                                    <th  style="font-size: 12px;">Code</th>
+                                    <th style="font-size: 12px;">Created On</th>
+                                    <th style="font-size: 12px;">Expire On</th>
+                                    <th style="font-size: 12px;">Discount Amoount</th>
+                                    <th style="font-size: 12px;">Minimum Price</th>
+                                    <th style="font-size: 12px;">usage count</th>
+                                    <th style="font-size: 12px;">Status</th>
+                                    <th></th>
+                                    <!-- <th style="font-size: 12px;">Action</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <%if(coupons.length === 0){%>
+                                    <tr>
+                                        <td colspan="8" class="text-start">No coupons found</td>
+                                    </tr>
+                                <%}else{%>
+                               <% coupons.forEach(coupon=>{%>
+
+                              
+                                <tr>
+                                    <td class="text-start"><%=coupon.couponName%></td>
+                                    <td class="text-start"><%=coupon.code%></td>
+                                    <td class="text-start"><%=coupon.startDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' })%></td>
+                                    <td class="text-start"><%=coupon.expireDate.toLocaleString('en-GB', { day: 'numeric', month: 'short' })%></td>
+                                    <td class="text-start"><%=coupon.discountAmount%></td>
+                                    <td class="text-start"><%=coupon.minPurchaseAmount%></td>
+                                    <td class="text-start"><%=coupon.maxUsageCount%></td>
+
+                                    <td class="text-start">
+                                        <% if(coupon.active ===true){%>
+                                            <button class="btn" style=" padding-left: 10px; width: 70px ;white-space: nowrap ; background-color: #ffffff; color:#1cc0a0 ; font-size: 11px; border-color: #1cc0a0; border: 1px solid ;" onclick="confirmAction('/admin/coupon/deactivate/?id=<%=coupon._id%>','deactive')">
+                                              Deactivate
+                                            </button>
+                                        <%} else{%>
+                                            <button class="btn " style="width: 70px ; white-space: nowrap; background-color: #1cc0a0; color: white; font-size: 11px; " onclick="confirmAction('/admin/coupon/activate/?id=<%=coupon._id%>','active')">
+                                              Activate
+                                            </button>
+                                        <%}%>
+                                    
+                                    </td>                                    
+                                     <td class="text-start">
+                                      <a href="#" class="delete-category" data-id="<%= coupon._id %>">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                      </td>
+                                  
+                                </tr>
+                             <% })%>  
+                              <%}%> 
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination mt-3">
+                      <ul class="pagination justify-content-center">
+                        <% if (currentPage > 1) { %>
+                          <li class="page-item">
+                            <a class="page-link" href="/admin/coupon?page=<%= currentPage - 1 %>">Previous</a>
+                          </li>
+                        <% } %>
+                    
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                          <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/coupon?page=<%= i %>"><%= i %></a>
+                          </li>
+                        <% } %>
+                    
+                        <% if (currentPage < totalPages) { %>
+                          <li class="page-item">
+                            <a class="page-link" href="/admin/coupon?page=<%= currentPage + 1 %>">Next</a>
+                          </li>
+                        <% } %>
+                      </ul>
+                    </div>
+                    
+                </div>
+                <!-- </div> -->
+              <!-- </div> -->
+            </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    try {
+      const response = await fetch('/admin/addCoupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Coupon added successfully',
+          confirmButtonColor: '#1cc0a0',
+          timer: 1000,
+          showConfirmButton: false
+        }).then(() => {
+          window.location.href = '/admin/coupon';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: result.message,
+          confirmButtonColor: '#1cc0a0'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding the coupon',
+        confirmButtonColor: '#1cc0a0'
+      });
+    }
+  });
+});
+
+
+  //active and unactive
+  function confirmAction(url, action) {
+        const actionText = action === 'active' ? 'active' : 'deactive';
+        Swal.fire({
+            title: `Are you sure you want to ${actionText} this coupon?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1cc0a0',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Yes ${actionText} .`,
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+
+
+
+
+  function validateForm() {
+    document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
+
+    const sDate = document.getElementsByName("startDate")[0].value;
+    const eDate = document.getElementsByName("endDate")[0].value;
+    const name = document.getElementsByName("couponName")[0].value.trim();
+    const offerPriceInput = document.getElementsByName("offerPrice")[0];
+    const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
+
+    const sDateObj = new Date(sDate);
+    const eDateObj = new Date(eDate);
+    const todayDateObj = new Date();
+    todayDateObj.setHours(0, 0, 0, 0); 
+    const offerPrice = offerPriceInput.value.trim() !== "" ? parseFloat(offerPriceInput.value) : NaN;
+    const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseFloat(minimumPriceInput.value) : NaN;
+    const limit = limitInput.trim() !== "" ? parseInt(limitInput.value) : NaN;
+    const nameRegex = /^[A-Za-z0-9 ]{1,50}$/; 
+    if (!nameRegex.test(name)) {
+      document.getElementById("error-couponName").innerHTML = "Coupon Name can only contain alphanumeric characters";
+      return false;
+    }
+
+    if (!sDate || !eDate) {
+      document.getElementById("error-start-date").innerHTML = "Start Date is required.";
+      document.getElementById("error-end-date").innerHTML = "End Date is required.";
+      return false;
+    }
+    if (sDateObj < todayDateObj) {
+      document.getElementById("error-start-date").innerHTML = "Starting date should be today or later.";
+      return false;
+    }
+    if (sDateObj >= eDateObj) {
+      document.getElementById("error-end-date").innerHTML = "End date should be after the start date.";
+      return false;
+    }
+
+    if (isNaN(offerPrice) || isNaN(minimumPrice)) {
+      document.getElementById("error-offer-price").innerHTML = "Please enter valid numeric values for Offer Price and Minimum Price.";
+      return false;
+    }
+    if (offerPrice >= minimumPrice) {
+      document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price.";
+      return false;
+    }
+
+    return true;
+  }
+
+  document.querySelectorAll('.delete-category').forEach((deleteBtn) => {
+    deleteBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const couponId = this.getAttribute('data-id');
+
+      // Confirm deletion action
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/coupon/delete/${couponId}`, {
+            method: 'PATCH',  
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire(
+                  'Deleted!',
+                  'Your coupon has been deleted.',
+                  'success'
+                ).then(() => {
+                  location.reload();  
+                });
+              } else {
+                Swal.fire(
+                  'Error!',
+                  'Something went wrong. Please try again.',
+                  'error'
+                );
+              }
+            })
+            .catch((error) => {
+              Swal.fire(
+                'Error!',
+                'Something went wrong. Please try again.',
+                'error'
+              );
+              console.error(error);
+            });
+        }
+      });
+    });
+  });
+
+</script>
+<%- include('../adminlayouts/footer')  %>
+</div>

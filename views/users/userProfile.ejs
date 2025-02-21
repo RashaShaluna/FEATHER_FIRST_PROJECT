@@ -1,0 +1,49 @@
+<%- include('../layouts/header') %>
+<body>
+        <main class="main">
+        	<%- include('../layouts/topbarprofile') %>
+
+            <div class="page-content">
+            	<div class="dashboard">
+	                <div class="container">
+	                	<div class="row">
+                            <%- include('../layouts/sidebarprofile') %>
+	                		<div class="col-md-8 col-lg-9">
+                        <div class="tab-pane fade <%= activeTab === 'account-details' ? 'show active' : '' %>" id="tab-account" role="tabpanel">
+                        <form id="accountForm" action="/profile"  method="POST">
+                        <a href="/forgotpass" class="forgot-link" style="color: #1cc0a0;">Forgot Your Password?</a>
+                          <div class="d-flex justify-content-end">
+                            <a href="/editprofile" class="btn btn-light">
+                                <i class="fa fa-pencil"></i> Edit
+                            </a>
+                          </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <label for="name">Name*</label>
+                                <input type="text" name="name" id="name" class="form-control" value="<%= user.name %>" disabled>
+                                <div id="error1" class="error-message"></div>
+
+                              </div>
+                            <div class="col-sm-6">
+                                <label for="phone">Phone Number*</label>
+                                <input type="text" name="phone" id="phone" class="form-control" value="<%= user.phone %>" disabled>
+                                <div id="error2" class="error-message"></div>
+                              </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label for="email">Email Address*</label>
+                                <input type="email" name="email" id="email" class="form-control" value="<%= user.email %>" readonly>
+                            </div>
+                        </div>
+                        </div>
+                      </form>
+        	         </div><!-- .End .tab-pane -->
+                    </div>
+                </div><!-- End .col-lg-9 -->
+            </div><!-- End .row -->
+        </div><!-- End .container -->
+</main><!-- End .main -->
+
+<%- include('../layouts/footer') %>
+</body>

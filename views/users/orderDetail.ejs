@@ -1,0 +1,497 @@
+<%- include('../layouts/header') %>
+    <style>
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin-left: 10rem;
+        }
+
+        .order-card {
+            margin-bottom: 1rem;
+        }
+
+        .product-card {
+            display: flex;
+            position: relative;
+            padding: 1rem;
+            border: 0.1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            min-height: 150px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            width: 95%;
+            max-width: 90%;
+        }
+
+        .product-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+
+        .product-details {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cancel-btn,
+        .return-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #1cc0a0;
+            margin-right: 3rem;
+            margin-top: 2rem;
+        }
+
+        .cancel-btn .icon-wrapper,
+        .return-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #1cc0a0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 4px;
+        }
+
+        .cancel-btn i {
+            color: white;
+            font-size: 12px;
+        }
+
+        .address {
+            flex: 1;
+            font-size: 13px;
+            margin-right: 20px;
+        }
+
+        h1 {
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            font-size: 2rem;
+        }
+
+        h4 {
+            font-size: 1.875rem;
+        }
+
+        h5 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-status {
+            display: flex;
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .order-cancelled {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            font-size: 12px;
+            margin: 10px;
+            text-align: right;
+        }
+
+        .estimated-delivery p {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin-right: 30px;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .paymet {
+            font-size: 12px;
+        }
+
+
+        .payment-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 2rem;
+            width: 60%;
+            margin-bottom: 1.5rem;
+            margin-left: 1rem;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .payment-label {
+            color: #666;
+        }
+
+        .payment-value {
+            font-weight: 500;
+        }
+
+        @media (max-width: 767.98px) {
+            .main-container {
+                margin-left: 0;
+                padding: 0.5rem;
+            }
+
+            .product-card {
+                flex-direction: column;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .product-image {
+                width: 300px;
+                height: 300px;
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .cancel-btn,
+            .return-btn {
+                position: static;
+                margin: 1rem 0 0 0;
+            }
+
+            .estimated-delivery,
+            .order-cancelled {
+                position: static;
+                text-align: left;
+                margin: 1rem 0 0 0;
+            }
+
+            .product-status {
+                margin-left: -100px;
+            }
+        }
+    </style>
+
+    <body>
+        <main>
+            <div class="page-header text-center" style="background-image: url('/assets/images/page-header-bg.jpg')">
+                <div class="container">
+                    <h1 class="page-title">Order Details</h1>
+                </div>
+            </div>
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <div class="container">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/orders">order</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Order Details</li>
+                    </ol>
+                </div>
+            </nav>
+            <div class="container mt-4 main-container mr-5">
+                <div class="row mb-4">
+                    <div class="col-4 col-md-4 " style="font-size: 1.2rem;">
+                        <h2>Order details:</h2>
+                        <div style="font-size: 15px;">Order ID: <%= order.orderCode%>
+                        </div>
+                        <input type="hidden" id="orderCode" value="<%= order.orderCode%>">
+
+                        <div class="mb-1" style="font-size: 15px;">Order Date: <%= new
+                                Date(order.orderDate).toLocaleString('en-GB', { day: 'numeric' , month: 'short' }) %>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-5">
+
+                        <div class="order-card">
+                            <div class="product-card">
+                                <div class="address mr-4" style="flex: 1;">
+                                    <h2 style="font-size: 16px; margin-bottom: 10px;">Delivery Address:</h2>
+                                    <div class="d-flex flex-column">
+                                        <div class="mb-1">
+                                            <%= order.address.name %>
+                                        </div>
+                                        <div>
+                                            <%= order.address.address %>, <%= order.address.landmark %>
+                                        </div>
+                                        <div>
+                                            <%= order.address.locality %>, <%= order.address.district %>, <%=
+                                                        order.address.state %>
+                                        </div>
+                                        <div class="mb-1">
+                                            <%= order.address.pincode %>, <%= order.address.country %>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                            <div style="margin-bottom: -4px; margin-top: -10px;">Phone Numbers: <%=
+                                                    order.address.phone %>, <%= order.address.alternatePhone%>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <% if (order.orderitems.some(item=> item.status === 'Delivered')) { %>
+
+                        <div class="col-4 col-md-4 d-flex justify-content-end align-items-start"
+                            style="position: absolute; top: 10; right: 0; margin-right: 7rem; color: #1cc0a0;">
+                            <a href="/invoicePDF?orderCode=<%= order.orderCode %>">Download Invoice</a>
+                        </div>
+                        <%}%>
+                </div>
+
+                <div class="order-card">
+
+                    <h2 class="h5 mb-3">Order Items</h2>
+                    <% order.orderitems.forEach(orderItem=> { %>
+                        <div class="product-card">
+                            <div class="product-info d-flex flex-column flex-md-row">
+                                <img src="/uploads/<%= orderItem.productId.images[0] %>" alt="Product Image"
+                                    class="product-image">
+                                <div class="product-details ml-md-3">
+                                    <h5>
+                                        <%= orderItem.productId.name %>
+                                    </h5>
+                                    <p>Color: <%= orderItem.productId.color %>
+                                    </p>
+                                    <p>Price: ₹<%= orderItem.productPrice %>
+                                    </p> <!-- Assuming you have a productPrice in the order item -->
+                                    <p>Quantity: <%= orderItem.originalQuantity %>
+                                    </p>
+                                    <p class="paymet">Payment Status: <%= orderItem.paymentStatus %>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="product-status" style="font-size: 12px; margin-left: 70px;">
+                                <ul style="list-style: none; padding: 0;">
+
+                                    <% if (orderItem.status==='Shipped' || orderItem.status==='Delivered' ||
+                                        orderItem.status==='Out of Delivery' ) { %>
+                                        <li>Shipped Date: <%= new Date(orderItem.shippedDate).toLocaleString('en-GB', {
+                                                day: 'numeric' , month: 'short' }) %>
+                                        </li>
+                                        <% } %>
+                                            <% if (orderItem.status==='Delivered' ) { %>
+                                                <li>Delivery Date: <%= new
+                                                        Date(orderItem.deliveryDate).toLocaleString('en-GB', {
+                                                        day: 'numeric' , month: 'short' }) %>
+                                                </li>
+                                                <% } %>
+                                                    <% if (orderItem.status==='Cancelled' ) { %>
+                                                        <li>Cancelled At: <%= new
+                                                                Date(orderItem.cancelDate).toLocaleString('en-GB', {
+                                                                day: 'numeric' , month: 'short' }) %>
+                                                        </li>
+                                                        <% } %>
+                                                            <% if (orderItem.status==='Returned' ) { %>
+                                                                <li>Shipped Date: <%= new
+                                                                        Date(orderItem.shippedDate).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' }) %>
+                                                                </li>
+                                                                <li>Delivery Date: <%= new
+                                                                        Date(orderItem.deliveryDate).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' }) %>
+                                                                </li>
+                                                                <li>Return Date: <%= new
+                                                                        Date(orderItem.returnDate).toLocaleString('en-GB',
+                                                                        { day: 'numeric' , month: 'short' }) %>
+                                                                </li>
+                                                                <% } %>
+                                </ul>
+                            </div>
+
+                            <div class="actions d-flex justify-content-center">
+                                <% if (orderItem.status==='Pending' || orderItem.status==='Processing' ) { %>
+                                    <a href="/cancelOrder/<%= order.orderCode %>/<%= orderItem.itemCode %>"
+                                        class="cancel-btn" id="cancelBtn"
+                                        data-product-name="<%= orderItem.productId.name %>">
+                                        <div class="icon-wrapper">
+                                            <i class="fa fa-close"></i>
+                                        </div>
+                                        <span class="d-none d-sm-block">Cancel</span>
+                                    </a>
+                                    <% } else if (orderItem.status==='Delivered' ) { %>
+                                        <a href="/returnPage/<%= order.orderCode%>/<%= orderItem.itemCode %>"
+                                            id="returnBtn">
+                                            <span class="d-none d-sm-block text-danger"
+                                                style="margin-left: 300px;">Return</span>
+                                        </a>
+
+
+                                        <% } %>
+                            </div>
+                            <div class="estimated-delivery">
+
+                                <% if (orderItem.status==='Pending' || orderItem.status==='Processing' ||
+                                    orderItem.status==='Shipped' ) { %>
+                                    <p>Estimated Delivery: <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', {
+                                            day: 'numeric' , month: 'short' }) %>.</p>
+                                    <% } %>
+                            </div>
+
+                            <div class="order-cancelled">
+                                <% if (orderItem.status==='Cancelled' ) { %>
+                                    <p>Order Cancelled</p>
+                                    <% } %>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div> <!-- End of order items -->
+                <!-- Payment Details -->
+                <div class="payment-details mt-4">
+                    <h2 class="h5 mb-3">Payment details</h2>
+                    <div class="payment-row">
+                        <div class="payment-label">Payment method</div>
+                        <div class="payment-value">
+                            <%= order.paymentMethod.toUpperCase() %>
+                        </div>
+                    </div>
+
+                    <% if (order.paymentStatus==='Failed' ) { %>
+                        <div class="payment-row">
+                            <div class="payment-label">Payment status(<span class="text-danger"
+                                    style="font-weight: bold;">Failed</span>)</div>
+                            <div class="payment-retry">
+                                <a href="/retryPayment" id="retryPaymentButton" class="btn btn-link">Retry Payment</a>
+                            </div>
+                        </div>
+                        <% } %>
+                            <div class="payment-row">
+                                <div class="payment-label">Delivery Charge</div>
+                                <div class="payment-value">Free delivery</div>
+                            </div>
+                            <hr>
+                            <div class="payment-row fw-bold">
+                                <div>Total Amount</div>
+                                <input type="hidden" id="orderPrice" value="<%= order.orderPrice %>">
+                                <div>₹<%= order.orderPrice %>
+                                </div>
+                            </div>
+                </div>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function (){
+                        //cancel order
+                        document.getElementById('cancelBtn').addEventListener('click', function (event) {
+                            event.preventDefault();
+                            const cancelUrl = this.href;
+                            const name = this.getAttribute('data-product-name');
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: `Do you want to cancel the order for "${name}"?`,
+                                showCancelButton: true,
+                                confirmButtonColor: '#1cc0a0',
+                                cancelButtonColor: '',
+                                confirmButtonText: 'Yes, cancel it!',
+                                cancelButtonText: 'No, keep it'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = cancelUrl;
+                                }
+                            });
+                        });
+
+
+                        //retry payment
+                        document.getElementById('retryPaymentButton').addEventListener('click', async function (event) {
+                            event.preventDefault();  // Prevent the default link behavior
+                            const orderCode = document.getElementById('orderCode').value;
+                            const orderPrice = document.getElementById('orderPrice').value;
+
+                            if (!orderCode) {
+                                alert('Order ID is missing!');
+                                return;
+                            }
+
+                            try {
+                                console.log('Retrying payment for order:', orderCode);
+
+                                const response = await fetch('/retryPayment', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ orderCode })
+                                });
+                                console.log(response);
+
+                                const { razorpayOrderId, orderCode: newOrderCode } = await response.json();
+
+                                console.log('razorpayOrderId:', razorpayOrderId);
+                                console.log('orderId:', orderCode);
+
+                                const options = {
+                                    key: 'rzp_test_QClWP75u7ELl6o',
+                                    amount: orderPrice * 100,
+                                    currency: 'INR',
+                                    name: 'Feather',
+                                    description: 'Order Payment Retry',
+                                    order_id: razorpayOrderId,
+                                    handler: async (paymentDetails) => {
+                                        console.log('paymentDetails:', paymentDetails);
+
+                                        // Send the payment verification request to the backend
+                                        const verifyResponse = await fetch('/verifyPayment', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                ...paymentDetails,
+                                                orderCode: newOrderCode,                                            }),
+                                        });
+
+                                        if (verifyResponse.ok) {
+                                            const { message } = await verifyResponse.json();
+                                            console.log('Payment successful:', message);
+                                            window.location.reload();
+                                        } else {
+                                            window.location.href = '/paymentFailed';  // Redirect to failure page
+                                        }
+                                    },
+                                    prefill: {
+                                        name: 'Lucifer Morningstar',  // Pre-fill customer details
+                                        email: 'lucifer@example.com',
+                                        contact: '9078563412',
+                                    },
+                                    theme: {
+                                        color: '#1cc0a0',  // Custom theme color for Razorpay
+                                    },
+                                };
+
+                                // Open Razorpay payment gateway
+                                const rzp = new Razorpay(options);
+                                rzp.open();
+
+                                rzp.on('payment.failed', (response) => {
+                                    console.error('Payment failed:', response.error);
+                                    window.location.href = '/paymentFailed';  // Redirect to payment failure page
+                                });
+                            } catch (error) {
+                                console.error('Error:', error);
+                               alert('error')
+                            }
+                        });
+
+                    }); 
+
+
+                </script>
+
+                <%- include('../layouts/footer') %>
+    </body>
+
+    </html>

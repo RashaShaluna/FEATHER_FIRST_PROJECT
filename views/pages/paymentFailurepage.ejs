@@ -1,0 +1,77 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Failed</title>
+<style>
+  ._failed{ border-bottom: solid 4px red !important; }
+._failed i{  color:red !important;  }
+
+._success {
+  box-shadow: 0 15px 25px #00000019;
+  padding: 45px;
+  width: 100%;
+  text-align: center;
+  margin: 40px auto;
+  border-bottom: solid 4px #28a745;
+}
+
+._success i {
+  font-size: 55px;
+  color: #28a745;
+}
+
+._success h2 {
+  margin-bottom: 12px;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-top: 10px;
+}
+
+._success p {
+  margin-bottom: 0px;
+  font-size: 18px;
+  color: #495057;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+  
+<br><br><br><br>
+
+<nav aria-label="breadcrumb" class="breadcrumb-nav">
+
+
+
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-md-5">
+          <div class="message-box _success _failed">
+               <i class="fa fa-times-circle" aria-hidden="true"></i>
+              <h2> Your payment failed </h2>
+       <p>  Try again later </p> 
+          <button class="btn btn-primary" onclick="payAgain()"> Go to Order</button>
+   
+      </div> 
+  </div> 
+</div> 
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z68ew6LCy4o4B8wEIV1zBr/8kvGHOmDH+8E2Kb" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js" integrity="sha384-+DiTPTcRWGLg7fhe4CQzr2DIibekWe1U1EJ1Bz4+U6s0Pl/8FQZtAfq8s3Kg1Jw2" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js" integrity="sha384-3C9lFyYLkRwKw4ZL4S+DtBC6Pp3X3+0NGxgk1JKOPOrUpWqOA5lQzVeO8PzGJj7r" crossorigin="anonymous"></script>
+<script>
+  function payAgain() {
+      // Your logic to handle payment again goes here
+      // For example, you can redirect the user to the payment page
+      window.location.href = "/profile/myorders";
+  }
+</script>
+

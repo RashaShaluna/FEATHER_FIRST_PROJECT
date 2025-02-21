@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- molla/index-17.html  22 Nov 2019 10:00:25 GMT -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title><%= title ? title : 'Feather bags ' %></title>
+    <meta name="keywords" content="HTML5 Template">
+    <meta name="description" content="Feather - Bootstrap eCommerce Template">
+    <meta name="author" content="p-themes">
+    <!-- Favicon -->
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="assets/images/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/icons/favicon-16x16.png">
+    <link rel="manifest" href="assets/images/icons/site.html">
+    <link rel="mask-icon" href="assets/images/icons/safari-pinned-tab.svg" color="#666666"> -->
+    <link rel="shortcut icon" href="/assets/images/icons/favicon.png">
+    <meta name="apple-mobile-web-app-title" content="Feather">
+    <meta name="application-name" content="Feather">
+    <meta name="msapplication-TileColor" content="#cc9966">
+    <meta name="msapplication-config" content="/assets/images/icons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <!-- Plugins CSS File -->
+    <link rel="stylesheet" href="/assets/vendor/line-awesome/line-awesome/line-awesome/css/line-awesome.min.css">
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/plugins/owl-carousel/owl.carousel.css">
+    <link rel="stylesheet" href="/assets/css/plugins/magnific-popup/magnific-popup.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/skins/skin-demo-17.css">
+    <link rel="stylesheet" href="/assets/css/demos/demo-17.css">
+    <link rel="stylesheet" href="/assets/css/plugins/nouislider/nouislider.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+   
+    
+    <!-- mystyle CSS -->
+    <link rel="stylesheet" href="/mystyle.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<div class="page-wrapper">  
+    <header class="header header-6">
+        <div class="header-middle">
+            <div class="container">
+                <div class="header-left">
+                    <div class="header-search header-search-extended header-search-visible d-none d-lg-block">
+                        <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
+                        <form action="/shop" method="get">
+                            <div class="header-search-wrapper search-wrapper-wide">
+                                <label for="q" class="sr-only">Search</label>
+                                <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
+                                <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                            </div><!-- End .header-search-wrapper -->
+                        </form>
+                    </div><!-- End .header-search -->
+                </div> <!--header left-->
+
+                <div class="header-center">
+                    <a href="homepage.ejs" class="logo">
+                        <img src="/assets/images/logo.png" alt="Feather
+                 Logo" width="210" height="30">
+                    </a>
+                </div><!-- End .header-left -->
+
+                <div class="header-right icons-rigth ">
+                    <a href="/wishlist" class="wishlist-link  mx-1">
+                        <i class="icon-heart-o"></i>
+                    </a>
+
+                        <a href="/cart" class="cart-link text-dark mx-1">
+                            <i class="icon-shopping-cart"></i>
+                        </a>
+                            <a href="/profile" class="profile-link mx-2 text-dark">
+                                <i class="fa-solid fa-user"></i>
+                            </a>
+                        
+                    </div>  <!--right header-->
+            </div><!-- End .container -->
+        </div><!--End .header-middle -->
+
+        <div class="header-bottom sticky-header">
+            <div class="container">
+                <div class="header-left">
+                    <nav class="main-nav" id="mainNav">
+                        <ul class="menu sf-arrows">
+                            <li class="megamenu-container active">
+                                <a href="/home" class="">Home</a>
+                                        <!-- home end -->
+                            <li>
+                                <a  class="sf-with-ul">Shop by category</a>
+                                <!-- <span  >Shop by category</span> -->
+
+                                <div class="megamenu megamenu-md">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-8">
+                                            <div class="menu-col">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <% if (categories && categories.length > 0) { %>
+                                                            <div class="category-header">
+                                                              <ul>
+                                                                <% categories.forEach(category => { %>
+                                                                    <li style="white-space: nowrap;">
+                                                                        <a href="/shop/<%= category._id %>"><%= category.name %></a></li>
+                                                                <% }) %>
+                                                                <li><a href="/shop">View all</a></li>
+
+                                                              </ul>
+                                                            </div>
+                                                          <% } %>
+                                                        
+                                                    </div><!-- End .col-md-6 -->
+                                                </div><!-- End .row -->
+                                            </div><!-- End .menu-col -->
+                                        </div><!-- End .col-md-8 -->
+                                    </div><!-- End .row -->
+                                </div><!-- End .megamenu megamenu-md -->
+
+                                <li>
+                                    <a  class="sf-with-ul">Pages</a>
+                                    <div class="megamenu megamenu-md ">
+                                        <!-- <div class="row no-gutters"> -->
+                                            <div class="col-md-8">
+                                                <div class="menu-col">
+                                                    <div class="row">
+                                                        <div class="col-md-6">                                                           
+                                                            <ul>
+                                                                <li><a href="/cart">Cart</a></li>
+                                                                <li><a href="/wishlist">Wishlist</a></li>
+                                                                    <li><a href="/profile">My Account</a></li>
+                                                                    <li><a href='/orders'> Orders</a></li>
+                                                                    <li><a href="/logOut">Log Out</a></li>
+
+                                                            </ul>
+                                                        </div><!-- End .col-md-6 -->
+                                                    </div><!-- End .row -->
+                                                </div><!-- End .menu-col -->
+                                            </div><!-- End .col-md-8 -->
+                                        <!-- </div>End .row  -->
+                                    </div><!-- End .megamenu megamenu-md -->
+                                </li>
+                                <!-- <span  >Shop by category</span> -->
+
+                              
+
+                                 <li>
+                                <a href="contact.html"  class="">Contact</a>
+                                  <li>
+                                <a href="blog.html" class="">About</a>    
+                            </ul><!-- End .menu -->
+                            </nav><!-- End .main-nav -->
+
+                                <button class="mobile-menu-toggler"type="button" data-toggle="collapse" data-target="#mainNav" aria-controls="#mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span class="sr-only">Toggle mobile menu</span>
+                                    <i class="icon-bars"></i>
+                                </button>        
+                 </div><!-- End .header-left -->
+            </div><!-- End .container -->
+        </div><!-- End .header-bottom -->
+    </header>
+
+    <!-- <script src="assets/js/main.js"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchQuery = getQueryParam('q');
+            if (searchQuery) {
+                document.getElementById('q').value = searchQuery;
+            }
+        });
+    </script>

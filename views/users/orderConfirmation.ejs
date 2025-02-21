@@ -1,0 +1,187 @@
+<%- include('../layouts/header', { categories: categories}) %>
+
+    <style>
+    .address {
+        font-size: 13px;
+    }
+    .page {
+        max-width: 1000px;
+        margin-top: 50px;
+    }
+    .thankyou {
+        margin-bottom: 30px;
+    }
+    .thankyou h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .order-details {
+        background-color: #ffffff;
+        padding: 20px;
+        border: rgb(7, 7, 7);
+        box-shadow: 0 2px 5px rgba(6, 6, 6, 0.1);
+        border-radius: 0;
+    }
+    .order-details h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+    .order-items {
+        margin-top: 20px;
+    }
+    .order-items {
+        background-color: #ffffff;
+        border: #000000;
+        padding: 20px;
+        margin-bottom: 20px;
+        max-width: 100%;
+        box-shadow: 0 2px 5px rgba(6, 6, 6, 0.1);
+    }
+    .items-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .product-details {
+        display: flex;
+        align-items: center;
+    }
+    .product-details img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-right: 20px;
+    }
+    .details h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        font-weight: 500;
+    }
+    .details p {
+        margin-bottom: 5px;
+        color: #666;
+    }
+    .delivery-info {
+        color: #919191;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+    .delivery-info i {
+        margin-right: 8px;
+    }
+    .price-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    .price {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 5px;
+        margin-top: 80px;
+    }
+    .actions {
+        display: flex;
+        align-items: center;
+    }
+ 
+    .fa-truck {
+        color: #565656;
+    }
+
+    .order-card {
+        margin: 20px;
+    }
+    .address-body {
+        display: flex;
+        align-items: flex-start;
+    }
+    .address {
+        flex: 1;
+        font-size: 13px;
+        margin-right: 20px;
+    }
+    .confirmed-image {
+        flex: 0 0 180px;
+        margin-left: -15px;
+    }
+    .confirmed-image img {
+        width: 100%;
+        height: auto;
+    }
+    </style>
+</head>
+<body>
+    <div class="container page " >
+        <a href="/orders" class="btn" style="border: 1px solid #1cc0a0;color: #1cc0a0; ">
+            View Orders
+        </a>
+      
+       <div class="thankyou text-center">
+            <h1>Thank you for your order!</h1>
+            <p>Your ordered products will be delivered by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>.</p>
+        </div>
+
+        <div class="order-details card order-card">
+            <div class="card-body d-flex align-items-start address-body">
+                <div class="address mr-4" style="flex: 1;">
+                    <h2 style="font-size: 16px; margin-bottom: 10px;">Delivery Address:</h2>
+                    <div class="d-flex flex-column">
+                        <div class="mb-1"><%= order.address.name %></div>
+                        <div><%= order.address.address %>, <%= order.address.landmark %></div>
+                        <div><%= order.address.locality %>, <%= order.address.district %>, <%= order.address.state %></div>
+                        <div class="mb-1"><%= order.address.pincode %>, <%= order.address.country %></div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                            <div style="margin-bottom: -4px; margin-top: -10px;">Phone Numbers: <%= order.address.phone %>, <%= order.address.alternatePhone%></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container confirmed-image">
+                    <img src="/assets/images/confirmed.jpg" alt="Order Confirmed" style="width: 100%; height: auto;" />
+                </div>
+            </div>
+        </div>
+        
+
+        <h2 style="font-size: 20px;">Order Details</h2>
+
+            <div class="cart-item card order-items">
+        <% order.orderitems.forEach(orderitem => { %>
+        <div class="cart-body items-body mb-5 order-products">
+            <div class="product-details">
+                <img src="/uploads/<%= orderitem.productId.images[0]%>" alt="Product Image">
+                <div class="details">
+                    <div style="font-size: 17px; font-weight: 450; color: #000000;"><%= orderitem.productId.name %></div>
+                    <p class="para">Color: <%= orderitem.productId.color %></p>
+                    <p class="para">Quantity: <%= orderitem. originalQuantity %></p>
+                    <div class="delivery-info">
+                        <i class="fa fa-truck"></i> Delivery expected by <%= order.estimatedDeliveryDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) %>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="price-details">
+
+            </div>
+            
+
+        </div>
+        <% }) %>        
+    </div>
+    </div>
+
+    
+    
+    
+    <%- include('../layouts/footer') %>
+
+</body>
+</html>
+
+

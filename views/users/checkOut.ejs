@@ -1,0 +1,1215 @@
+<%- include('../layouts/checkouttopbar')  %>
+<style>
+    /* Modal Styles */
+.modalCoupon {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modalCoupon-dialog {
+    position: relative;
+    margin: 10% auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    width: 60%;
+}
+
+.modalCoupon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modalCoupon-body {
+    padding: 10px;
+}
+
+.coupon-item {
+    padding: 10px;
+    background-color: #f8f8f8;
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+
+
+.coupon-item:hover {
+    background-color: #ddd;
+}
+
+/* Close button */
+.close {
+    font-size: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+       .icon-three-dots-vertical::before {
+        content: '\22EE';
+        font-size: 1.5rem;
+    }
+
+    .dropdown-menu {
+        min-width: auto;
+        border: 1px solid #ced4da;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .dropdown {
+        position: absolute;
+        top: 10px;
+        left: 600px;
+        color: #1cc0a0;
+    }
+ 
+    .card-dashboard {
+        position: relative;
+        width: 660px;
+        height: 100px;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+        margin-left: 40px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .btn-link {
+        text-decoration: none;
+        color: #333;
+        padding: 0;
+        background: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: #1cc0a0;
+        border-color: #1cc0a0;
+    }
+   
+   .card-add {
+       margin-bottom: 15px;
+       border: 1px solid #ddd; 
+       height: 50px;
+       background: #fafafa;
+   }
+   .address-name {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .address-details {
+        font-size: 1.3rem;
+    }
+    .apply-btn-custom {
+    height: 41px;
+    margin-left: 1px;
+    display: inline-block;
+}
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+        
+
+/* Change the color of the selected radio button */
+input[type="radio"]:checked {
+    accent-color: grey; /* Choose your desired color */
+    }
+
+
+   @media (max-width: 768px) {
+       .card-dashboard {
+          width: 450px;
+       }
+
+       .card-add {
+           width: 400px;
+       }
+   }
+
+.modal-dialog {
+    max-width: 750px; /* Adjust as needed */
+}
+
+/* Optional: Center modal content vertically */
+.modal-content {
+    border-radius: 8px; /* Optional rounded corners */
+}
+/* .modal-body {
+    padding: 20px; /* Add padding around the modal content *
+} */
+
+/* .modal-body .row {
+    margin-bottom: 15px; 
+} */
+
+.form-control {
+    width: 90%; /* Adjust input width */
+     /* Center the input fields */
+}
+.modal {
+    z-index: 1050; /* Bootstrap's default for modals */
+}
+
+
+.modal.show {
+    display: block; /* Show modal */
+}
+.error-message {
+    color: red; /* Change to red for visibility */
+    font-size: 12px; /* Adjust font size if needed */
+    display: none; /* Keep hidden by default */
+}
+
+    </style>
+<body>
+
+        <main class="main">
+        	
+            <nav aria-label="breadcrumb" class="breadcrumb-nav">
+                <div class="container">
+                 <div class="breadcrumb" style="display: flex; justify-content: center; font-size: 24px; color: black;">Checkout Details</div>
+                </div><!-- End .container -->
+                
+            </nav><!-- End .breadcrumb-nav -->
+            <div style="margin-left: 50px; margin-bottom: 20px ;" class="breadcrumb"> <a href="/cart" class="btn" style="border: 1px solid #ffffff;background-color: #1cc0a0; color: white;">
+                Back to cart
+              </a></div>
+            <div class="page-content">
+            	<div class="checkout">
+	                <div class="container">
+            			<div class="checkout-discount">
+                                    <span id="checkCouponsBtn" style="color: #1cc0a0; cursor: pointer;">Click here search coupon </span>
+                                        <form id="manualCouponForm" action="#">
+                                <div class="input-group" style="width: 23rem;">
+                                    <input type="text" class="form-control" id="manualCouponCode" placeholder="Enter coupon code here">
+                                    <div class="input-group-append" id="apply-btn" style="height: 41px;">
+                                        <button type="submit"  style="color: #1cc0a0; border-color: #1cc0a0; font-size: 12px; background-color: white;" id="applyManualCouponBtn"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                                       
+                                    </div>
+                                    <span id="deleteCouponBtn" style="display: none;  cursor: pointer; color: #858585; margin-left: 10px; margin-top: 10px;">
+                                        <i class="fa fa-trash" aria-hidden="true" style="font-size: 16px;"></i> 
+                                    </span>
+                                </div>
+                               
+                            </form>
+                        </div>
+                        
+                        <!-- Modal for Available Coupons -->
+                        <div class="modalCoupon" id="couponModal" style="display: none;">
+                            <div class="modalCoupon-dialog">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <div class="modalCoupon-content" style="width: 50%;">
+                                    <div class="modalCoupon-header">
+                                        <h5 class="modalCoupon-title">Available Coupons</h5>
+                                    </div>
+                                    <div class="modalCoupon-body">
+                                        <ul class="list-group" id="couponListContent">
+                                            <!-- Coupons will be added here dynamically -->
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+<form action="/checkout/placeOrder" method="post"> <!-- Set action to your checkout route -->
+    <div class="row">
+        <div class="col-lg-9">
+            <p style="margin-left: 10px; ">Choose Delivery Address</p>
+            <div class="col-lg-10 ml-5" >
+                <div class="card  card-add">
+                    <div class="card-body d-flex justify-content-between align-items-start">
+                        <a href="#" class="add-address"  style="color: #1cc0a0;" id="add-address-link"  data-toggle="modal" data-target="#addAddressModal">
+                            <i class="icon-plus"></i> Add Address
+                        </a>                                         
+                    </div>
+                </div>
+            </div><!-- modal for address -->
+           
+            
+            <!-- modal -->
+            <% if (addresses && addresses.length > 0) { %>
+                <% addresses.forEach((address, index) => { %>
+                    <div class="card card-dashboard mt-2">
+                        <div class="card-body d-flex justify-content-between align-items-start p-4">
+                            <!-- Radio Button -->
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selectedAddress" id="addressRadio<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %>>
+                                <label class="form-check-label" for="addressRadio<%= index %>">
+                                    <div class="address-details ml-4">
+                                        <div class="address-name">
+                                            <%= address.name %> - <%= address.phone %>
+                                        </div>
+                                        <div>
+                                            <%= address.locality %>, <%= address.district %>, <%= address.address %>, <%= address.state %>, <%= address.pincode %>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <!-- Edit Link -->
+                            <div class="dropdown"> 
+                                <a id="editLink<%= index %>" type="button" style="color: #1cc0a0;" data-toggle="modal" data-target="#form<%= index %>">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- modal -->
+                    <div class="modal fade" id="form<%= index %>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header border-bottom-0">
+                                    <h5 class="modal-title" id="exampleModalLabel">Edit Address</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeModal">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <form id="editAddressForm<%= index %>" action="/checkout/editAddress/<%= address._id %>" method="POST" class="form-class">
+                                    <input type="hidden" name="addressId" value="<%= address._id %>">
+                                
+                                    <div class="modal-body p-4"> <!-- Added padding to modal body -->
+                                        <div class="row "> <!-- Added margin bottom to row -->
+                                            <div class="col-sm-6">
+                                                <label for="name">Name*</label>
+                                                <input type="text" name="name" id="name<%= index %>" class="form-control" style="width: 90%;" value="<%= address.name  %>">
+                                                <div id="error1" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="phone">Phone Number*</label>
+                                                <input type="text" name="phone" id="phone<%= index %>" class="form-control" style="width: 90%;" value="<%= address.phone%>">
+                                                <div id="error2" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="locality">Locality*</label>
+                                                <input type="text" name="locality" id="locality<%= index %>" class="form-control" style="width: 90%;" value="<%= address.locality  %>">
+                                                <div id="error3" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="district">District*</label>
+                                                <input type="text" name="district" id="district<%= index %>" class="form-control" style="width: 90%;" value="<%= address.district  %>">
+                                                <div id="error4" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-12">
+                                                <label for="address">Address*</label>
+                                                <input type="text" name="address" id="address<%= index %>" class="form-control" style="width: 90%;" value="<%= address.address  %>">
+                                                <div id="error5" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="state">State*</label>
+                                                <select name="state" id="state<%= index %>" class="form-control" style="width: 90%;">
+                                                    <option value="">Select State</option>
+                                                    <!-- State options here, using selected attribute appropriately -->
+                                                    <option value="Andaman and Nicobar Islands" <%= address.state === 'Andaman and Nicobar Islands' ? 'selected' : '' %>>Andaman and Nicobar Islands</option>
+                                                    <option value="Andhra Pradesh" <%= address.state === 'Andhra Pradesh' ? 'selected' : '' %>>Andhra Pradesh</option>
+                                                    <option value="Arunachal Pradesh" <%= address.state === 'Arunachal Pradesh' ? 'selected' : '' %>>Arunachal Pradesh</option>
+                                                    <option value="Assam" <%= address.state === 'Assam' ? 'selected' : '' %>>Assam</option>
+                                                    <option value="Bihar" <%= address.state === 'Bihar' ? 'selected' : '' %>>Bihar</option>
+                                                    <option value="Chandigarh" <%= address.state === 'Chandigarh' ? 'selected' : '' %>>Chandigarh</option>
+                                                    <option value="Chhattisgarh" <%= address.state === 'Chhattisgarh' ? 'selected' : '' %>>Chhattisgarh</option>
+                                                    <option value="Dadra and Nagar Haveli" <%= address.state === 'Dadra and Nagar Haveli' ? 'selected' : '' %>>Dadra and Nagar Haveli</option>
+                                                    <option value="Daman and Diu" <%= address.state === 'Daman and Diu' ? 'selected' : '' %>>Daman and Diu</option>
+                                                    <option value="Delhi" <%= address.state === 'Delhi' ? 'selected' : '' %>>Delhi</option>
+                                                    <option value="Goa" <%= address.state === 'Goa' ? 'selected' : '' %>>Goa</option>
+                                                    <option value="Gujarat" <%= address.state === 'Gujarat' ? 'selected' : '' %>>Gujarat</option>
+                                                    <option value="Haryana" <%= address.state === 'Haryana' ? 'selected' : '' %>>Haryana</option>
+                                                    <option value="Himachal Pradesh" <%= address.state === 'Himachal Pradesh' ? 'selected' : '' %>>Himachal Pradesh</option>
+                                                    <option value="Jammu and Kashmir" <%= address.state === 'Jammu and Kashmir' ? 'selected' : '' %>>Jammu and Kashmir</option>
+                                                    <option value="Jharkhand" <%= address.state === 'Jharkhand' ? 'selected' : '' %>>Jharkhand</option>
+                                                    <option value="Karnataka" <%= address.state === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
+                                                    <option value="Kerala" <%= address.state === 'Kerala' ? 'selected' : '' %>>Kerala</option>
+                                                    <option value="Ladakh" <%= address.state === 'Ladakh' ? 'selected' : '' %>>Ladakh</option>
+                                                    <option value="Lakshadweep" <%= address.state === 'Lakshadweep' ? 'selected' : '' %>>Lakshadweep</option>
+                                                    <option value="Madhya Pradesh" <%= address.state === 'Madhya Pradesh' ? 'selected' : '' %>>Madhya Pradesh</option>
+                                                    <option value="Maharashtra" <%= address.state === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
+                                                    <option value="Manipur" <%= address.state === 'Manipur' ? 'selected' : '' %>>Manipur</option>
+                                                    <option value="Meghalaya" <%= address.state === 'Meghalaya' ? 'selected' : '' %>>Meghalaya</option>
+                                                    <option value="Mizoram" <%= address.state === 'Mizoram' ? 'selected' : '' %>>Mizoram</option>
+                                                    <option value="Nagaland" <%= address.state === 'Nagaland' ? 'selected' : '' %>>Nagaland</option>
+                                                    <option value="Odisha" <%= address.state === 'Odisha' ? 'selected' : '' %>>Odisha</option>
+                                                    <option value="Puducherry" <%= address.state === 'Puducherry' ? 'selected' : '' %>>Puducherry</option>
+                                                    <option value="Punjab" <%= address.state === 'Punjab' ? 'selected' : '' %>>Punjab</option>
+                                                    <option value="Rajasthan" <%= address.state === 'Rajasthan' ? 'selected' : '' %>>Rajasthan</option>
+                                                    <option value="Sikkim" <%= address.state === 'Sikkim' ? 'selected' : '' %>>Sikkim</option>
+                                                    <option value="Tamil Nadu" <%= address.state === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
+                                                    <option value="Telangana" <%= address.state === 'Telangana' ? 'selected' : '' %>>Telangana</option>
+                                                    <option value="Tripura" <%= address.state === 'Tripura' ? 'selected' : '' %>>Tripura</option>
+                                                    <option value="Uttar Pradesh" <%= address.state === 'Uttar Pradesh' ? 'selected' : '' %>>Uttar Pradesh</option>
+                                                    <option value="Uttarakhand" <%= address.state === 'Uttarakhand' ? 'selected' : '' %>>Uttarakhand</option>
+                                                    <option value="West Bengal" <%= address.state === 'West Bengal' ? 'selected' : '' %>>West Bengal</option>
+                                                    <!-- Add other states similarly -->
+                                                </select>
+                                                <div id="error6" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="pincode">Pincode*</label>
+                                                <input type="text" name="pincode" id="pincode<%= index %>" class="form-control" style="width: 90%;" value="<%= address.pincode  %>">
+                                                <div id="error7" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row ">
+                                            <div class="col-sm-6">
+                                                <label for="alternate_phone">Alternate Phone Number*</label>
+                                                <input type="text" name="alternatePhone" id="alternate_phone<%= index %>" class="form-control" style="width: 90%;" value="<%= address.alternatePhone  %>">
+                                                <div id="error8" class="error-message"></div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="landmark">Landmark*</label>
+                                                <input type="text" name="landmark" id="landmark<%= index %>" class="form-control" style="width: 90%;" value="<%= address.landmark  %>">
+                                                <div id="error9" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-sm-12">
+
+                                                <button type="submit" class="btn btn-outline-primary-2">
+                                                    <span>EDIT ADDRESS</span>
+                                                    <i class="icon-long-arrow-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>                             
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        document.getElementById('editAddressForm<%= index %>').addEventListener('submit', function(e) {
+                            console.log('Form is being submitted');
+                        });
+                    </script> 
+                <% }); %>
+            <% } else { %>
+                <p>No addresses available.</p>
+            <% } %>
+            
+        </div><!-- End .col-lg-9 -->
+        
+        <aside class="col-lg-3">
+            <div class="summary">
+                <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+                
+               
+                <table class="table table-summary">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="cart-items">
+                        <% let subtotal = 0; %>
+                        <% let total = 0; %> <!-- Initialize subtotal variable -->
+                        <% let products = []; %> <!-- Array to hold all product details -->
+
+                        <% let couponDiscount =0 ; %>
+                        <% if (cart && cart.items.length > 0) { %>
+                            <% cart.items.filter(item => item.productId.status === 'In stock').forEach(item => {     %>
+                              <%  console.log('Product category:', item.productId.category);  %>
+
+                                <tr class="price-tr">
+                                    <td><a href="#"><%= item.productId.name %></a></td>
+                                    <% let effectivePrice = item.productId.salesPrice; %> 
+
+                                    <% if (item.productId.activeOfferSource === 'product' && item.productId.isOfferActive === true && item.productId.offerEndDate > new Date()) { %>
+                                        <% effectivePrice = item.productId.offerPrice; %>
+                                    <% } else if (item.productId.activeOfferSource === 'category' && item.productId.category && item.productId.category.isOfferActive === true && item.productId.category.offerEndDate > new Date() ) { %>
+                                        <% effectivePrice = item.productId.offerPrice; %>
+                                    <% } %>
+                        
+                                    <% let productPrice = item.quantity * effectivePrice; %>
+                                    <td class="price">₹<%= productPrice.toFixed(2) %></td>
+                                </tr>
+                              
+                                <%subtotal +=productPrice|| 0; %> 
+                         
+                           <% products.push({ 
+                            productId: item.productId._id, 
+                            quantity: item.quantity, 
+                            productPrice: productPrice // Send the total price (after quantity multiplication)
+                        }); %>
+                               
+                            <% }); %>                
+                            <tr class="summary-subtotal">
+                                <td>Subtotal:</td>
+                            <td>₹<%= subtotal.toFixed(2) %></td> 
+                        </tr><!-- End .summary-subtotal -->
+
+                            <% if (couponDiscount > 0) { %>
+                                <tr class="summary-coupon-discount">
+                                    <td>Coupon Discount:</td>
+                                    <td>-₹<%= couponDiscount.toFixed(2) %></td>
+                                </tr>
+                                <% total -= couponDiscount; %> <!-- Subtract coupon discount from total -->
+                            <% } else { %>
+                                <tr class="summary-coupon-discount">
+                                    <td>Coupon Discount:</td>
+                                    <td>-₹0.00</td> <!-- No coupon applied -->
+                                </tr>
+                            <% } %>
+                            <% products.forEach((product, index) => { %>
+                                <input type="hidden" name="products[<%= index %>][productId]" value="<%= product.productId %>">
+                                <input type="hidden" name="products[<%= index %>][quantity]" value="<%= product.quantity %>">
+                                <input type="hidden" name="products[<%= index %>][productPrice]" value="<%= product.productPrice %>"> 
+                                <input type="hidden" name="products[<%= index %>][effectivePrice]" value="<%= product.productPrice / product.quantity %>">
+
+                            <% }); %>
+
+                    </tbody>
+                </table><!-- End .table table-summary -->
+
+                <div class="accordion-summary" id="accordion-payment">
+                    <p>Payment method</p>
+                    <div class="card mt-1 mb-1">
+                        <div class="card-header" id="heading-5">
+                            <h2 class="card-title">
+                                <input type="radio"name="paymentMethod" value="razorpay" id="razorpay-method" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5" class="collapsed" checked>
+                                Razorpay
+                                </a>
+                            </h2>
+                        </div>
+                        <div id="collapse-5" class="collapse show" aria-labelledby="heading-5" data-parent="#accordion-payment">
+                        </div>
+                    </div>
+                    <div class="card  mb-1">
+                        <div class="card-header" id="heading-3">
+                            <h2 class="card-title">
+                    <input type="radio" name="paymentMethod" value="Cash on Delivery" data-toggle="collapse" href="#collapse-3" aria-expanded="true" aria-controls="collapse-3" class="collapsed " >
+                                    Cash on delivery
+                                </a>
+                            </h2>
+                        </div><!-- End .card-header -->
+                        
+                    </div><!-- End .card -->
+                    <div class="card  mb-1">
+                        <div class="card-header" id="heading-4">
+                            <h2 class="card-title">
+                                <input type="radio" name="paymentMethod" value="wallet" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4" class="collapsed">
+                                Wallet
+                            </h2>
+                        </div> 
+                        <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
+                            <div class="card-body" style="font-weight: bolder;"> Wallet balance = ₹<%= wallet.balance  %>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- End .accordion -->
+
+                <table class="table table-summary">
+                    <tbody>
+                        <p>Free delivery</p>
+                        <% 
+                        const orderPrice = subtotal 
+                        %>
+                        <tr class="summary-payable">
+                            <td>Amount Payable:</td>
+                            <td>₹<%= orderPrice.toFixed(2) %></td> <!-- Display order amount -->
+                        </tr><!-- End .summary-total -->
+                    </tbody>               
+                 </table><!-- End .table table-summary -->
+
+
+                <button type="submit" class="btn btn-outline-primary-2 btn-order btn-block " id="proceed-btn">
+                    <span class="btn-text">Place Order</span>
+                    <span class="btn-hover-text">Proceed</span>
+                </button>
+                <% } else { %>
+                    <tr>
+                        <td colspan="2">No products in the cart</td>
+                    </tr>
+                <% } %>
+            </div><!-- End .summary -->
+        </aside><!-- End .col-lg-3 -->
+    </div><!-- End .row -->
+</form>
+</div><!-- End .container -->
+    </div><!-- End .checkout -->
+        </div><!-- End .page-content -->
+              </main><!-- End .main -->
+            <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- razorpay  -->
+
+<!-- address modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title" id="addAddressLabel">Add Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeModal">
+                    <span aria-hidden="true">&times;</span>
+                </button>  
+            </div>
+                <div class="modal-body p-4">
+                    <form id="addform" action="/checkout/addAddress" method="POST" class="form-class">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="name">Name*</label>
+                            <input type="text" name="name" id="name" class="form-control">
+                            <div id="error1" class="error-message"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="phone">Phone Number*</label>
+                            <input type="text" name="phone" id="phone" class="form-control">
+                            <div id="error2" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="locality">Locality*</label>
+                            <input type="text" name="locality" id="locality" class="form-control">
+                            <div id="error3" class="error-message"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="district">District*</label>
+                            <input type="text" name="district" id="district" class="form-control">
+                            <div id="error4" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <label for="address">Address*</label>
+                            <input type="text" name="address" id="address" class="form-control">
+                            <div id="error5" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="state">State*</label>
+                            <select name="state" id="state" class="form-control">
+                                <option value="">Select State</option>
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                                <option value="Daman and Diu">Daman and Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Puducherry">Puducherry</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                            </select>
+                            <div id="error6" class="error-message"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="pincode">Pincode*</label>
+                            <input type="text" name="pincode" id="pincode" class="form-control">
+                            <div id="error7" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="alternate_phone">Alternate Phone Number*</label>
+                            <input type="text" name="alternatePhone" id="alternate_phone" class="form-control">
+                            <div id="error8" class="error-message"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="landmark">Landmark*</label>
+                            <input type="text" name="landmark" id="landmark" class="form-control">
+                            <div id="error9" class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-outline-primary-2" id="addingfrom" >
+                                <span>ADD ADDRESS</span>
+                                <i class="icon-long-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+            </form>
+       </div>
+    </div>
+</div>
+
+<!-- modal for the payment error -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+
+//for opening modal
+const checkCouponsBtn = document.getElementById('checkCouponsBtn');
+    const couponModal = document.getElementById('couponModal');
+
+    if (checkCouponsBtn && couponModal) {
+        checkCouponsBtn.addEventListener('click', function () {
+            couponModal.style.display = 'block'; 
+
+            fetch('/getCoupon')
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Fetched coupons:', data);
+                    const couponList = data.coupons;
+                    const couponContent = document.getElementById('couponListContent');
+                    couponContent.innerHTML = '';
+
+                    if (couponList.length > 0) {
+                    couponList.forEach(coupon => {
+                    const couponItem = document.createElement('li');
+                    couponItem.classList.add('list-group-item', 'coupon-item');
+                    couponItem.textContent = `${coupon.code} - ${coupon.discountAmount} off  ,${coupon.minPurchaseAmount} min purchase`;
+                    couponItem.setAttribute('data-coupon-code', coupon.code); 
+                    couponContent.appendChild(couponItem);
+                });
+
+                    } else {
+                        couponContent.innerHTML = '<li class="list-group-item">No coupons available</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching coupons:', error);
+                });
+        });
+    } else {
+        console.error('Element(s) not found in the DOM.');
+    }
+
+//modal close
+document.querySelector('.modalCoupon .close').addEventListener('click', function() {
+    document.getElementById('couponModal').style.display = 'none';
+});
+
+
+ // Select coupon from the modal
+ document.getElementById('couponListContent').addEventListener('click', function (e) {
+        if (e.target && e.target.matches('li.coupon-item')) {
+            const selectedCouponCode = e.target.getAttribute('data-coupon-code');
+            console.log('Selected Coupon', selectedCouponCode);    
+            if (!selectedCouponCode) {
+                console.log('No coupon code found on the clicked element!');
+            }
+            document.getElementById('manualCouponCode').value = selectedCouponCode;
+            document.getElementById('couponModal').style.display = 'none';  
+               }
+    });
+
+
+//funciton for coupon price distribution
+
+    //FORM SUBMITION
+    document.getElementById('manualCouponForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    let couponCode = document.getElementById('manualCouponCode').value;
+    let applyCouponBtn = document.getElementById('apply-btn');
+    let subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim()) || 0;
+    let totalDiscountedPrice = 0;
+    console.log('subtotal', subtotal);
+
+    if (couponCode) {
+        fetch('/applyCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ couponCode: couponCode, subtotal: subtotal }), // Pass subtotal for validation
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const minPurchaseAmount = data.minPurchaseAmount || 0;
+                console.log('minPurchaseAmount:', minPurchaseAmount);
+                if (subtotal < minPurchaseAmount) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot apply coupon',
+                        text: 'Minimum purchase amount not met!',
+                    }).then(() => {
+                        document.getElementById('manualCouponCode').value = '';
+                    });
+                    return;
+                }
+
+                let couponDiscount = data.discountAmount || 0;
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Applied',
+                    text: 'Coupon applied successfully!',
+                }).then(() => {
+                    let cartItem = document.querySelectorAll('.cart-items .price-tr'); // Select all rows with the `price-tr` class
+                    let discountRow = document.querySelector('.summary-coupon-discount');
+                    let remainingDiscount = couponDiscount;
+
+                    cartItem.forEach((item, index) => {
+                        let priceElement = item.querySelector('.price');
+                        let ogPrice = parseFloat(priceElement.innerText.replace('₹', '').trim());
+
+                        console.log('Original Price:', ogPrice);
+
+                        let proportionDisc = Math.round((ogPrice / subtotal) * couponDiscount);
+                        let finalDiscount = index === cartItem.length - 1 ? remainingDiscount : proportionDisc;
+
+                        remainingDiscount -= finalDiscount;
+
+                        let discountedPrice = ogPrice - finalDiscount;
+                        console.log(discountedPrice);
+                        totalDiscountedPrice += discountedPrice;
+                        console.log(totalDiscountedPrice);
+
+                        priceElement.innerHTML = `
+                            <td class='price'>
+                                <div>
+                                    <span>₹${discountedPrice.toFixed(2)}</span>
+                                </div>
+                                <div class='ogprice'>
+                                    <span style="text-decoration: line-through; font-size:12px">₹${ogPrice.toFixed(2)}</span>
+                                </div>
+                            </td>
+                        `;
+
+                        const hiddenPriceInput = document.querySelector(
+                            `input[name="products[${index}][productPrice]"]`
+                        );
+                        if (hiddenPriceInput) {
+                            hiddenPriceInput.value = discountedPrice.toFixed(2);
+                        }
+                    });
+
+                    discountRow.innerHTML = `
+                        <td>Coupon Discount:</td>
+                        <td>-₹${couponDiscount}</td>
+                    `;
+                    const orderPrice = totalDiscountedPrice;
+                    const amountPayableRow = document.querySelector('.summary-payable');
+                    amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
+
+                    document.getElementById('checkCouponsBtn').innerText = 'Coupon Applied';
+                    document.getElementById('checkCouponsBtn').disabled = true;
+
+                    document.getElementById('deleteCouponBtn').style.display = 'inline';
+                    document.getElementById('manualCouponCode').disabled = true;
+                    applyCouponBtn.disabled = true;
+                    applyCouponBtn.style.display = 'none';
+                });
+            } else {
+                let errorMessage = data.message || "An error occurred";
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Coupon Application Failed',
+                    text: errorMessage,
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error applying coupon:', error);
+            alert('Error applying coupon');
+        });
+    } else {
+        alert('Please enter a coupon code');
+    }
+});
+
+
+
+//to delete coupon
+    document.getElementById('deleteCouponBtn').addEventListener('click', function () {
+    console.log('Delete coupon button clicked');
+    const couponCode = document.getElementById('manualCouponCode').value;
+    const applyCouponBtn = document.getElementById('apply-btn');
+
+    console.log('Coupon code to be removed:', couponCode);
+
+    fetch('/removeCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ couponCode: couponCode }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response data from removeCoupon API:', data);
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Coupon Removed',
+                text: 'Coupon has been removed from your checkout.',
+            }).then(() => {
+             
+
+                applyCouponBtn.style.display = 'inline-block';
+                document.getElementById('manualCouponCode').value = '';
+                document.getElementById('deleteCouponBtn').style.display = 'none';
+                document.getElementById('checkCouponsBtn').innerText = 'Click here to search for a coupon';
+                applyCouponBtn.disabled = false;
+
+
+                // Update the summary with the removed coupon
+                const discountRow = document.querySelector('.summary-coupon-discount');
+                discountRow.innerHTML = `
+                    <td>Coupon Discount:</td>
+                    <td>-₹0.00</td>
+                `;
+
+                const subtotal = parseFloat(document.querySelector('.summary-subtotal td:nth-child(2)').innerText.replace('₹', '').trim());
+                console.log(subtotal);
+                const discountAmount = 0;  
+                const orderPrice = subtotal - discountAmount;
+
+                const amountPayableRow = document.querySelector('.summary-payable');
+                amountPayableRow.querySelector('td:nth-child(2)').innerText = `₹${orderPrice.toFixed(2)}`;
+                // document.getElementById('couponCode').disabled = false;  THIS LINE IS NOT WORKING
+
+                //new
+                console.log('2')
+                const cartItems = document.querySelectorAll('.cart-items .price-tr');
+                console.log('1') 
+                cartItems.forEach((item, index) => {
+                    const priceElement = item.querySelector('.price');
+                    console.log('2')
+                    const ogPriceElement = item.querySelector('.ogprice span'); 
+                    console.log('3')
+                    if (ogPriceElement) {
+                        const originalPrice = parseFloat(ogPriceElement.innerText.replace('₹', '').trim());
+
+                        // Update the displayed price
+                        priceElement.innerHTML = `
+                            <div>
+                                <span>₹${originalPrice.toFixed(2)}</span>
+                            </div>
+                        `;
+
+                        // Update the hidden input value
+                        const hiddenPriceInput = document.querySelector(
+                            `input[name="products[${index}][productPrice]"]`
+                        );
+                        if (hiddenPriceInput) {
+                            hiddenPriceInput.value = originalPrice.toFixed(2);
+                        }
+                    }
+            })
+
+            })
+        } else {
+            console.error('Error removing coupon:', data.message);
+            alert('Error removing coupon');
+        }
+    })
+    .catch(error => {
+        console.error('Error removing coupon:', error);
+        alert('Error removing coupon');
+    });
+});
+  
+
+const editLinks = document.querySelectorAll("[id^='editLink']"); 
+    editLinks.forEach(link => {
+        link.addEventListener("click", function() {
+            const index = this.id.replace('editLink', ''); 
+            console.log("Edit link clicked for address index: " + index);
+        });
+    });
+   
+    document.getElementById("addform").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    console.log('Form submitted');
+   
+    document.querySelectorAll('.error-message').forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
+    });
+
+
+          const name = document.getElementById('name');
+            const phone = document.getElementById('phone');
+            const locality = document.getElementById('locality');
+            const district = document.getElementById('district');
+            const address = document.getElementById('address');
+            const state = document.getElementById('state');
+            const pincode = document.getElementById('pincode');
+            const alternatePhone = document.getElementById('alternate_phone');
+
+            const error1 = document.getElementById('error1');
+            const error2 = document.getElementById('error2');
+            const error3 = document.getElementById('error3');
+            const error4 = document.getElementById('error4');
+            const error5 = document.getElementById('error5');
+            const error6 = document.getElementById('error6');
+            const error7 = document.getElementById('error7');
+            const error8 = document.getElementById('error8');
+
+            console.log("name",name.value);
+            console.log("phone",phone.value);
+            console.log("locality",locality.value);
+            console.log("district",district.value);
+            console.log("address",address.value);
+            console.log("state",state.value);
+            console.log("pincode",pincode.value);
+            console.log("alternatePhone",alternatePhone.value);
+
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+            let isValid = true;
+            console.log("Is Valid:", isValid);
+
+
+            if (name.value.trim() === '') {
+                error1.textContent = 'Name is required.';
+                error1.style.display = 'block';
+                isValid = false;
+            }
+
+            if (phone.value.trim() === '') {
+                error2.textContent = 'Phone number is required.';
+                error2.style.display = 'block';
+                isValid = false;
+            }
+
+            if (locality.value.trim() === '') {
+                error3.textContent = 'Locality is required.';
+                error3.style.display = 'block';
+                isValid = false;
+            }
+
+            if (district.value.trim() === '') {
+                error4.textContent = 'District is required.';
+                error4.style.display = 'block';
+                isValid = false;
+            }
+
+            if (address.value.trim() === '') {
+                error5.textContent = 'Address is required.';
+                error5.style.display = 'block';
+                isValid = false;
+            }
+
+            if (state.value === '') {
+                error6.textContent = 'State is required.';
+                error6.style.display = 'block';
+                isValid = false;
+            }
+
+            if (pincode.value.trim() === '') {
+                error7.textContent = 'Pincode is required.';
+                error7.style.display = 'block';
+                isValid = false;
+            }
+
+            if (alternatePhone.value.trim() === '') {
+                error8.textContent = 'Alternate phone number is required.';
+                error8.style.display = 'block';
+                isValid = false;
+            }
+
+            console.log('Is Valid:', isValid);
+
+
+            if (isValid) {
+                event.target.submit(); 
+            }
+});
+
+
+    // For placing order
+    document.getElementById('proceed-btn').addEventListener('click', async (event) => {
+        event.preventDefault(); 
+
+             console.log('in the event');
+            console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
+            console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
+            console.log('hello darling')
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+        let couponCode = document.getElementById('manualCouponCode').value.trim();
+
+        const orderPrice = parseFloat(document.querySelector('.summary-payable td:nth-child(2)').innerText.replace('₹', '').trim());
+        console.log('orderprice',orderPrice);
+
+        const products = Array.from(document.querySelectorAll('input[name^="products"]'))
+        .reduce((acc, input) => {
+            const [index, field] = input.name.match(/\[(\d+)\]\[(.+)\]/).slice(1);
+            acc[index] = acc[index] || {};
+            acc[index][field] = input.value;
+            return acc;
+        }, []);
+
+    console.log('Products:', products);
+
+        if (selectedPaymentMethod === 'Cash on Delivery') {
+            const response = await fetch('/checkout/placeOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selectedAddress, paymentMethod: 'Cash on Delivery', orderPrice: orderPrice  ,products ,couponCode}),
+            });
+
+            if (response.ok) {
+                const { orderCode } = await response.json();
+                console.log('orderCode',orderCode)
+                window.location.href = `/orderConfirmation/${orderCode}`;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: 'Failed to place order. Please try again.',
+                });
+            }
+        } else if (selectedPaymentMethod === 'razorpay') {
+            try {
+                console.log('creating order');
+                const response = await fetch('/createOrder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentMethod: 'razorpay' ,
+                         selectedAddress,
+                          selectedAddress ,
+                          orderPrice,
+                          products,
+                          couponCode
+                        }),
+                });
+
+                console.log('response:', response);
+
+                const { razorpayOrderId,orderCode } = await response.json();
+
+                console.log('razorpayOrderId:', razorpayOrderId);
+                // console.log('orderPrice:', orderPrice);
+                console.log('orderId:', orderCode);
+
+                const options = {
+                    key: 'rzp_test_QClWP75u7ELl6o',
+                    amount: orderPrice * 100,
+                    currency: 'INR',
+                    name: 'Feather',
+                    description: 'Order Payment',
+                    order_id: razorpayOrderId,
+                    handler: async (paymentDetails) => {
+                        console.log('paymentDetails:', paymentDetails);
+                        const verifyResponse = await fetch('/verifyPayment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                 ...paymentDetails,
+                                orderCode
+                                }),
+                       });
+
+                        console.log('verifyResponse:', verifyResponse);
+
+                        if (verifyResponse.ok) {
+                            const { message} = await verifyResponse.json();
+                            console.log('orderId:', message);
+                            window.location.href = `/orderConfirmation/${orderCode}`;
+                        } else {
+                            window.location.href = '/paymentFailed';
+                        }
+                    },
+                    prefill: {
+                        name: "Lucifer Moringstar",
+                        email: "Lucy@example.com",
+                        contact: "9078563412",
+                    },
+                    theme: { color: "#3399cc" },
+                };
+                console.log('Razorpay Options:', options);
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+                rzp.on('payment.failed', (response) => {
+                    console.error('Payment failed:', response.error);
+                    window.location.href = '/paymentFailed';
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: 'Failed to place order. Please try again.',
+                });            
+            }
+        }else if(selectedPaymentMethod === 'wallet'){
+            const response = await fetch('/checkout/placeOrder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selectedAddress, paymentMethod: 'wallet', orderPrice: orderPrice  ,products ,couponCode}),
+            });
+
+            const responseData = await response.json();
+            if (response.ok) {
+                const { orderCode } = responseData;
+                console.log('orderCode',orderCode)
+                window.location.href = `/orderConfirmation/${orderCode}`;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: responseData.message,
+                });
+            }
+        }
+    });
+});
+
+
+
+
+</script>
+
+<%- include('../layouts/footer')  %>
+</body>

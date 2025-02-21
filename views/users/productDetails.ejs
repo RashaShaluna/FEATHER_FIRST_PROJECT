@@ -1,0 +1,414 @@
+<% if (user) { %>
+    <%- include('../layouts/header', { categories: categories }) %>
+<% } else { %>
+    <%- include('../layouts/homeheader', { categories: categories }) %>
+<% } %>
+
+<body>
+    
+<div class="page-content pt-5" >
+    <div class="container">
+        
+        <div class="product-details-top">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="product-gallery product-gallery-vertical">
+                        <div class="row">
+                            <figure class="product-main-image">
+                                <img id="product-zoom" src="/uploads/<%= product.images[0] %>"alt="product image" data-zoom-image="/uploads/<%= product.images[0] %>">
+
+                                <a href="#" id="btn-product-gallery" class="btn-product-gallery">
+                                    <i class="icon-arrows"></i>
+                                </a>
+                            </figure><!-- End .product-main-image -->
+
+                            <div id="product-zoom-gallery" class="product-image-gallery">
+                                <% product.images.forEach(function(image, index) { %>
+                                    <a class="product-gallery-item <%= index === 0 ? 'active' : '' %>" 
+                                       href="#" 
+                                       data-image="/uploads/<%= image %>" 
+                                       data-zoom-image="/uploads/<%= image %>">
+                                        <img src="/uploads/<%= image %>" alt="product side">
+                                    </a>
+                                <% }); %>
+                            </div><!-- End .product-image-gallery -->
+                            
+                        </div><!-- End .row -->
+                    </div><!-- End .product-gallery -->
+                </div><!-- End .col-md-6 -->
+
+                <div class="col-md-6">
+                    <div class="product-details">
+                        <h1 class="product-title"><%= product.name %></h1>
+
+                        <div class="ratings-container">
+                            <div class="ratings">
+                                <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                            </div><!-- End .ratings -->
+                            <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                        </div><!-- End .ratings-container -->
+
+                        <div class="product-price ">
+                            
+                            <% if (product.quantity > 0 && product.status !== 'Out of stock') { %>
+                                <% if (product.activeOfferSource === 'product' && product.isOfferActive === true &&  product.offerEndDate > new Date()) { %>
+                                    <!-- Product offer is active -->
+                                    <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.offerPercentage %>%</span>
+                                    <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                <% } else if (product.activeOfferSource === 'category' && product.category.isOfferActive === true && product.category.offerEndDate > new Date()) { %>
+                                    <!-- Category offer is active -->
+                                    <span class="offer-percentage" style="font-size: 13px; font-weight: 450; margin-right: 20px;">-<%= product.category.offerPercentage %>%</span>
+                                    <span class="new-price"><%= '₹' + product.offerPrice %></span>
+                                <% } else { %>
+                                    <!-- No active offer, show regular sales price -->
+                                    <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                                <% } %>   
+                            <% } else { %>
+                                <!-- Product is out of stock, show regular sales price -->
+                                <span class="new-price"><%= '₹' + product.salesPrice %></span>
+                            <% } %>
+                        </div><!-- End .product-price -->
+
+                        <div class="product-nav product-nav-thumbs">
+                            <% if(product.quantity > 0 && product.status == 'In stock') {%>
+                            <p>( <%= product.quantity %> left in stock)</p>
+                            <% }else{ %>
+                                <p>(Out of stock)</p>
+                                <% } %>
+                        </div><!-- End .product-nav -->
+
+                        <div class="product-nav product-nav-thumbs">
+                            <p>Color: <%= product.color %></p>
+                        </div><!-- End .product-nav -->
+
+                         
+                      
+
+                        <div class="product-details-action">
+
+                            <% if (product.quantity > 0 && product.status == 'In stock') { %>
+                                <% if (isInCart) { %>
+                                    <a href="/cart" class="btn-product  btn-cart btn-go-to-cart"><span>Go to Cart</span></a>
+                                <% } else { %>
+                                    <% if (user) { %>
+                                        <div>
+                                            <input type="hidden" name="productId" value="<%= product._id %>">
+                                            <a href="#" class="btn-product btn-cart btn-add">
+                                                <span id="cartBtnText_<%= product._id %>">Add to Cart</span>
+                                            </a>
+                                        </div>
+                                                                  
+                                        <!-- <a href="/addToCart" class="btn-product btn-cart"><span>Add to Cart</span></a> -->
+                                    <% } else { %>
+                                        <a href="/login" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                                    <% } %>
+                                 <% } %>
+                            <% } else { %>
+                                <a href="#" class="btn-product" style="pointer-events: none;cursor: not-allowed;width: fit-content;background-color: #e5e5e5;border-color: #ffffff;"><span style="color: #000000;">Out of stock</span></a>
+                            <% } %>
+                         
+
+                            
+                             
+                            <% if (user) { %>
+                                <a href="#" class="btn-product btn-wishlist" data-product-id="<%= product._id %>" data-in-wishlist="<%= isInWishlist %>">
+                                  <span id="wishlistBtnText_<%= product._id %>"><%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %></span>
+                                </a>
+                              <% } else { %>
+                                <a href="/login" class="btn-product btn-wishlist"><span>Add to Wishlist</span></a>
+                              <% } %>
+                           
+                                                      
+                        </div><!-- End .product-details-action -->
+
+                        <div class="product-cat">
+                            <span>Category:</span>
+                            <a href="/shop/<%= product.category._id %>"><%= product.category.name %></a>
+                        </div><!-- End .product-cat -->
+
+                        <!-- <div class="social-icons social-icons-sm">
+                            <span class="social-label">Share:</span>
+                            <a href="#" class="social-icon" title="Facebook" target="_blank"><i class="icon-facebook-f"></i></a>
+                            <a href="#" class="social-icon" title="Twitter" target="_blank"><i class="icon-twitter"></i></a>
+                            <a href="#" class="social-icon" title="Instagram" target="_blank"><i class="icon-instagram"></i></a>
+                            <a href="#" class="social-icon" title="Pinterest" target="_blank"><i class="icon-pinterest"></i></a>
+                        </div> -->
+                    </div><!-- End .product-details -->
+                </div><!-- End .col-md-6 -->
+            </div><!-- End .row -->
+        </div><!-- End .product-details-top -->
+
+        <div class="product-details-tab">
+            <ul class="nav nav-pills justify-content-center" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="product-desc-link" data-toggle="tab" href="#product-desc-tab" role="tab" aria-controls="product-desc-tab" aria-selected="true">Description</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="product-shipping-link" data-toggle="tab" href="#product-shipping-tab" role="tab" aria-controls="product-shipping-tab" aria-selected="false">Shipping & Returns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="product-review-link" data-toggle="tab" href="#product-review-tab" role="tab" aria-controls="product-review-tab" aria-selected="false">Reviews (2)</a>
+                </li>
+            </ul>
+            <div class="tab-content" style="padding: 8px;">
+                <div class="tab-pane fade show active" id="product-desc-tab" role="tabpanel" aria-labelledby="product-desc-link">
+                    <div class="product-desc-content"  >
+                        <h3>Product Information</h3>
+                        <p><%= product.description %></p>
+                    </div><!-- End .product-desc-content -->
+                </div><!-- End .tab-pane -->
+
+                <div class="tab-pane fade" id="product-shipping-tab" role="tabpanel" aria-labelledby="product-shipping-link">
+                    <div class="product-desc-content">
+                        <h3>Delivery & Returns</h3>
+                        <p>We deliver to over 100 countries around the world. For full details of the delivery options we offer, please view our <a href="#">Delivery information</a><br>
+                        We hope you’ll love every purchase, but if you ever need to return an item you can do so within a month of receipt. For full details of how to make a return, please view our <a href="#">Returns information</a></p>
+                    </div><!-- End .product-desc-content -->
+                </div><!-- End .tab-pane -->
+
+                <div class="tab-pane fade" id="product-review-tab" role="tabpanel" aria-labelledby="product-review-link">
+                    <div class="reviews">
+                        <h3>Reviews (2)</h3>
+                        <div class="review">
+                            <div class="row no-gutters">
+                                <div class="col-auto">
+                                    <h4><a href="#">Samanta J.</a></h4>
+                                    <div class="ratings-container">
+                                        <div class="ratings">
+                                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                        </div><!-- End .ratings -->
+                                    </div><!-- End .ratings-container -->
+                                    <span class="review-date">6 days ago</span>
+                                </div><!-- End .col -->
+
+                                <div class="col">
+                                    <h4>Good, perfect size</h4>
+                                    <div class="review-content">
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ducimus cum dolores assumenda asperiores facilis porro reprehenderit animi culpa atque blanditiis commodi perspiciatis doloremque, possimus, explicabo, autem fugit beatae quae voluptas!</p>
+                                    </div><!-- End .review-content -->
+
+                                    <div class="review-action">
+                                        <a href="#"><i class="icon-thumbs-up"></i>Helpful (2)</a>
+                                        <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
+                                    </div><!-- End .review-action -->
+                                </div><!-- End .col -->
+                            </div><!-- End .row -->
+                        </div><!-- End .review -->
+
+                        <div class="review">
+                            <div class="row no-gutters">
+                                <div class="col-auto">
+                                    <h4><a href="#">John Doe</a></h4>
+                                    <div class="ratings-container">
+                                        <div class="ratings">
+                                            <div class="ratings-val" style="width: 100%;"></div><!-- End .ratings-val -->
+                                        </div><!-- End .ratings -->
+                                    </div><!-- End .ratings-container -->
+                                    <span class="review-date">5 days ago</span>
+                                </div><!-- End .col -->
+
+                                <div class="col">
+                                    <h4>Very good</h4>
+                                    <div class="review-content">
+                                        <p>Sed, molestias, tempore? Ex dolor esse iure hic veniam laborum blanditiis laudantium iste amet. Cum non voluptate eos enim, ab cumque nam, modi, quas iure illum repellendus, blanditiis perspiciatis beatae!</p>
+                                    </div><!-- End .review-content -->
+
+                                    <div class="review-action">
+                                        <a href="#"><i class="icon-thumbs-up"></i>Helpful (0)</a>
+                                        <a href="#"><i class="icon-thumbs-down"></i>Unhelpful (0)</a>
+                                    </div><!-- End .review-action -->
+                                </div><!-- End .col -->
+                            </div><!-- End .row -->
+                        </div><!-- End .review -->
+                    </div><!-- End .reviews -->
+                </div><!-- End .tab-pane -->
+            </div><!-- End .tab-content -->
+        </div><!-- End .product-details-tab -->
+
+
+
+        <h2 class="title text-center mb-4">You May Also Like</h2>
+        <div class="owl-carousel owl-simple carousel-equal-height carousel-with-shadow" data-toggle="owl" 
+        data-owl-options='{
+            "nav": false, 
+            "dots": true,
+            "margin": 20,
+            "loop": false,
+            "responsive": {
+                "0": {
+                    "items":1
+                },
+                "480": {
+                    "items":2
+                },
+                "768": {
+                    "items":3
+                },
+                "992": {
+                    "items":4
+                },
+                "1200": {
+                    "items":4,
+                    "nav": true,
+                    "dots": false
+                }
+            }
+        }'>           <% relatedProducts.forEach(function(related) { %>
+            <div class="product">
+                <figure class="product-media">
+                    <a href="/product/<%= related._id %>">
+                        <img src="/uploads/<%= related.images[0] %>" alt="product">
+                    </a>
+                    <div class="product-action-vertical">
+                        <% if (user) { %>
+                            <a href="#" 
+                               class="btn-product-icon btn-wishlist btn-expandable <%= related.isInWishlist ? 'added' : '' %>"
+                               data-product-id="<%= related._id %>"
+                               data-in-wishlist="<%= related.isInWishlist %>">
+                              <span id="wishlistBtnText_<%= related._id %>">
+                                <%= related.isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                              </span>
+                            </a>
+                          <% } else { %>
+                            <a href="/login" class="btn-product-icon btn-wishlist btn-expandable">
+                              <span>Add to Wishlist</span>
+                            </a>
+                          <% } %>
+        
+                    </div><!-- End .product-action-vertical -->
+                </figure><!-- End .product-media -->
+        
+                <div class="product-body">
+                    <h3 class="product-title"><a href="/product/<%= related._id %>"><%= related.name %></a></h3>
+                    <div class="product-price">
+                        
+                        ₹<%= related.salesPrice %>
+                    </div><!-- End .product-price -->
+                    <div class="product-nav product-nav-thumbs">
+                        <% if (related.quantity == 0 || related.status == 'Out of stock') { %>
+                            <p style="font-size: 14px;">(Out of stock)</p>
+                        <% } %>
+                    </div><!-- End .product-nav -->
+        
+                    <div class="ratings-container">
+                        <div class="ratings">
+                            <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                        </div><!-- End .ratings -->
+                        <a class="ratings-text" href="#product-review-link" id="review-link">( 2 Reviews )</a>
+                    </div><!-- End .ratings-container -->
+                </div><!-- End .product-body -->
+            </div><!-- End .product -->
+        <% }); %>   
+        
+        </div><!-- End .owl-carousel -->
+    </div><!-- End .container -->
+</div><!-- End .page-content -->
+
+<script>
+  document.querySelectorAll('.btn-add').forEach(button => {
+    button.addEventListener('click', async function(e) {
+        e.preventDefault();
+
+        // Find the hidden input in the closest parent element
+        const productId = e.currentTarget.closest('div').querySelector('input[name="productId"]').value;
+        console.log('Product ID:', productId); // Check product ID
+        
+        if (!productId) {
+            console.error('Product ID is missing');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/addToCart`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId, quantity: 1 }),
+            });
+
+            const data = await response.json();
+            console.log('Response data:', data); // Log the response
+
+            if (data.success) {
+              window.location.reload();
+            } else {
+                console.error('Error adding product to cart: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+
+ 
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const wishlistButtons = document.querySelectorAll('.btn-wishlist');
+
+  wishlistButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
+
+      const productId = button.dataset.productId;
+      const isInWishlist = button.dataset.inWishlist === 'true';
+
+      try {
+        const response = await fetch(isInWishlist ? '/wishlist/remove' : '/wishlist/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          const btnText = document.getElementById(`wishlistBtnText_${productId}`);
+          if (isInWishlist) {
+            button.dataset.inWishlist = 'false';
+            btnText.textContent = 'Add to Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Removed from Wishlist',
+              text: 'The product has been removed from your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } else {
+            button.dataset.inWishlist = 'true';
+            btnText.textContent = 'Remove from Wishlist';
+            Swal.fire({
+              icon: 'success',
+              title: 'Added to Wishlist',
+              text: 'The product has been added to your wishlist.',
+              timer: 2000,
+              showConfirmButton: false
+            });
+          }
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: data.message || 'Something went wrong!',
+          });
+        }
+      } catch (error) {
+        console.error('Error updating wishlist:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'There was an error updating your wishlist. Please try again.',
+        });
+      }
+    });
+  });
+});
+</script>
+
+</body>
+<%- include('../layouts/homefooter') %>
+

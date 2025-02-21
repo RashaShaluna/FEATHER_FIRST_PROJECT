@@ -1,0 +1,111 @@
+.header-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .header-right  {
+    margin: 0 1rem;
+  }
+  .cart-link {
+    font-size: 3.2rem;
+}
+.profile-link{
+  font-size: 1.9rem;
+}
+.profile1-link{
+  font-size: 1.5rem;
+}
+.cart-link :hover{
+  color: #1cc0a0;
+    /* cursor: pointer; */
+    text-decoration: none;
+  } 
+  .profile-link1 :hover {
+    color: #1cc0a0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .profile-link :hover {
+    color: #1cc0a0;
+    cursor: pointer;
+    text-decoration: none;
+  }
+.error-message {
+  color:red;
+  font-size: 1.2rem;
+  display: none;
+}
+.otp-container {
+  max-width: 40rem;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+.otp-input {
+  width: 15rem;
+  height: 2.4rem;
+  text-align: center;
+  font-size: 24px;
+  margin: 5px;
+  border: 1px solid #ced4da; /* Ensure borders are visible */
+}
+.btn-verify {
+  background-color: white;
+  border-color: #1cc0a0;
+  color: #1cc0a0;
+}
+.btn-verify:hover {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+  color: white;
+}
+.btn-verify:active {
+  background-color: #1cc0a0;
+  border-color: #1cc0a0;
+}
+.msg{
+  color: #ee0505;
+  background-color: white;
+}
+.log{
+  width: 270rem;
+}
+.msg{
+  border: 0;
+}
+.logo-feather{
+  width:270px;
+  height: 33px;
+}
+.br-lgo{
+  margin-left: 2rem;
+}
+.custom-margin {
+  margin-left: 200px; 
+}
+
+/* Hide elements in mobile view */
+/* @media (max-width: 768px) {
+  .header-right .wishlist-link,
+  .header-right .cart-link,
+  .header-right .profile-link {
+      font-size: 2rem;
+  }
+} */
+
+/* Adjust size for larger screens */
+/* @media (min-width: 769px) { */
+  /* .header-right .wishlist-link i,
+  .header-right .cart-link i,
+  .header-right .profile-link i {
+      font-size: 18px; /* Adjust icon size */
+  /* } */
+/* 
+  .header-right .wishlist-link,
+  .header-right .cart-link,
+  .header-right .profile-link { */
+      /* font-size: 14px; /* Adjust text size */
+  /* } */ 
+/* } */

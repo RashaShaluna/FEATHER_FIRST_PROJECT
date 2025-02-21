@@ -1,0 +1,158 @@
+<%- include('../layouts/header') %>
+<style>
+      .icon-three-dots-vertical::before {
+        content: '\22EE';
+        font-size: 1.5rem;
+    }
+
+    .dropdown-menu {
+        min-width: auto;
+        border: 1px solid #ced4da;
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .dropdown {
+        position: absolute;
+        top: 10px;
+        right: -30px;
+    }
+ 
+    .card-dashboard {
+        position: relative;
+        width: 100%;
+        height: 100px;
+        border: 1px solid #ddd;
+        margin-bottom: 15px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .btn-link {
+        text-decoration: none;
+        color: #333;
+        padding: 0;
+        background: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: #1cc0a0;
+        border-color: #1cc0a0;
+    }
+   
+   .card-add {
+       margin-bottom: 15px;
+       border: 1px solid #ddd; 
+       height: 50px;
+       background: #fafafa;
+   }
+   .address-name {
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .address-details {
+        font-size: 1.3rem;
+    }
+   @media (max-width: 768px) {
+       .card-dashboard {
+          width: 450px;
+       }
+       .card-add {
+           width: 400px;
+       }
+   }
+</style>
+<body>
+    <main class="main" id="main">
+        <%- include('../layouts/topbarprofile') %>
+        <div class="page-content" >
+            <div class="dashboard">
+                <div class="container" >
+                    <div class="row">
+                        <%- include('../layouts/sidebarprofile') %>
+                        <div class="tab-pane active" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link" style="margin-left: 15px;">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card  card-add">
+                                        <div class="card-body d-flex justify-content-between align-items-start">
+                                            <a href="/addAddress" class="add-address"  style="color: #1cc0a0;" id="add-address-link">
+                                                <i class="icon-plus"></i> Add Address
+                                            </a>                                         
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <p >Delivery Address</p>
+                                    <% if (addresses && addresses.length > 0) { %>
+                                        <% addresses.forEach(address => { %>
+                                    <div class="card card-dashboard">
+                                        <div class="dropdown">
+                                            <button class="btn btn-link icon-three-dots-vertical" type="button" id="addressOptionsDropdown" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                            <ul class="dropdown-menu" aria-labelledby="addressOptionsDropdown">
+                                                <li>
+                                                    <a class="dropdown-item" href="/editAddress/<%= address._id %>">Edit </a>
+                                                </li>
+                                                <li>        
+                                                    <a href="#" class="dropdown-item delete-address-btn" data-id="<%= address._id %>">Delete</a>
+                                                </li>
+                                            </ul>
+                                        </div>      
+
+                                        <div class="card-body d-flex justify-content-between align-items-start p-4">
+                                            <div class="address-details">
+                                                <div class="address-name">
+                                                    <%= address.name %>  - <%= address.phone %>
+                                                </div>
+                                                <div>
+                                                    <%= address.locality %>, <%= address.district %>, <%= address.address %>, <%= address.state %>, <%= address.pincode %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <p>No addresses available.</p>
+                            <% } %>
+                                </div>
+                            </div><!-- End .row -->
+                        </div><!-- End .tab-pane -->
+                    </div><!-- End .row -->
+                </div><!-- End .container -->
+            </div><!-- End .dashboard -->
+        </div><!-- End .page-content -->
+    </main><!-- End .main -->
+    
+    <script>
+        function deleteAddress(addressId, deleteButton) {
+            fetch(`/deleteAddress/${addressId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const card = deleteButton.closest('.card-dashboard');
+                    card.remove();
+                } else {
+                    console.error('Error deleting address:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        document.querySelectorAll('.delete-address-btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); 
+            const addressId = this.getAttribute('data-id'); 
+            deleteAddress(addressId, this); 
+        });
+    });
+    </script>
+    
+    <%- include('../layouts/footer') %>
+</body>
+

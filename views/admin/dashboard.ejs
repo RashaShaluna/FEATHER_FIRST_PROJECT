@@ -1,0 +1,256 @@
+<%- include('../adminlayouts/header') %>
+<style>
+.btn-sales {
+    border: 1px solid #1cc0a0;
+    color: #1cc0a0;
+}
+.btn-sales:hover {
+  color: #1cc0a0;
+}
+</style>
+      <div class="main-panel">
+        <h4 class="font-weight-bold text-dark">Dashboard</h4>
+
+        <div class="d-flex justify-content-end">
+          <a href="/admin/salesreport" class="btn  btn-sales mb-3">Get Sales Report</a>
+        </div>
+
+        <div class="card mb-4 m-5">
+        <div class="card-body">
+            <form id="chartForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="month">Select Month:</label>
+                        <select name="month" id="month" class="form-control">
+                            <option value="1" <%= month === 1 ? 'selected' : '' %>>January</option>
+                            <option value="2" <%= month === 2 ? 'selected' : '' %>>February</option>
+                            <option value="3" <%= month === 3 ? 'selected' : '' %>>March</option>
+                            <option value="4" <%= month === 4 ? 'selected' : '' %>>April</option>
+                            <option value="5" <%= month === 5 ? 'selected' : '' %>>May</option>
+                            <option value="6" <%= month === 6 ? 'selected' : '' %>>June</option>
+                            <option value="7" <%= month === 7 ? 'selected' : '' %>>July</option>
+                            <option value="8" <%= month === 8 ? 'selected' : '' %>>August</option>
+                            <option value="9" <%= month === 9 ? 'selected' : '' %>>September</option>
+                            <option value="10" <%= month === 10 ? 'selected' : '' %>>October</option>
+                            <option value="11" <%= month === 11 ? 'selected' : '' %>>November</option>
+                            <option value="12" <%= month === 12 ? 'selected' : '' %>>December</option>
+                        </select>
+                    </div>
+    
+                    <div class="col-md-3">
+                        <label for="year">Select Year:</label>
+                        <select name="year" id="year" class="form-control">
+                            <option value="2025" <%= year === 2025 ? 'selected' : '' %>>2025</option>
+                            <option value="2024" <%= year === 2024 ? 'selected' : '' %>>2024</option>
+                            <option value="2023" <%= year === 2023 ? 'selected' : '' %>>2023</option>
+                        </select>
+                    </div>
+    
+                    <div class="col-md-3">
+                        <label for="chartType">Chart By:</label>
+                        <select name="chartType" id="chartType" class="form-control">
+                            <option value="monthly" <%= chartType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                            <option value="yearly" <%= chartType === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                        </select>
+                    </div>
+    
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Generate Chart</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4  m-5" style="margin-bottom: 50px;">
+        <div class="card-header text-center">
+            <h4>Order Status Chart</h4>
+        </div>
+        <div class="card-body">
+            <canvas id="orderStatusChart" style="height: 500px;"></canvas>
+        </div>
+    </div>
+
+    
+
+    <!-- Top Products and Categories Section -->
+    <div class="row m-5">
+        <!-- Top Products -->
+        <div class="col-md-6 mb-4 ">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Top 10 Products in Sales</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <% topProducts.forEach(product => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><%= product.productName %></span>
+                                <span><%= product.totalSoldItems %> Sold</span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Categories -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h4>Top 10 Categories in Sales</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <% topCategories.forEach(category => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><%= category.name %></span>
+                                <span><%= category.totalSoldItems %> Sold</span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+  <!-- container-scroller -->
+
+  <!-- base:js -->
+  <script src="/adminassests/vendors/base/vendor.bundle.base.js"></script>
+  <!-- endinject -->
+  <!-- Plugin js for this page-->
+  <!-- End plugin js for this page-->
+  <!-- inject:js -->
+  <script src="/adminassests/js/off-canvas.js"></script>
+  <script src="/adminassests/js/hoverable-collapse.js"></script>
+  <script src="/adminassests/js/template.js"></script>
+  <!-- endinject -->
+  <!-- plugin js for this page -->
+  <script src="/adminassests/vendors/chart.js/Chart.min.js"></script>
+  <script src="/adminassests/vendors/jquery-bar-rating/jquery.barrating.min.js"></script>
+  <!-- End plugin js for this page -->
+  <!-- Custom js for this page-->
+  <script src="/adminassests/js/dashboard.js"></script>
+  <!-- End custom js for this page-->
+<!-- Make sure this comes BEFORE your chart code -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Form submission handler
+    document.getElementById('chartForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+        const chartType = document.getElementById('chartType').value;
+
+        const url = `/admin/dashboard?month=${month}&year=${year}&chartType=${chartType}`;
+        window.location.href = url;
+    });
+
+    // Chart initialization
+    const initializeChart = () => {
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        
+        // Parse the order status data from the server
+        const orderStatusData = JSON.parse('<%- JSON.stringify(orderStatus) %>');
+        const chartType = '<%= chartType %>';
+
+        // Configuration for status colors and labels
+        const statusConfig = [
+            { label: 'Pending', color: '#ffc107' },    // yellow
+            { label: 'Processing', color: '#fd7e14' }, // orange
+            { label: 'Shipped', color: '#007bff' },    // blue
+            { label: 'Delivered', color: '#28a745' },  // green
+            { label: 'Cancelled', color: '#dc3545' },  // red
+            { label: 'Returned', color: '#6c757d' }    // grey
+        ];
+
+        // Map the data to match status config order
+        const chartData = statusConfig.map(status => 
+            orderStatusData[status.label] || 0
+        );
+
+        // Create new chart
+        new Chart(orderStatusCtx, {
+            type: 'bar',
+            data: {
+                labels: statusConfig.map(status => status.label),
+                datasets: [{
+                    label: 'Order Items Status',
+                    data: chartData,
+                    backgroundColor: statusConfig.map(status => status.color),
+                    borderColor: statusConfig.map(status => status.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Items'
+                        },
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Order Status'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: `Order Items Status Distribution (${chartType === 'monthly' ? 'Monthly' : 'Yearly'})`,
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 30
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Count: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    };
+
+    // Initialize chart when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            initializeChart();
+        } catch (error) {
+            console.error('Error initializing chart:', error);
+        }
+    });
+
+</script>
+
+</body>
+
+</html>
+
+<%- include('../adminlayouts/footer') %>

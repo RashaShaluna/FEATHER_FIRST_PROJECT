@@ -1,0 +1,19 @@
+<aside class="col-md-4 col-lg-3">
+    <ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link <%= activeTab === 'account-details' ? 'active' : '' %>" id="tab-account-link" href="/profile" role="tab" aria-controls="tab-account" aria-selected="true">Account Details</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <%= activeTab === 'orders' ? 'active' : '' %>" id="tab-orders-link" href="/orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <%= activeTab === 'addresses' ? 'active' : '' %>" id="tab-address-link" href="/address" role="tab" aria-controls="tab-address" aria-selected="false">Addresses</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <%= activeTab === 'wallet' ? 'active' : '' %>" id="tab-wallet-link" href="/wallet" role="tab" aria-controls="tab-wallet" aria-selected="false">Wallet</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/logOut">Sign Out</a>
+        </li>
+    </ul>
+</aside>

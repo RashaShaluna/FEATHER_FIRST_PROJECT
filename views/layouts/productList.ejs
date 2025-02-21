@@ -1,0 +1,31 @@
+<div class="products mb-3">
+    <div class="row justify-content-center">
+        <% products.forEach(product => { %>
+        <div class="col-6 col-md-4 col-lg-4">
+            <div class="product product-7 text-center">
+                <figure class="product-media">
+                    <a href="/product/<%= product._id %>">
+                        <img src="/uploads/<%= product.images[0] %>" alt="Product image" class="product-image">
+                        <% if (product.quantity == 0 || product.status == 'Out of stock') { %>
+                            <span class="product-label label-out">Out of stock</span>
+                        <% } %>
+                    </a>
+                    <div class="product-action-vertical">
+                        <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>Add to Wishlist</span></a>
+                    </div>
+                    <div class="product-action">
+                        <a href="#" class="btn-product btn-cart"><span>Add to Cart</span></a>
+                    </div>
+                </figure>
+                <div class="product-body">
+                    <h3 class="product-title"><a href="/product/<%= product._id %>"><%= product.name %></a></h3>
+                    <div class="product-price">
+                        <span class="new-price"><%= '₹' + product.offerprice %></span>
+                        <span class="old-price"><%= '₹' + product.price %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+</div>
