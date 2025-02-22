@@ -23,7 +23,7 @@ const walletPage = async (req, res) => {
     if (!wallet) {
       const newWallet = new Wallet({
         userId: req.session.user,
-        balance: 0,
+        balance: 0, 
         transactions: [],
       });
       await newWallet.save();

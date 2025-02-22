@@ -32,7 +32,7 @@ const messages = {
 const checkout = async (req, res) => {
   try {
     const userId = req.session?.user;
-    const [user, products, categories, addresses, cart, coupons,wallet] =
+    const [user, products, categories, addresses, cart, coupons,walletData] =
       await Promise.all([
         User.findById(req.session.user),
         Product.find({ isBlocked: false, isDeleted: false }).populate({
@@ -56,6 +56,7 @@ const checkout = async (req, res) => {
         }),
         Wallet.findOne({userId})
       ]);
+      const wallet = walletData ||{balance:0};
     const totalPrice = cart.items.reduce(
       (total, item) => total + item.totalPrice,
       0
