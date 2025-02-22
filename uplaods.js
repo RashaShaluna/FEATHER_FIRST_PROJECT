@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   
   console.log('fileee', 'C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public/uploads');
 
-  const uploads = multer({storage:storage})
+  const uploads = multer({storage:storage,limits: { fileSize: 10 * 1024 * 1024 },}) 
 
 
 module.exports = uploads;
