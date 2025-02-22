@@ -1,18 +1,7 @@
-helpes
 .env
 node_modules
 .vscode
-test.js
 adminish
-upload
-test
-test2.js
-test.ejs
-orderthings.ejs
-hello.js
-test.js
-.wallet.js
-.orderthings.ejs
 # # Logs
 # logs
 # *.log
