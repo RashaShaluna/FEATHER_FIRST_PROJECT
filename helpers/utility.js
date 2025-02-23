@@ -1,5 +1,4 @@
 const { getDateFilter } = require("../controllers/adminController");
-const { setOfferPrice } = require("../controllers/offerController");
 const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 const User = require("../models/userSchema");

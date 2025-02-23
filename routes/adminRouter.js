@@ -16,7 +16,7 @@ const orderController = require("../controllers/orderController");
 const offerController = require("../controllers/offerController");
 const couponController = require("../controllers/couponController");
 const adminAuth = require("../middleware/adminAuth");
-const uploads = require("../uplaods");
+const uploads = require("../uploads");
 const utility = require("../helpers/utility");
 
 adminRouter.use(nocache());
