@@ -52,7 +52,8 @@
                   <% orders.forEach(order => { %>
                     <tr>
                       <td  onclick="window.location.href='/admin/orderItem/<%= order.orderCode %>'" style="cursor: pointer;"><%= order.orderCode%></td>
-                      <td  onclick="window.location.href='/admin/orderItem/<%= order.orderCode %>'" style="cursor: pointer;"><%= order.userId.name %></td>
+                      <td  onclick="window.location.href='/admin/orderItem/<%= order.orderCode %>'" style="cursor: pointer;">  <%= order.userId ? order.userId.name : "Unknown User" %>
+                      </td>
                       <td><%= order.orderPrice %></td>
                       <!-- <td><%= order.status %></td> -->
 
