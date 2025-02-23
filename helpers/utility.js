@@ -92,8 +92,8 @@ const downloadPdf = async (req, res) => {
           const row = [
             order.orderDate.toLocaleDateString("en-GB"),
             order._id,
-            order.userId.name || "NA",
-            item.productId.name || "NA",
+            order.userId ? order.userId.name : "NA",
+            item.productId ? item.productId.name : "NA",
             item.originalQuantity,
             ` ${item.productPrice || "NA"}`,
             order.paymentMethod === "Cash on Delivery"
@@ -198,8 +198,8 @@ const downloadExcel = async (req, res) => {
           }),
           orderId: order._id.toString(),
           totalAmount: order.orderPrice || "NA",
-          userName: order.userId.name || "NA",
-          product: item.productId.name || "NA",
+          userName: order.userId ? order.userId.name : "NA",
+          product: item.productId ? item.productId.name : "NA",
           price: item.productPrice || "NA",
           quantity: item.originalQuantity || 0,
           paymentMethod: order.paymentMethod || "NA",
@@ -247,10 +247,10 @@ const downloadExcel = async (req, res) => {
 const invoicePDF = async (req, res) => {
   try {
     const { orderCode } = req.query;
-    const order = await Order.findOne({orderCode:orderCode})
+    const order = await Order.findOne({ orderCode: orderCode })
       .populate({
         path: "userId",
-        model: User, 
+        model: User,
       })
       .populate({
         path: "orderitems.productId",
