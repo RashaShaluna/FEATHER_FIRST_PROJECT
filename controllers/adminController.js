@@ -118,8 +118,6 @@ const dashboard = async (req, res) => {
       { $limit: 10 },
     ]);
 
-    console.log("topProducts:", topProducts);
-
     const topCategories = await Order.aggregate([
       { $unwind: "$orderitems" },
       {

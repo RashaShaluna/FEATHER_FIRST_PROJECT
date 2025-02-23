@@ -38,9 +38,7 @@ let price =  Math.floor(product.salesPrice * (1 - largerOfferPercentage / 100));
 const offerActive = async (req, res) => {
   try {
     const productId = req.query.id;
-
-    const product = await Product.findOne({productId,isDeleted:false});
-
+    const product = await Product.findById(productId);
     if (
       !product ||
       !product.offerPercentage ||
