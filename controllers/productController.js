@@ -95,7 +95,6 @@ const productAdding = async (req, res) => {
       offerEndDate,
     } = req.body;
     const images = req.files.map((file) => `${file.filename}`);
-    log("body", req.body);
     const existingProduct = await Product.findOne({
       name: { $regex: `${name}`, $options: "i" },
       category,
@@ -131,14 +130,12 @@ const productAdding = async (req, res) => {
       color: capitalizeFirstLetter(color),
       images,
     });
-    log("new product", newProduct);
     //capitalizing the first letter
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
     const productData = await newProduct.save();
-    log("productdata", productData);
     res.json({ success: true, message: messages.PRODUCT_ADDED });
   } catch (error) {
     log("Error:", error);

@@ -567,7 +567,6 @@ const successpass = async (req, res) => {
 
 const shop = async (req, res) => {
   try {
-    log("in shop");
     const userId = req.session.user;
     const searchQuery = req.query.q?.trim() || "";
     const page = parseInt(req.query.page, 10) || 1;
