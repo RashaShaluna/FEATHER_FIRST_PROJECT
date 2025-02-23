@@ -21,15 +21,15 @@ const messages = {
 const productPage = async (req, res) => {
   try {
     let search = "";
-    let page = req.query.page ||1;
-    let limit = 10 ;
-    let skip = (page-1)*limit
+    let page = req.query.page || 1;
+    let limit = 10;
+    let skip = (page - 1) * limit;
 
     if (req.query.search) {
       search = req.query.search;
     }
 
-    const [category, product,totalProducts] = await Promise.all([
+    const [category, product, totalProducts] = await Promise.all([
       await Category.find({ islisted: true, isDeleted: false }),
       Product.find({
         isDeleted: false,
@@ -42,8 +42,7 @@ const productPage = async (req, res) => {
         .sort({ name: -1 })
         .skip(skip)
         .limit(limit),
-        Product.countDocuments()
-
+      Product.countDocuments(),
     ]);
 
     if (category) {
@@ -53,7 +52,7 @@ const productPage = async (req, res) => {
         data: product,
         currentPage: page,
         totalPage: Math.ceil(totalProducts / limit),
-        totalProducts
+        totalProducts,
       });
     } else {
       res.redirect("/admin/pageerror");
@@ -96,12 +95,16 @@ const productAdding = async (req, res) => {
       offerEndDate,
     } = req.body;
     const images = req.files.map((file) => `${file.filename}`);
-log('body',req.body)
+    log("body", req.body);
     const existingProduct = await Product.findOne({
       name: { $regex: `${name}`, $options: "i" },
       category,
     });
-    if (isNaN(offerPercentage) || offerPercentage < 0 || offerPercentage >= 100) {
+    if (
+      isNaN(offerPercentage) ||
+      offerPercentage < 0 ||
+      offerPercentage >= 100
+    ) {
       return res.json({
         success: false,
         message: messages.INVALID_OFFER_PRICE,
@@ -113,7 +116,6 @@ log('body',req.body)
         .status(400)
         .json({ success: false, message: messages.PRODUCT_EXIST });
     }
-   
 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
@@ -129,14 +131,14 @@ log('body',req.body)
       color: capitalizeFirstLetter(color),
       images,
     });
-    log('new product',newProduct)
+    log("new product", newProduct);
     //capitalizing the first letter
     function capitalizeFirstLetter(string) {
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
     const productData = await newProduct.save();
-log('productdata',productData)
+    log("productdata", productData);
     res.json({ success: true, message: messages.PRODUCT_ADDED });
   } catch (error) {
     log("Error:", error);
@@ -303,10 +305,11 @@ const editingProduct = async (req, res) => {
 const deleteSingleImage = async (req, res) => {
   const { imagePath, productId } = req.body;
 
-  const filePath = path.join(
-    "C:/Users/lenovo/OneDrive/Desktop/FIRST_PROJECT_WEEK 8/public",
-    imagePath
-  );
+  log("req.body", req.body);
+
+  const projectRoot = "/home/ubuntu/FEATHER_FIRST_PROJECT";
+
+  const filePath = path.join(projectRoot, "public", imagePath);
 
   try {
     if (fs.existsSync(filePath)) {
