@@ -137,9 +137,8 @@
                           <%= order.orderDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year:'numeric'}) %>
                         </td>
                         <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order._id %></td>
-                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.orderPrice || 'N/A' %></td>
-                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.userId.name || "N/A" %></td>
-                        <!-- <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.couponDiscount || 'N/A' %></td> -->
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.orderPrice  %></td>
+                        <td style="word-wrap: none;" rowspan="<%= deliveredItems.length %>"><%= order.userId ?order.userId.name :'Unknown user' %></td>
                         
                         <% deliveredItems.forEach((orderitem, itemIndex) => { %>
                           <% if (itemIndex !== 0) { %>
