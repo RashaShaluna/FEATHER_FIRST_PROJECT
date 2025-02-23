@@ -539,44 +539,49 @@ return isValid;
   handleImageUpload('input2', 'imgView2', 'croppedImg2', 'saveButton2', 2);
   handleImageUpload('input3', 'imgView3', 'croppedImg3', 'saveButton3', 3);
 
-  document.getElementById('productForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-   
-    if (validateForm()) {
+  document.getElementById('productForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  
+  if (validateForm()) {
+    try {
       const formData = new FormData(this);
-    console.log(formData)
-      fetch('/admin/addproduct', {
+      
+      const response = await fetch('/admin/addproduct', {
         method: 'POST',
         body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-
-        Swal.fire({
+      });
+      
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        await Swal.fire({
           icon: 'success',
           title: 'Product Added',
           text: 'The product was added successfully!',
-          timer:2000,
-          showConfirmButton: false, 
-        }).then(()=>{
-          location.reload();
-        })
-
-      })
-      .catch(error => {
-        console.error('Error:', error);
-
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Something went wrong!',
-          confirmButtonText: 'OK'
+          timer: 2000,
+          showConfirmButton: false,
         });
+        location.reload();
+      } else {
+        throw new Error(data.message || 'Failed to add product');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.message || 'Something went wrong!',
+        confirmButtonText: 'OK'
       });
     }
-  });
+  }
+});
 });
 
 
