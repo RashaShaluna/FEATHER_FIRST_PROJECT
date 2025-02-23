@@ -12,9 +12,10 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "http://localhost:4000/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL||"http://localhost:4000/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
+      console.log("Google Callback URL:", process.env.GOOGLE_CALLBACK_URL); 
       try {
         // Check if user already exists
         let user = await User.findOne({
@@ -62,7 +63,7 @@ passport.use(
       {
         clientID: process.env.FACEBOOK_CLIENT_ID,
         clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-        callbackURL: 'http://localhost:4000/auth/facebook/callback',
+        callbackURL: process.env.FACEBOOK_CALLBACK_URL|| 'http://localhost:4000/auth/facebook/callback',
         // profileFields: ['id', 'displayName'], 
       },
       async (accessToken, refreshToken, profile, cb) => {
