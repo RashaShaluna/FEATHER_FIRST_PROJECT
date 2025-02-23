@@ -1,4 +1,5 @@
 const path = require('path');
+const {log}  = require('console');
 const multer = require('multer');
 const fs = require('fs');
 
