@@ -1067,12 +1067,10 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
         event.preventDefault(); 
 
              console.log('in the event');
-            console.log('payment method',document.querySelector('input[name="paymentMethod"]:checked').value);
-            console.log('address',document.querySelector('input[name="selectedAddress"]:checked').value);
-            console.log('hello darling')
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked').value;
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked')?.value;
         let couponCode = document.getElementById('manualCouponCode').value.trim();
+        console.log('hello darling')
 
         const orderPrice = parseFloat(document.querySelector('.summary-payable td:nth-child(2)').innerText.replace('₹', '').trim());
         console.log('orderprice',orderPrice);
@@ -1086,6 +1084,15 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
         }, []);
 
     console.log('Products:', products);
+
+    if(!selectedAddress){
+        Swal.fire({
+            icon: 'warning',
+            title: 'Address Required',
+            text: 'Please  add or select a valid delivery address before proceeding.',
+        });
+        return;
+    }
 
         if (selectedPaymentMethod === 'Cash on Delivery') {
             const response = await fetch('/checkout/placeOrder', {

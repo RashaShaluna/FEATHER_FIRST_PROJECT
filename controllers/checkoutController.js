@@ -226,8 +226,8 @@ const placeOrder = async (req, res) => {
 
     if (paymentMethod === "wallet") {
       const wallet = await Wallet.findOne({ userId });
-      if (!wallet || wallet.balance < orderPrice) {
-        return res.status(400).json({
+      if (!wallet || wallet.balance < orderPrice || wallet.balance === 0 ) {
+        return res.json({
           success: false,
           message:
             wallet.balance <= 0
