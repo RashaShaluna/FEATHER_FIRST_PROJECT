@@ -116,6 +116,7 @@ const productAdding = async (req, res) => {
         .json({ success: false, message: messages.PRODUCT_EXIST });
     }
 
+   /// here we are adiing a new product 
     const newProduct = new Product({
       name: capitalizeFirstLetter(name),
       price,
