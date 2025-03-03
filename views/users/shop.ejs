@@ -165,7 +165,7 @@
                                                 
                                               
                                                 <div class="product-action">
-                                                  <% if (product.quantity > 0 || product.status !== 'Out of stock') { %>
+                                                  <% if (product.quantity <= 0 || product.status !== 'Out of stock') { %>
                                                     <% if (!user) { %>
                                                       <a href="/login" class="btn-product btn-cart">
                                                         <span>Add to Cart</span>
