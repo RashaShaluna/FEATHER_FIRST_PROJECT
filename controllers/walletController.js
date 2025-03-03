@@ -16,9 +16,11 @@ const walletPage = async (req, res) => {
 
     const user = req.session.user;
  
-
-
-    const wallet = await Wallet.findOne({ userId: req.session.user });
+const [categories,wallet] = await Promise.all([
+    Category.find({ islisted: true, isDeleted: false }),
+      Wallet.findOne({ userId: req.session.user }),
+    ])
+    
 
     if (!wallet) {
       const newWallet = new Wallet({
@@ -49,7 +51,7 @@ const walletPage = async (req, res) => {
       user,
       walletBalance: wallet.balance,
       transactions: paginatedTransactions,
-      categories: await Category.find({ islisted: true, isDeleted: false }),
+      categories,
       activeTab: "wallet",
       currentPage: page,
       totalPages,

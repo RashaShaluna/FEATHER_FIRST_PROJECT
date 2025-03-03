@@ -127,7 +127,7 @@
             <div class="product-card">
                 <img src="/uploads/<%= orderItem.productId.images[0] %>" alt="Product Image">
                 <h4><%= orderItem.productId.name %></h4>
-                <p>Price: ₹<%= orderItem.productId.salesPrice %></p>
+                <p>Price: ₹<%= orderItem.productPrice %></p>
             </div>
         <% } else { %>
             <p>No product found for cancellation.</p>

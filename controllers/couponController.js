@@ -162,30 +162,33 @@ const applyCoupon = async (req, res) => {
   try {
     const { couponCode, subtotal } = req.body;
     const userId = req.session.user;
+    const minPayableAmount = 1000; 
+
     const coupon = await Coupon.findOne({
       isDeleted: false,
       active: true,
       code: couponCode,
     });
 
+
     if (!coupon) {
       return res.json({ success: false, message: Messages.INVALID_COUPON });
     }
 
-    const discountAmount = coupon.discountAmount || 0;
     const minPurchaseAmount = coupon.minPurchaseAmount || 0;
 
-    if (discountAmount > subtotal) {
-      return res.json({
-        success: false,
-        message: Messages.DISCOUNT_GREATER,
-      });
-    }
+    let discount = coupon.discountAmount || 0; // Example: ₹10,000
+        let finalDiscount = discount;
+
+        // Ensure the final payable amount is at least ₹1000
+        if (subtotal - discount < minPayableAmount) {
+            finalDiscount = subtotal - minPayableAmount; // Adjust discount to maintain ₹1000 payment
+        }
 
     res.json({
       success: true,
       message: "Coupon applied",
-      discountAmount,
+      discountAmount:finalDiscount,
       minPurchaseAmount,
     });
   } catch (err) {

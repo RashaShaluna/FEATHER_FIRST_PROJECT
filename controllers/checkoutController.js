@@ -27,12 +27,13 @@ const messages = {
   INSUFFICIENT_BALANCE: "Insufficient wallet balance.",
   PAYMENT_FAILED: "Payment failed.",
   ORDER_PLACED: "Order placed successfully.",
+  NO_WALLET: "No wallet found.",
 };
 // ============================ checkout ===============================
 const checkout = async (req, res) => {
   try {
     const userId = req.session?.user;
-    const [user, products, categories, addresses, cart, coupons,walletData] =
+    const [user, products, categories, addresses, cart, coupons, walletData] =
       await Promise.all([
         User.findById(req.session.user),
         Product.find({ isBlocked: false, isDeleted: false }).populate({
@@ -54,9 +55,9 @@ const checkout = async (req, res) => {
           isDeleted: false,
           $or: [{ usedBy: { $exists: false } }, { usedBy: { $ne: userId } }],
         }),
-        Wallet.findOne({userId})
+        Wallet.findOne({ userId }),
       ]);
-      const wallet = walletData ||{balance:0};
+    const wallet = walletData || { balance: 0 };
     const totalPrice = cart.items.reduce(
       (total, item) => total + item.totalPrice,
       0
@@ -70,7 +71,7 @@ const checkout = async (req, res) => {
       totalPrice,
       cart,
       coupons,
-      wallet
+      wallet,
     });
   } catch (error) {
     log(error);
@@ -226,13 +227,22 @@ const placeOrder = async (req, res) => {
 
     if (paymentMethod === "wallet") {
       const wallet = await Wallet.findOne({ userId });
-      if (!wallet || wallet.balance < orderPrice || wallet.balance === 0 ) {
+
+      if (!wallet) {
         return res.json({
           success: false,
-          message:
-            wallet.balance <= 0
-              ? messages.WALLET_BALANCE_ZERO
-              : messages.INSUFFICIENT_BALANCE,
+          message: messages.NO_WALLET,
+        });
+      }
+      if (wallet.balance === 0) {
+        return res.json({
+          success: false,
+          message: messages.WALLET_BALANCE_ZERO,
+        });
+      }
+      if (wallet.balance < orderPrice) {
+        return res.json({
+          success: false,
           message: messages.INSUFFICIENT_BALANCE,
         });
       }
@@ -268,7 +278,11 @@ const placeOrder = async (req, res) => {
         : null,
     ]);
 
-    res.json({ orderId: newOrder._id , orderCode: newOrder.orderCode });
+    res.json({
+      success: true,
+      orderId: newOrder._id,
+      orderCode: newOrder.orderCode,
+    });
   } catch (error) {
     console.log("Error placing order:", error);
     res.redirect("/serverError");
@@ -353,7 +367,7 @@ const createOrder = async (req, res) => {
           })
         : null,
     ]);
-    
+
     const razorpayOrder = await razorpay.orders.create({
       amount: orderPrice * 100,
       currency: "INR",
@@ -365,7 +379,7 @@ const createOrder = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
       orderPrice,
       orderId: newOrder._id,
-      orderCode: newOrder.orderCode 
+      orderCode: newOrder.orderCode,
     });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -379,7 +393,7 @@ const verifyRazorpay = async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderCode
+      orderCode,
     } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -389,10 +403,9 @@ const verifyRazorpay = async (req, res) => {
       .update(body)
       .digest("hex");
 
-    const order = await Order.findOne({orderCode:orderCode})
+    const order = await Order.findOne({ orderCode: orderCode });
 
     if (expectedSignature !== razorpay_signature) {
-
       order.paymentStatus = "Failed";
       order.status = "Failed";
       order.orderitems.forEach((item) => {
@@ -421,7 +434,7 @@ const verifyRazorpay = async (req, res) => {
     });
   } catch (error) {
     console.error("Error verifying payment:", error);
-   res.redirect('/serverError')
+    res.redirect("/serverError");
   }
 };
 
@@ -429,7 +442,7 @@ const retryPayment = async (req, res) => {
   try {
     const { orderCode } = req.body;
 
-    const order = await Order.findOne({orderCode})
+    const order = await Order.findOne({ orderCode });
 
     const razorpayOrder = await razorpay.orders.create({
       amount: order.orderPrice * 100,
@@ -442,7 +455,7 @@ const retryPayment = async (req, res) => {
       razorpayOrderId: razorpayOrder.id,
       orderPrice: order.orderPrice,
       orderId: order._id,
-      orderCode
+      orderCode,
     });
   } catch (error) {
     console.error("Error in retryPayment:", error);

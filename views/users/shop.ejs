@@ -136,6 +136,7 @@
                                                       new Date(product.offerStartDate) <= new Date() &&
                                                       product.isOfferActive === true) { %>
                                                       <span class="product-label label-disc">-<%= product.offerPercentage %>%</span>
+                                                  
                                                       <% } else if (product.activeOfferSource === 'category' && 
                                                            product.category.isOfferActive === true && 
                                                           new Date(product.category.offerEndDate) >= new Date() && 

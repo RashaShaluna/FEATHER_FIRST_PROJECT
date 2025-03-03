@@ -1,5 +1,7 @@
 const Category = require("../models/category");
 const { log } = require("console");
+const { findById } = require("../models/productModel");
+const Product = require('../models/productModel')
 
 const messages = {
   NAME_DESCRIPTION_REQUIRED: "Name and Description are required!",
@@ -38,7 +40,7 @@ const categoryInfo = async (req, res) => {
       totalPage: Math.ceil(totalCats / limit),
     });
   } catch (error) {
-    console.log(error);git
+    console.log(error);nvcbrw.h;
     res.redirect("/pageerror");
   }
 };

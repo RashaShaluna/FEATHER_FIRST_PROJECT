@@ -135,7 +135,7 @@ const cancelOrder = async (req, res) => {
       // Update the wallet balance
       wallet.balance += refundAmount;
 
-      await await Promise.all([wallet.save(), product.save(), order.save()]);
+      await Promise.all([wallet.save(), product.save(), order.save()]);
 
       return res.json({
         success: true,
@@ -196,22 +196,33 @@ const orderDetail = async (req, res) => {
 // ================================= ordered product page in user side =========================
 const orderPage = async (req, res) => {
   try {
-    const [orders, categories] = await Promise.all([
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, count, categories] = await Promise.all([
       Order.find({ userId: req.session.user })
         .populate("address")
         .populate({
           path: "orderitems.productId",
           model: Product,
         })
-        .sort({ orderDate: -1 }),
+        .sort({ orderDate: -1 })
+        .limit(limit)
+        .skip(skip),
+      Order.countDocuments(),
       Category.find({ islisted: true, isDeleted: false }),
     ]);
+    const totalPages = Math.ceil(count / limit);
 
     res.render("users/orderPage", {
       title: "Orders - Feather",
       orders,
       categories,
       activeTab: "orderPage",
+      currentPage: page,
+      totalPages,
+      count,
     });
   } catch (error) {
     console.error(error);
@@ -428,7 +439,7 @@ const orderItem = async (req, res) => {
     const { orderCode } = req.params;
 
     const [order] = await Promise.all([
-      Order.findOne({orderCode})
+      Order.findOne({ orderCode })
         .populate({
           path: "userId",
           select: "name email phone",

@@ -1196,13 +1196,13 @@ const editLinks = document.querySelectorAll("[id^='editLink']");
             });
 
             const responseData = await response.json();
-            if (response.ok) {
+            if (responseData.ok) {
                 const { orderCode } = responseData;
                 console.log('orderCode',orderCode)
                 window.location.href = `/orderConfirmation/${orderCode}`;
             } else {
                 Swal.fire({
-                    icon: 'error',
+                    icon: 'info',
                     title: 'Order Failed',
                     text: responseData.message,
                 });
