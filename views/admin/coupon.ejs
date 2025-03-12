@@ -389,6 +389,9 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price.";
       return false;
     }
+    if(minimumPrice <=0){
+      document.getElementById('error-minimum-price').innerHTML='Minimum price should be greather than zero '
+    }
 
     return true;
   }
