@@ -131,7 +131,7 @@
            
            
                         <div>
-                          <label for="offer-price" class="form-label">Offer Price</label>
+                          <label for="offer-price" class="form-label">Discount Amount</label>
                           <input
                             type="text"
                             name="offerPrice"
@@ -190,7 +190,7 @@
                                     <th  style="font-size: 12px;">Code</th>
                                     <th style="font-size: 12px;">Created On</th>
                                     <th style="font-size: 12px;">Expire On</th>
-                                    <th style="font-size: 12px;">Discount Amoount</th>
+                                    <th style="font-size: 12px;">Discount Amount</th>
                                     <th style="font-size: 12px;">Minimum Price</th>
                                     <th style="font-size: 12px;">usage count</th>
                                     <th style="font-size: 12px;">Status</th>
@@ -276,6 +276,10 @@ document.addEventListener('DOMContentLoaded', function() {
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
+    if (!validateForm()) {
+      return;
+    }
+
     const formData = new FormData(form);
     const data = {};
     formData.forEach((value, key) => {
@@ -343,59 +347,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-
-
   function validateForm() {
-    document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
+  document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
 
-    const sDate = document.getElementsByName("startDate")[0].value;
-    const eDate = document.getElementsByName("endDate")[0].value;
-    const name = document.getElementsByName("couponName")[0].value.trim();
-    const offerPriceInput = document.getElementsByName("offerPrice")[0];
-    const minimumPriceInput = document.getElementsByName("minimumPrice")[0];
+  const name = document.getElementsByName("couponName")[0].value.trim();
+  const sDate = document.getElementsByName("startDate")[0].value;
+  const eDate = document.getElementsByName("endDate")[0].value;
+  const offerPriceInput = document.getElementsByName("offerPrice")[0].value.trim();
+  const minimumPriceInput = document.getElementsByName("minimumPrice")[0].value.trim();
 
-    const sDateObj = new Date(sDate);
-    const eDateObj = new Date(eDate);
-    const todayDateObj = new Date();
-    todayDateObj.setHours(0, 0, 0, 0); 
-    const offerPrice = offerPriceInput.value.trim() !== "" ? parseFloat(offerPriceInput.value) : NaN;
-    const minimumPrice = minimumPriceInput.value.trim() !== "" ? parseFloat(minimumPriceInput.value) : NaN;
-    const limit = limitInput.trim() !== "" ? parseInt(limitInput.value) : NaN;
-    const nameRegex = /^[A-Za-z0-9 ]{1,50}$/; 
-    if (!nameRegex.test(name)) {
-      document.getElementById("error-couponName").innerHTML = "Coupon Name can only contain alphanumeric characters";
-      return false;
-    }
+  let isValid = true; 
 
-    if (!sDate || !eDate) {
-      document.getElementById("error-start-date").innerHTML = "Start Date is required.";
-      document.getElementById("error-end-date").innerHTML = "End Date is required.";
-      return false;
-    }
-    if (sDateObj < todayDateObj) {
-      document.getElementById("error-start-date").innerHTML = "Starting date should be today or later.";
-      return false;
-    }
-    if (sDateObj >= eDateObj) {
-      document.getElementById("error-end-date").innerHTML = "End date should be after the start date.";
-      return false;
-    }
+  const offerPrice = offerPriceInput !== "" ? parseFloat(offerPriceInput) : NaN;
+  const minimumPrice = minimumPriceInput !== "" ? parseFloat(minimumPriceInput) : NaN;
 
-    if (isNaN(offerPrice) || isNaN(minimumPrice)) {
-      document.getElementById("error-offer-price").innerHTML = "Please enter valid numeric values for Offer Price and Minimum Price.";
-      return false;
-    }
-    if (offerPrice >= minimumPrice) {
-      document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price.";
-      return false;
-    }
-    if(minimumPrice <=0){
-      document.getElementById('error-minimum-price').innerHTML='Minimum price should be greather than zero '
-    }
+  const sDateObj = new Date(sDate);
+  const eDateObj = new Date(eDate);
 
-    return true;
+  if (!name) {
+    document.getElementById("error-couponName").innerHTML = "Coupon name is required.";
+    isValid = false;
+  }
+  if (!sDate) {
+    document.getElementById("error-start-date").innerHTML = "Start date is required.";
+    isValid = false;
+  }
+  if (!eDate) {
+    document.getElementById("error-end-date").innerHTML = "End date is required.";
+    isValid = false;
+  }
+  if (offerPriceInput === "") {
+    document.getElementById("error-offer-price").innerHTML = "Discount is required.";
+    isValid = false;
+  }
+  if (minimumPriceInput === "") {
+    document.getElementById("error-minimum-price").innerHTML = "Minimum price is required.";
+    isValid = false;
   }
 
+  if (sDate && eDate && sDateObj >= eDateObj) {
+    document.getElementById("error-end-date").innerHTML = "End date must be after the start date.";
+    isValid = false;
+  }
+
+  if (!isNaN(minimumPrice) && minimumPrice < 1) {
+    document.getElementById("error-minimum-price").innerHTML = "Minimum price must be greater than 1.";
+    isValid = false;
+  }
+
+  if (!isNaN(offerPrice) && offerPrice < 1) {
+    document.getElementById("error-offer-price").innerHTML = "Discount amount must be greater than 1.";
+    isValid = false;
+  }
+
+  if (!isNaN(minimumPrice) && !isNaN(offerPrice) && minimumPrice <= offerPrice) {
+    document.getElementById("error-offer-price").innerHTML = "Discount must be less than the minimum purchase amount.";
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+  
   document.querySelectorAll('.delete-category').forEach((deleteBtn) => {
     deleteBtn.addEventListener('click', function (e) {
       e.preventDefault();

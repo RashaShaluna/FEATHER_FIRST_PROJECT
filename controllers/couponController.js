@@ -51,6 +51,7 @@ const addCoupon = async (req, res) => {
       limit,
     } = req.body;
 
+
     const existingCoupon = await Coupon.findOne({
       couponName: { $regex: new RegExp(`^${couponName}$`, "i") },
     });
