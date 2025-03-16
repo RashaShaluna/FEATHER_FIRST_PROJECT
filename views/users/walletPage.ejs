@@ -102,25 +102,35 @@ div#tab-address {
                     </div>
                     <div class="pagination mt-3">
                         <ul class="pagination justify-content-center">
-                          <% if (currentPage > 1) { %>
-                            <li class="page-item">
-                              <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>">Previous</a>
-                            </li>
-                          <% } %>
-                      
-                          <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                              <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
-                            </li>
-                          <% } %>
-                      
-                          <% if (currentPage < totalPages) { %>
-                            <li class="page-item">
-                              <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>">Next</a>
-                            </li>
-                          <% } %>
+                            <% 
+                            let startPage = Math.max(1, currentPage - 1); 
+                            let endPage = Math.min(totalPages, startPage + 2);
+                    
+                            if (endPage - startPage < 2) {
+                                startPage = Math.max(1, endPage - 2);
+                            }
+                            %>
+                    
+                            <% if (currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/wallet?page=<%= currentPage - 1 %>">Previous</a>
+                                </li>
+                            <% } %>
+                    
+                            <% for (let i = startPage; i <= endPage; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="/wallet?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                    
+                            <% if (endPage < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/wallet?page=<%= currentPage + 1 %>">Next</a>
+                                </li>
+                            <% } %>
                         </ul>
-                      </div>
+                    </div>
+                    
             </div>
         </div>
     <!-- </div> -->
